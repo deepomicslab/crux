@@ -1,0 +1,74 @@
+import { ASTNode, isCompNode } from "../ast-node";
+import { ParserStream } from "../parse-stream";
+import { BLOCK_NAME, NAME } from "../tokens";
+import { parseBlock } from "./block";
+import { parseFor } from "./for";
+import { parseElse, parseElsif, parseIf } from "./if";
+import { parseLet } from "./let";
+import { parseProp } from "./prop";
+
+function last<T>(array: T[]): T {
+    return array[array.length - 1];
+}
+
+function checkElse(p: ParserStream, node: ASTNode, op: string) {
+    const lastType = node.children.length && last(node.children).type;
+    if (lastType !== "op-if" && lastType !== "op-elsif") {
+        p._error(`@${op} should be preceded by @if or @elsif`);
+    }
+}
+
+export function parseBlockBody(p: ParserStream, node: ASTNode) {
+    p.expect("{");
+
+    let stop = false;
+
+    while (!stop) {
+        p.skipSpaces(true);
+
+        let noMatch = false;
+        let testResult: RegExpMatchArray;
+        if (testResult = p.test("@([a-z][a-z_\\-]*)")) {
+            const op = testResult[1];
+            switch (op) {
+                case "if":
+                    node.children.push(parseIf(p));
+                    break;
+                case "elsif":
+                    checkElse(p, node, op);
+                    node.children.push(parseElsif(p));
+                    break;
+                case "else":
+                    checkElse(p, node, op);
+                    node.children.push(parseElse(p));
+                    break;
+                case "for":
+                    node.children.push(parseFor(p));
+                    break;
+                case "let":
+                    node.localData.push(parseLet(p));
+                    break;
+            }
+        } else if (testResult = p.test(BLOCK_NAME)) {
+            node.children.push(parseBlock(p));
+        } else if (testResult = p.test(NAME)) {
+            if (isCompNode(node)) {
+                parseProp(p, node);
+            } else {
+                p._error(`Property definitions can only appear in component blocks.`);
+            }
+        } else {
+            noMatch = true;
+        }
+
+        p.skipSpaces(true);
+
+        if (p.peek() === "}") {
+            stop = true;
+        } else if (noMatch) {
+            p._error(`Unexpected expression in block body.`);
+        }
+    }
+
+    p.expect("}");
+}
