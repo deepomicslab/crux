@@ -44,7 +44,6 @@ export class Visualizer {
 
     public run() {
         this.root.renderTree();
-        console.log(this.root);
         render(this.root);
     }
 

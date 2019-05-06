@@ -80,7 +80,7 @@ export class Component<Option extends ComponentOption = ComponentOption>
 
     public _c: () => ElementDef;
     public _l: () => ElementDef[];
-    public scaleLinear: (domain: [number, number], range?: [number, number]) => d3.ScaleLinear<number, number>
+    public scaleLinear: (domain: [number, number], range?: [number, number]) => d3.ScaleLinear<number, number>;
 }
 
 applyMixins(Component, [RenderHelper, ScaleHelper]);

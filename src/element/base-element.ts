@@ -8,6 +8,7 @@ import { Component } from "./component";
 export type EventHook = (this: Component) => void;
 export interface EventHooks {
     didMount: EventHook;
+    didPatch: EventHook;
     didLayout: EventHook;
     didRender: EventHook;
 }
@@ -55,7 +56,7 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
             if (mods.length > 0) {
                 mods.forEach(m => {
                     if (!(m in propsWithMods)) propsWithMods[m] = {};
-                    propsWithMods[m][name] = prop[k]
+                    propsWithMods[m][name] = prop[k];
                 });
             }
             this._setProp(k, prop[k]);
@@ -84,13 +85,13 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
             // xEnd
             if ("xEnd" in props) {
                 if (xValue === undefined)
-                    throw new Error(`Prop "xEnd.scaled" must be supplied together with "x.scaled".`)
+                    throw new Error(`Prop "xEnd.scaled" must be supplied together with "x.scaled".`);
                 this.prop["width"] = this._scale(props.xEnd, true) - xValue;
             }
             // yEnd
             if ("yEnd" in props) {
                 if (xValue === undefined)
-                    throw new Error(`Prop "xEnd.scaled" must be supplied together with "x.scaled".`)
+                    throw new Error(`Prop "xEnd.scaled" must be supplied together with "x.scaled".`);
                 this.prop["height"] = this._scale(props.yEnd, false) - yValue;
             }
             // others

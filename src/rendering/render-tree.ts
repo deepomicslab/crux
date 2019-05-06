@@ -2,7 +2,7 @@ import { ActualElement, Component } from "../element/component";
 import { ComponentOption } from "../element/component-options";
 import { isRenderable } from "../element/components/is-renderable";
 import { getComponent } from "../element/get-component";
-import { layoutElement } from "../layout/layout";
+import { layoutElement, adjustByAnchor } from "../layout/layout";
 
 export interface OptDict {
     props: { [name: string]: any };
@@ -45,6 +45,9 @@ export function updateTree(parent: Component<ComponentOption>, def?: ElementDef)
             updateTree(elm, child);
         }
     }
+
+    elm._callHook("didLayout");
+    adjustByAnchor(elm);
 
     elm._callHook("didRender");
 }

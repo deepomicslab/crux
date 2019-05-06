@@ -1,7 +1,7 @@
 import { h, init } from "./vdom";
 import moduleAttrs from "./vdom/modules/attributes";
 import moduleEventLIsteners from "./vdom/modules/eventlisteners";
-import { VNode } from "./vdom/vnode";
+import { VNode, VNodeData } from "./vdom/vnode";
 
 import { BaseElement } from "../element/base-element";
 import { Component } from "../element/component";
@@ -20,6 +20,11 @@ export interface SVGRenderable {
     vnode: VNode;
 }
 
+const HOOKS_MAP = {
+    didMount: "insert",
+    didPatch: "postpatch",
+};
+
 function render(element: BaseElement<any>) {
     const vnode = _genView(element);
     _patch(element, vnode);
@@ -37,11 +42,19 @@ function _genView(element: BaseElement<any>): VNode {
         children = element.children.map(c => _genView(c));
     }
     const key = element.prop.key || element.uid;
-    return h(tag, {
+    const opt: VNodeData = {
         attrs,
         key,
         ns,
-    }, children || text);
+    };
+    // hooks
+    Object.keys(HOOKS_MAP).forEach((k) => {
+        if (k in element.$hooks) {
+            if (!opt.hook) opt.hook = {};
+            opt.hook[HOOKS_MAP[k]] = element.$hooks[k];
+        }
+    });
+    return h(tag, opt, children || text);
 }
 
 function _patch(element: BaseElement<any>, vnode: VNode) {

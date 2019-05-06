@@ -3,7 +3,7 @@ import { ComponentOption } from "../component-options";
 
 export class Rows extends Component {
     public init() {
-        this.addHook("didRender", this._layoutSubTree.bind(this));
+        this.addHook("didLayout", this._layoutSubTree.bind(this));
     }
 
     private _layoutSubTree() {

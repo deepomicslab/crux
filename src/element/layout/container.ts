@@ -11,7 +11,7 @@ export interface ContainerOption extends ComponentOption {
 
 export class Container extends Component<ContainerOption> {
     public init() {
-        this.addHook("didRender", this._layoutSubTree.bind(this));
+        this.addHook("didLayout", this._layoutSubTree.bind(this));
     }
 
     private _layoutSubTree() {

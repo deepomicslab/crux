@@ -1,8 +1,17 @@
 import { oneLineTrim, stripIndent } from "common-tags";
-import { GEOMETRY_LITERAL } from "../../defs/geometry";
+import { Anchor, GEOMETRY_LITERAL } from "../../defs/geometry";
 import { getComponent } from "../../element/get-component";
 import { UIDGenerator } from "../../utils/uid";
-import { ASTNode, ASTNodeComp, ASTNodeCondition, ASTNodeElse, ASTNodeFor, ASTNodeIf, newNode, isRootElement } from "./ast-node";
+import { ASTNode, ASTNodeComp, ASTNodeCondition, ASTNodeElse, ASTNodeFor, ASTNodeIf, isRootElement, newNode } from "./ast-node";
+
+const ANCHOR_LIST = {
+    top: Anchor.Top,
+    middle: Anchor.Middle,
+    bottom: Anchor.Bottom,
+    left: Anchor.Left,
+    center: Anchor.Center,
+    right: Anchor.Right,
+};
 
 function wrappedWithLocalData(node: ASTNode, wrapped: string) {
     return `(function(){
@@ -13,6 +22,13 @@ function wrappedWithLocalData(node: ASTNode, wrapped: string) {
 
 function genLocalData(node: ASTNode) {
     return node.localData.map(d => `let ${d.name} = ${d.expr}; `).join("");
+}
+
+function genAnchor(str: string): Anchor {
+    const [a1, a2] = str.split(" ").map(x => ANCHOR_LIST[x]);
+    if (!a1 || ! a2)
+        throw Error(`Wrong anchor format "${str}"`);
+    return a1 | a2;
 }
 
 function genGeoExpr(match: RegExpMatchArray): string {
@@ -27,6 +43,8 @@ function genGeoExpr(match: RegExpMatchArray): string {
 }
 
 function genExpr(expr: string, name: string) {
+    if (name === "anchor")
+        return genAnchor(expr);
     // wip
     return expr;
 }

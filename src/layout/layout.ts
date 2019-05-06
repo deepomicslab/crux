@@ -1,8 +1,8 @@
-import { GeometryValue, Anchor } from "../defs/geometry";
+import { Anchor, GeometryValue } from "../defs/geometry";
 import { BaseElement } from "../element/base-element";
+import { BaseOption } from "../element/base-options";
 import { Component } from "../element/component";
 import { posWithAnchor } from "./anchor";
-import { ComponentOption } from "../element/component-options";
 
 function updateGeometryProps(el: BaseElement, propName: string, parentSize: number) {
     const val = el.prop[propName];
@@ -35,11 +35,11 @@ export function layoutElement(el: BaseElement) {
     }
 }
 
-export function adjustByAnchor(el: Component<ComponentOption>) {
+export function adjustByAnchor(el: BaseElement<BaseOption>) {
     let anchor: Anchor;
     if (anchor = el.prop.anchor) {
         const g = el.$geometry;
-        g.x = posWithAnchor(true, g.x, g.width, anchor);
-        g.y = posWithAnchor(false, g.y, g.height, anchor);
+        g.x = posWithAnchor(true, g.x, el.maxX - g.x, anchor);
+        g.y = posWithAnchor(false, g.y, el.maxY - g.y, anchor);
     }
 }
