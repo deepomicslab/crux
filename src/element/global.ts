@@ -1,7 +1,7 @@
 import { componentList } from "./get-component";
 
 import { Component } from "./component";
-import { Circle, Rect, Text } from "./components";
+import { Circle, Rect, Text } from "./primitive";
 import { Container, Rows } from "./layout";
 
 import { GeneArea } from "./bioinfo";

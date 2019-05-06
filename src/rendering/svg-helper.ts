@@ -1,5 +1,5 @@
 import { BaseElement } from "../element/base-element";
-import { BaseElementOption } from "../element/components/base-elm-options";
+import { BaseElementOption } from "../element/primitive/base-elm-options";
 
 export function svgPropFillAndStroke(elm: BaseElement<BaseElementOption>) {
     const result = {} as any;

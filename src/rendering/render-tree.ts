@@ -1,6 +1,6 @@
 import { ActualElement, Component } from "../element/component";
 import { ComponentOption } from "../element/component-options";
-import { isRenderable } from "../element/components/is-renderable";
+import { isRenderable } from "../element/is-renderable";
 import { getComponent } from "../element/get-component";
 import { layoutElement, adjustByAnchor } from "../layout/layout";
 

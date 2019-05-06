@@ -1,9 +1,11 @@
-import { visualize } from "./src/visualizer";
-import { template } from "./src/template/tag";
 import { Component } from "./src/element/component";
-import { updateTree } from "./src/rendering/render-tree";
-import { toGeneData } from "./src/utils/bioinfo/gene";
 import { registerDefaultBioInfoComponents } from "./src/element/global";
+import { updateTree } from "./src/rendering/render-tree";
+import { template } from "./src/template/tag";
+import { toGeneData } from "./src/utils/bioinfo/gene";
+import { visualize } from "./src/visualizer";
+import { measuredTextSize } from "./src/utils/text-size";
+import randomstring = require("randomstring");
 
 const t1 = `
 svg {
@@ -65,7 +67,7 @@ const url = `http://localhost:3034/v1/tabix/ensembl_Tpsl/?name=v75&seg=chr2&from
 registerDefaultBioInfoComponents();
 
 document.addEventListener("DOMContentLoaded", () => {
-    let data: any[] = [];
+    const data = [];
 
     const v = window["$v"] = visualize({
         el: "#canvas",

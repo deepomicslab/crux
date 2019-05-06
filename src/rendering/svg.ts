@@ -5,7 +5,7 @@ import { VNode, VNodeData } from "./vdom/vnode";
 
 import { BaseElement } from "../element/base-element";
 import { Component } from "../element/component";
-import { isRenderable } from "../element/components/is-renderable";
+import { isRenderable } from "../element/is-renderable";
 import ns from "./ns";
 
 const patch = init([
