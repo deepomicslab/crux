@@ -10,8 +10,8 @@ export interface ContainerOption extends ComponentOption {
 }
 
 export class Container extends Component<ContainerOption> {
-    public init() {
-        this.addHook("didLayout", this._layoutSubTree.bind(this));
+    public didLayoutSubTree() {
+        this._layoutSubTree();
     }
 
     private _layoutSubTree() {

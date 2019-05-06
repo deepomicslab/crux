@@ -14,6 +14,8 @@ export class Circle extends BaseElement<CircleOption>
     public svgAttrs() {
         return {
             ...svgPropFillAndStroke(this),
+            cx: this.$geometry.x + this.$geometry.r,
+            cy: this.$geometry.y + this.$geometry.r,
             r: this.$geometry.r,
         };
     }
@@ -24,5 +26,13 @@ export class Circle extends BaseElement<CircleOption>
     public static geometryProps() {
         const { h, v } = super.geometryProps();
         return { h: [...h, "r"], v};
+    }
+
+    public get maxX() {
+        return this.$geometry.x + this.$geometry.r;
+    }
+
+    public get maxY() {
+        return this.$geometry.y + this.$geometry.r;
     }
 }

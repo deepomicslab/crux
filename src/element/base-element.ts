@@ -5,14 +5,6 @@ import { Visualizer } from "../visualizer/visualizer";
 import { BaseOption } from "./base-options";
 import { Component } from "./component";
 
-export type EventHook = (this: Component) => void;
-export interface EventHooks {
-    didMount: EventHook;
-    didPatch: EventHook;
-    didLayout: EventHook;
-    didRender: EventHook;
-}
-
 export abstract class BaseElement<Option extends BaseOption = BaseOption>
     implements SVGRenderable {
 
@@ -24,7 +16,6 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
 
     public prop: Partial<Option> = {};
     public $geometry: GeometryOptions<Option>;
-    public $hooks: EventHooks;
 
     private static _geometryProps: [string[], string[]];
     public static get $geometryProps(): [string[], string[]] {
@@ -40,7 +31,6 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
     constructor(uid: number) {
         this.uid = uid;
         this.$geometry = {} as any;
-        this.$hooks = {} as any;
         this.init();
     }
 
@@ -128,24 +118,22 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
         };
     }
 
-    public get maxX(): number {
-        return (this.$geometry as any).x;
-    }
-
-    public get maxY(): number {
-            return (this.$geometry as any).y;
-    }
+    public get maxX(): number { return (this.$geometry as any).x; }
+    public get maxY(): number { return (this.$geometry as any).y; }
 
     /* Hooks */
 
-    public addHook(name: keyof EventHooks, hook: EventHook) {
-        this.$hooks[name] = hook;
+    public $callHook(name: HookNames) {
+        if (this[name])
+            this[name].call(this);
     }
 
-    public _callHook(name: keyof EventHooks) {
-        const hook = this.$hooks[name];
-        if (hook) {
-            hook.call(this);
-        }
-    }
+    public didMount?(this: Component): void;
+    public didPatch?(this: Component, oldNode: VNode, newNode: VNode): void;
+    public didLayout?(this: Component): void;
+    public didLayoutSubTree?(this: Component): void;
+    public didRender?(this: Component): void;
 }
+
+type HookNames = "didMount" | "didPatch" |
+    "didLayout" | "didLayoutSubTree" | "didRender";

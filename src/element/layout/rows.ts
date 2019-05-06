@@ -2,8 +2,8 @@ import { Component } from "../component";
 import { ComponentOption } from "../component-options";
 
 export class Rows extends Component {
-    public init() {
-        this.addHook("didLayout", this._layoutSubTree.bind(this));
+    public didLayoutSubTree() {
+        this._layoutSubTree();
     }
 
     private _layoutSubTree() {

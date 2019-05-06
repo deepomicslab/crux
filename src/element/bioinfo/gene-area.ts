@@ -36,6 +36,7 @@ export class GeneArea extends Component<GeneAreaOption> {
                         fill = "#66c"
                     }
                     Text {
+                        y = 50%
                         anchor = left middle
                         text = gene.trans_name
                     }

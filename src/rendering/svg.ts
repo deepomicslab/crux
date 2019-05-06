@@ -49,9 +49,9 @@ function _genView(element: BaseElement<any>): VNode {
     };
     // hooks
     Object.keys(HOOKS_MAP).forEach((k) => {
-        if (k in element.$hooks) {
+        if (k in element) {
             if (!opt.hook) opt.hook = {};
-            opt.hook[HOOKS_MAP[k]] = element.$hooks[k];
+            opt.hook[HOOKS_MAP[k]] = element[k].bind(element);
         }
     });
     return h(tag, opt, children || text);

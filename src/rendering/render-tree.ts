@@ -36,6 +36,7 @@ export function updateTree(parent: Component<ComponentOption>, def?: ElementDef)
     }
 
     layoutElement(elm);
+    elm.$callHook("didLayout");
 
     if (isRenderable(elm)) {
         const tree = elm.render();
@@ -46,8 +47,8 @@ export function updateTree(parent: Component<ComponentOption>, def?: ElementDef)
         }
     }
 
-    elm._callHook("didLayout");
+    elm.$callHook("didLayoutSubTree");
     adjustByAnchor(elm);
 
-    elm._callHook("didRender");
+    elm.$callHook("didRender");
 }
