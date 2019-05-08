@@ -7,11 +7,13 @@ export interface Scalable {
     setRange(range: [number, number]): void;
 }
 
+type Range = [number, number];
+
 export class ScaleHelper {
-    public scaleLinear(domain: [number, number], range?: [number, number]) {
+    public _createScale_linear(horizontal: boolean, domain: Range, range?: Range) {
         const self = (this as unknown as Component);
         return d3.scaleLinear()
             .domain(domain)
-            .range(range || [0, self.$geometry.width]);
+            .range(range || [0, self.$geometry[horizontal ? "width" : "height"]]);
     }
 }

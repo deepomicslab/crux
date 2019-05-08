@@ -1,15 +1,13 @@
 import { GeometryOptValue } from "../../defs/geometry";
-import { SVGRenderable } from "../../rendering/svg";
 import { svgPropFillAndStroke } from "../../rendering/svg-helper";
-import { BaseElement } from "../base-element";
 import { BaseElementOption } from "./base-elm-options";
+import { PrimitiveElement } from "./primitive";
 
 interface CircleOption extends BaseElementOption {
     r: GeometryOptValue;
 }
 
-export class Circle extends BaseElement<CircleOption>
-    implements SVGRenderable {
+export class Circle extends PrimitiveElement<CircleOption> {
 
     public svgAttrs() {
         return {

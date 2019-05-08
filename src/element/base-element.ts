@@ -1,6 +1,7 @@
 import { VNode } from "snabbdom/vnode";
 import { GeometryOptions } from "../defs/geometry";
 import { SVGRenderable } from "../rendering/svg";
+import { defaultUIDGenerator } from "../utils/uid";
 import { Visualizer } from "../visualizer/visualizer";
 import { BaseOption } from "./base-options";
 import { Component } from "./component";
@@ -8,14 +9,24 @@ import { Component } from "./component";
 export abstract class BaseElement<Option extends BaseOption = BaseOption>
     implements SVGRenderable {
 
+    public id: number;
     public uid: number;
 
     public isRoot = false;
+    public isActive = true;
     public parent: Component;
+    public logicalParent?: Component;
     public vnode: VNode;
 
     public prop: Partial<Option> = {};
+    protected state: any;
+
+    public $on: Record<string, any> = {};
+    public $styles: Record<string, string> = {};
     public $geometry: GeometryOptions<Option>;
+    public $defaultProp: Partial<Option>;
+
+    public $detached = false;
 
     private static _geometryProps: [string[], string[]];
     public static get $geometryProps(): [string[], string[]] {
@@ -28,33 +39,47 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
 
     public $v: Visualizer;
 
-    constructor(uid: number) {
-        this.uid = uid;
+    constructor(id: number) {
+        this.id = id;
+        this.uid = defaultUIDGenerator.gen();
         this.$geometry = {} as any;
+        this.$defaultProp = this.defaultProp();
         this.init();
     }
 
     public init() { /* empty */ }
 
+    public static propNameForInitializer(): string { return null; }
+
     /* properties */
+
+    public defaultProp(): Partial<Option> { return {}; }
 
     public setProp(prop: Partial<Option>) {
         const propsWithMods = {};
 
         Object.keys(prop).forEach(k => {
+            const value = prop[k];
+            if (typeof value === "undefined") return;
             const [name, ...mods] = k.split(".");
             if (mods.length > 0) {
                 mods.forEach(m => {
                     if (!(m in propsWithMods)) propsWithMods[m] = {};
-                    propsWithMods[m][name] = prop[k];
+                    propsWithMods[m][name] = value;
                 });
             }
-            this._setProp(k, prop[k]);
+            this._setProp(k, value);
         });
 
         // modifier
         Object.keys(propsWithMods).forEach(m => {
             this._setPropsWithModifier(m, propsWithMods[m]);
+        });
+
+        // add default props
+        Object.keys(this.$defaultProp).forEach(k => {
+            if (!(k in this.prop))
+                this.prop[k] = this.$defaultProp[k];
         });
     }
 
@@ -67,8 +92,9 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
             let xValue: number, yValue: number;
 
             // x
-            if ("x" in props)
+            if ("x" in props) {
                 xValue = this.prop.x = this._scale(props.x, true);
+            }
             // y
             if ("y" in props)
                 yValue = this.prop.y = this._scale(props.y, false);
@@ -84,6 +110,13 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
                     throw new Error(`Prop "xEnd.scaled" must be supplied together with "x.scaled".`);
                 this.prop["height"] = this._scale(props.yEnd, false) - yValue;
             }
+            // if nested
+            if ("x.scaled" in this.parent.prop) {
+                (this.prop.x as number) -= this.parent.$geometry.x;
+            }
+            if ("y.scaled" in this.parent.prop) {
+                (this.prop.y as number) -= this.parent.$geometry.y;
+            }
             // others
             const [hProp, vProp] = (this.constructor as typeof BaseElement).$geometryProps;
             Object.keys(props).forEach(k => {
@@ -94,8 +127,45 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
         }
     }
 
+    public parseInternalProps() {
+        Object.keys(this.prop).forEach(key => {
+            const value = this.prop[key];
+            if (typeof value === "object" && "__internal__" in value) {
+                this.prop[key] = this[value.name].apply(this, value.args);
+            }
+        });
+        this.$detached = !!this.prop.detached;
+    }
+
+    public setEventHandlers(h: Record<string, any>) {
+        Object.keys(h).forEach(k => {
+            const v = h[k];
+            this.$on[k] = typeof v === "object" && v.handler ? this[v.handler] : v;
+        });
+    }
+
+    public setStyles(s: Record<string, string>) {
+        this.$styles = s;
+    }
+
+    /* state */
+
+    protected setState(s: any) {
+        Object.keys(s).forEach(k => {
+            this.state[k] = s[k];
+        });
+        this.draw();
+    }
+
+    /* drawing */
+
     public renderTree() {
         return;
+    }
+
+    public draw() {
+        this.renderTree();
+        this.$v.renderer.call(null, this);
     }
 
     /* scale */
@@ -103,6 +173,10 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
     protected _scale(val: number, horizontal: boolean): number {
         const scale = this.parent.getScale(horizontal);
         return typeof scale === "function" ? scale(val) : val;
+    }
+
+    protected _rotate(val: number) {
+        return [val, (this.$geometry as any).x, (this.$geometry as any).y];
     }
 
     /* svg */
@@ -128,12 +202,16 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
             this[name].call(this);
     }
 
-    public didMount?(this: Component): void;
-    public didPatch?(this: Component, oldNode: VNode, newNode: VNode): void;
-    public didLayout?(this: Component): void;
-    public didLayoutSubTree?(this: Component): void;
-    public didRender?(this: Component): void;
+    public didCreate?(): void;
+    public didUpdate?(): void;
+    public didLayout?(): void;
+    public didLayoutSubTree?(): void;
+    public willAdjustAnchor?(): void;
+
+    public didMount?(): void;
+    public didPatch?(oldNode: VNode, newNode: VNode): void;
 }
 
-type HookNames = "didMount" | "didPatch" |
-    "didLayout" | "didLayoutSubTree" | "didRender";
+type HookNames = "didCreate" | "didUpdate" |
+    "didLayout" | "didLayoutSubTree" | "willAdjustAnchor" |
+    "didMount" | "didPatch";

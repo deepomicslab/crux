@@ -58,7 +58,7 @@ export function measuredTextSize(text: string, size: number = textSize): { width
             textSize = size;
         }
         // measure width
-        width = testCanvasContext.measureText(text).width + 2;
+        width = testCanvasContext.measureText(text).width;
         cachedWidth[size][text] = width;
         // measure height
         if (!cachedHeight[size]) {

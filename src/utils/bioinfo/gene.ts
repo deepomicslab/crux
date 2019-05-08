@@ -33,8 +33,7 @@ export interface GeneData {
     most_left_pos: number;
     most_right_pos: number;
     exon_number: number;
-    exon_length: number[];
-    exon_most_left_pos: number[];
+    exons: { most_left_pos: number, length: number }[];
     CDS_region: string;
 }
 
@@ -43,9 +42,14 @@ function toNumArray(str: string): number[] {
 }
 
 export function toGeneData(rawData: GeneRawData): GeneData {
+    const exons = [];
+    const lenArray = toNumArray(rawData.exon_length);
+    const leftArray = toNumArray(rawData.exon_most_left_pos);
+    for (let i = 0; i < rawData.exon_number; i++) {
+        exons[i] = { most_left_pos: leftArray[i], length: lenArray[i] };
+    }
     return {
         ...rawData,
-        exon_length: toNumArray(rawData.exon_length),
-        exon_most_left_pos: toNumArray(rawData.exon_most_left_pos),
+        exons,
     };
 }

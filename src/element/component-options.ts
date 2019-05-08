@@ -10,5 +10,5 @@ export interface ComponentOption extends BaseOption {
 
     html?: string;
 
-    clipPath?: string;
+    clip?: string;
 }

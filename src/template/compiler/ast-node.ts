@@ -15,6 +15,8 @@ export interface ASTNodeComp extends ASTNode {
     type: "comp";
     name: string;
     props: { name: string, expr: string }[];
+    styles: { name: string, expr: string }[];
+    on: { name: string, handler: string }[];
 }
 
 export interface ASTNodeIf extends ASTNode {

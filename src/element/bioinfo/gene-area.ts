@@ -8,12 +8,30 @@ import { ComponentOption } from "../component-options";
 
 export interface GeneAreaOption extends ComponentOption {
     genes: GeneData[];
+    exonHeight: number;
+    intronHeight: number;
+    rowGap: number;
 }
 
 export class GeneArea extends Component<GeneAreaOption> {
+    private _layerCount = 0;
+
+    public defaultProp() {
+        return {
+            ...super.defaultProp(),
+            exonHeight: 20,
+            intronHeight: 4,
+            rowGap: 4,
+        };
+    }
+
     public render = template`
     Component {
-        xScale = scaleLinear([geneMinPos, geneMaxPos])
+        x = prop.x
+        y = prop.y
+        width = prop.width
+        height = prop.height
+        xScale = @scale-linear(geneMinPos, geneMaxPos)
 
         @let layers = layout()
 
@@ -23,22 +41,33 @@ export class GeneArea extends Component<GeneAreaOption> {
                     key          = gene.trans_name
                     x.scaled     = gene.most_left_pos
                     xEnd.scaled  = gene.most_right_pos
-                    y            = layer * 24
-                    height       = 20
+                    y            = layer * (prop.exonHeight + prop.rowGap)
+                    height       = prop.exonHeight
 
                     @if prop.displayPromoters {
                         Rect {
                         }
                     }
                     Rect {
-                        width = 100%
-                        height = 100%
-                        fill = "#66c"
+                        anchor = @anchor(left, middle)
+                        y      = 50%
+                        width  = 100%
+                        height = prop.intronHeight
+                        fill   = "#66c"
                     }
-                    Text {
+                    @for (exon, index) in gene.exons {
+                        Rect {
+                            key          = "ex" + index
+                            height       = 100%
+                            x.scaled     = exon.most_left_pos
+                            xEnd.scaled  = exon.most_left_pos + exon.length
+                            minWidth     = 1
+                            fill   = "#66c"
+                        }
+                    }
+                    Text(gene.trans_name) {
                         y = 50%
-                        anchor = left middle
-                        text = gene.trans_name
+                        anchor = @anchor(left, middle)
                     }
                 }
             }
@@ -47,10 +76,12 @@ export class GeneArea extends Component<GeneAreaOption> {
     `;
 
     public layout(): GeneData[][] {
-        return stackedLayout(this.prop.genes)
+        const data =  stackedLayout(this.prop.genes)
             .value(x => x.most_left_pos)
             .extent(x => [x.most_left_pos, x.most_right_pos])
             .run();
+        this._layerCount = data.length;
+        return data;
     }
 
     public get geneMinPos(): number {
@@ -63,7 +94,7 @@ export class GeneArea extends Component<GeneAreaOption> {
         return d3.max(this.prop.genes, g => g.most_right_pos);
     }
 
-    private _processData() {
-
+    public didLayoutSubTree() {
+        this.$geometry.height = this._layerCount * (this.prop.exonHeight + this.prop.rowGap);
     }
 }

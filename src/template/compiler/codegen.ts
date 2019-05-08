@@ -4,15 +4,6 @@ import { getComponent } from "../../element/get-component";
 import { UIDGenerator } from "../../utils/uid";
 import { ASTNode, ASTNodeComp, ASTNodeCondition, ASTNodeElse, ASTNodeFor, ASTNodeIf, isRootElement, newNode } from "./ast-node";
 
-const ANCHOR_LIST = {
-    top: Anchor.Top,
-    middle: Anchor.Middle,
-    bottom: Anchor.Bottom,
-    left: Anchor.Left,
-    center: Anchor.Center,
-    right: Anchor.Right,
-};
-
 function wrappedWithLocalData(node: ASTNode, wrapped: string) {
     return `(function(){
         ${genLocalData(node)}
@@ -24,17 +15,10 @@ function genLocalData(node: ASTNode) {
     return node.localData.map(d => `let ${d.name} = ${d.expr}; `).join("");
 }
 
-function genAnchor(str: string): Anchor {
-    const [a1, a2] = str.split(" ").map(x => ANCHOR_LIST[x]);
-    if (!a1 || ! a2)
-        throw Error(`Wrong anchor format "${str}"`);
-    return a1 | a2;
-}
-
 function genGeoExpr(match: RegExpMatchArray): string {
     // (100), 100, +, (1), 1
     const value = match[2] || match[1];
-    const offset = match[3] === "-" ? "-" : "" + (match[5] || match[4] || "0");
+    const offset = (match[3] === "-" ? "-" : "") + (match[5] || match[4] || "0");
     return oneLineTrim`{
         value: ${value},
         unit: 1,
@@ -43,22 +27,44 @@ function genGeoExpr(match: RegExpMatchArray): string {
 }
 
 function genExpr(expr: string, name: string) {
-    if (name === "anchor")
-        return genAnchor(expr);
     // wip
     return expr;
 }
 
 function genAttrs(node: ASTNodeComp) {
-    const geoProps = getComponent(node.name).$geometryProps.flat(1);
+    const component = getComponent(node.name);
+    const geoProps = component.$geometryProps.flat(1);
+    const initArgPropName = component.propNameForInitializer();
     const attrs = node.props.map(p => {
-        const isGeoProp = geoProps.includes(p.name);
         let match: RegExpMatchArray;
+        // replace _initArg
+        const name = p.name === "_initArg" ? initArgPropName : p.name;
+        const isGeoProp = geoProps.includes(p.name);
         const expr = isGeoProp && (match = p.expr.match(GEOMETRY_LITERAL)) ?
             genGeoExpr(match) : p.expr;
-        return `'${p.name}': ${genExpr(expr, p.name)}`;
+        return `'${name}': ${genExpr(expr, name)}`;
     }).join(", ");
-    return `{ ${attrs} }`;
+    return `props: { ${attrs} },`;
+}
+
+function genEventHdl(node: ASTNodeComp) {
+    if (node.on.length === 0) return "";
+    const events = node.on.map(o => {
+        let handler: string;
+        if (o.handler.match(/^[A-z0-9_]+$/)) {
+            handler = `o.handler.bind(this)`;
+        } else {
+            handler = `function($ev) { ${o.handler} }`;
+        }
+        return `${o.name}: ${handler}`;
+    }).join(",");
+    return `on: { ${events} },`;
+}
+
+function genStyle(node: ASTNodeComp) {
+    if (node.styles.length === 0) return "";
+    const styles = node.styles.map(s => `${s.name}: ${s.expr}`).join(",");
+    return `styles: { ${styles} },`;
 }
 
 function gatherCondBlocks(node: ASTNode) {
@@ -115,8 +121,10 @@ function node2code(node: ASTNode, uidGen: UIDGenerator): string {
                 stripIndent`
                 _c("${(node as ASTNodeComp).name}",
                     {
-                        props: ${genAttrs(node as ASTNodeComp)},
-                        uid: ${uidGen.gen()},
+                        id: ${uidGen.gen()},
+                        ${genAttrs(node as ASTNodeComp)}
+                        ${genEventHdl(node as ASTNodeComp)}
+                        ${genStyle(node as ASTNodeComp)}
                     },
                     [ ${genChildren(node, uidGen)} ])`;
             return hasLocalData ? wrappedWithLocalData(node, str) : str;

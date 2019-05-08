@@ -1,18 +1,33 @@
-import { svgPropFillAndStroke, svgPropXAndY } from "../../rendering/svg-helper";
+import { svgInnerHTML, svgPropFillAndStroke, svgPropPassthrough } from "../../rendering/svg-helper";
 import { measuredTextSize } from "../../utils/text-size";
-import { BaseElement } from "../base-element";
 import { BaseElementOption } from "./base-elm-options";
+import { PrimitiveElement } from "./primitive";
 
-interface TextOptions extends BaseElementOption {
+interface TextOption extends BaseElementOption {
     text: string;
+    html: string;
+    fontSize: number;
 }
 
-export class Text extends BaseElement<TextOptions> {
+export class Text extends PrimitiveElement<TextOption> {
     public $cachedWidth: number;
     public $cachedHeight: number;
 
-    public didLayout() {
-        const box = measuredTextSize(this.prop.text);
+    public static propNameForInitializer(): string { return "text"; }
+
+    public defaultProp(): any {
+        return { fontSize: 12 };
+    }
+
+    public willAdjustAnchor() {
+        const text = (this.prop.text && this.prop.text.toString) ? this.prop.text.toString() :
+            (this.prop.html && this.prop.html.toString) ? strip(this.prop.html.toString()) : null;
+
+        if (text === null) {
+            throw new Error(`Text: you must supply either "text" ot "html".`);
+        }
+
+        const box = measuredTextSize(text, this.prop.fontSize);
         this.$cachedHeight = box.height;
         this.$cachedWidth = box.width;
     }
@@ -20,6 +35,10 @@ export class Text extends BaseElement<TextOptions> {
     public svgAttrs() {
         return {
             ...svgPropFillAndStroke(this),
+            ...svgInnerHTML(this),
+            ...svgPropPassthrough({
+                "font-size": "fontSize",
+            })(this),
             x: this.$geometry.x,
             y: this.$geometry.y + this.$cachedHeight,
         };
@@ -37,4 +56,8 @@ export class Text extends BaseElement<TextOptions> {
     public get maxY() {
         return this.$geometry.y + this.$cachedHeight;
     }
+}
+
+function strip(html: string): string {
+    return html.replace(/<\/?.+?>/g, "");
 }

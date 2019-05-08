@@ -12,7 +12,6 @@ describe("Render tree", () => {
     it("should render single root element", () => {
         const component = new Component(0, render1);
         const tree = updateTree(component);
-        console.log(tree);
         assert.equal(tree, {});
     });
 });

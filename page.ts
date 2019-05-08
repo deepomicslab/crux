@@ -1,11 +1,6 @@
 import { Component } from "./src/element/component";
 import { registerDefaultBioInfoComponents } from "./src/element/global";
-import { updateTree } from "./src/rendering/render-tree";
-import { template } from "./src/template/tag";
-import { toGeneData } from "./src/utils/bioinfo/gene";
 import { visualize } from "./src/visualizer";
-import { measuredTextSize } from "./src/utils/text-size";
-import randomstring = require("randomstring");
 
 const t1 = `
 svg {
@@ -62,24 +57,35 @@ svg {
     }
 }`;
 
-const url = `http://localhost:3034/v1/tabix/ensembl_Tpsl/?name=v75&seg=chr2&from=215770895&to=216095895&GenomeReference=hg19`;
+import { dataLoader } from "./reconstructed/data";
+import { template as tt } from "./reconstructed/template";
+import { Reconstructed } from "./reconstructed/reconstructed";
 
 registerDefaultBioInfoComponents();
 
 document.addEventListener("DOMContentLoaded", () => {
     const data = [];
 
-    const v = window["$v"] = visualize({
-        el: "#canvas",
-        template: t3,
-        props: {
-            data,
-        },
+    dataLoader.load().then((data) => {
+        // console.log(data);
+        const v = window["$v"] = visualize({
+            el: "#canvas",
+            root: new Reconstructed(0),
+            props: {
+                depth: data.depth,
+                depthMax: data.depthMax,
+                virus: data.virus,
+                gene: data.gene,
+                mutations: data.mutation,
+            },
+            width: "auto",
+            height: 800,
+        });
     });
 
-    fetch(url).then(x => x.json()).then(x => {
-        const d: any[] = window["$dd"] = x.data.map(toGeneData);
-        (v.root as any).prop.data = d;
-        v.run();
-    });
+    // fetch(url).then(x => x.json()).then(x => {
+    //     const d: any[] = window["$dd"] = x.data.map(toGeneData);
+    //     (v.root as any).prop.data = d;
+    //     v.run();
+    // });
 });

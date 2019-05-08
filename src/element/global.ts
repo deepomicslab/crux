@@ -1,8 +1,11 @@
 import { componentList } from "./get-component";
 
+import { Axis } from "./auxiliary";
+import { Area } from "./chart";
 import { Component } from "./component";
-import { Circle, Rect, Text } from "./primitive";
+import { Brush } from "./interaction";
 import { Container, Rows } from "./layout";
+import { Circle, Line, Path, Rect, Text } from "./primitive";
 
 import { GeneArea } from "./bioinfo";
 
@@ -12,8 +15,13 @@ export function registerDefaultGlobalComponents() {
         Circle,
         Rect,
         Text,
+        Path,
+        Line,
+        Area,
         Container,
         Rows,
+        Brush,
+        Axis,
     });
 }
 

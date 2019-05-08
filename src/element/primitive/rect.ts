@@ -1,23 +1,28 @@
 import { GeometryOptValue } from "../../defs/geometry";
-import { SVGRenderable } from "../../rendering/svg";
-import { svgPropFillAndStroke, svgPropXAndY } from "../../rendering/svg-helper";
-import { BaseElement } from "../base-element";
+import { svgPropFillAndStroke, svgPropPassthrough, svgPropXAndY } from "../../rendering/svg-helper";
 import { BaseElementOption } from "./base-elm-options";
+import { PrimitiveElement } from "./primitive";
 
 interface RectOption extends BaseElementOption {
     width: GeometryOptValue;
     height: GeometryOptValue;
+    minWidth: number;
+    minHeight: number;
+    cornerRadius: number;
 }
 
-export class Rect extends BaseElement<RectOption>
-    implements SVGRenderable {
+export class Rect extends PrimitiveElement<RectOption> {
 
     public svgAttrs() {
         return {
             ...svgPropFillAndStroke(this),
             ...svgPropXAndY(this),
-            width: this.$geometry.width,
-            height: this.$geometry.height,
+            ...svgPropPassthrough({
+                rx: "cornerRadius",
+                ry: "cornerRadius",
+            })(this),
+            width: this._widthWithMin(),
+            height: this._heightWithMin(),
         };
     }
 
@@ -38,5 +43,17 @@ export class Rect extends BaseElement<RectOption>
 
     public get maxY(): number {
         return this.$geometry.y + this.$geometry.height;
+    }
+
+    private _widthWithMin(): number {
+        return "minWidth" in this.prop && this.prop.minWidth > 0 ?
+            Math.max(this.$geometry.width, this.prop.minWidth) :
+            this.$geometry.width;
+    }
+
+    private _heightWithMin(): number {
+        return "minHeight" in this.prop && this.prop.minWidth > 0 ?
+            Math.max(this.$geometry.height, this.prop.minHeight) :
+            this.$geometry.height;
     }
 }

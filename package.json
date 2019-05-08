@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "axios": "^0.18.0",
+    "babel-polyfill": "^6.26.0",
     "common-tags": "^1.8.0",
     "d3": "^5.9.2",
     "d3-array": "^2.0.3",
@@ -19,6 +20,7 @@
     "mustache": "^3.0.1",
     "parjs": "^0.10.4",
     "randomstring": "^1.1.5",
+    "shallow-equal": "^1.1.0",
     "snabbdom": "^0.7.3",
     "typescript": "^3.4.3"
   },
@@ -37,5 +39,8 @@
     "ts-node": "^8.1.0",
     "tslint": "^5.15.0",
     "tslint-eslint-rules": "^5.4.0"
-  }
+  },
+  "browserslist": [
+    "since 2017-06"
+  ]
 }

@@ -1,7 +1,13 @@
 export class ParserStream {
+    public str: string;
     public pos = 0;
 
-    constructor(public str: string) {}
+    constructor(str: string) {
+        this.str = str
+            .split("\n")
+            .filter(x => !x.match(/ *\/\//))
+            .join("\n");
+    }
 
     public advance(step: number) {
         this.pos += step;

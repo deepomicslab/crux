@@ -10,8 +10,13 @@ export interface BaseOption {
     y?: GeometryOptValue;
     "x.scaled"?: GeometryOptValue;
     "y.scaled"?: GeometryOptValue;
+
     rotation?: number | [number, number, number];
     rotateAfterTranslate?: boolean;
+
+    html?: string;
+
+    detached: boolean;  // for Container
 
     // interactions
     tooltip?: any;

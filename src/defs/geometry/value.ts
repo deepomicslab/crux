@@ -57,6 +57,10 @@ export class GeometryValue {
     }
 }
 
+export function isFixed(geo: GeometryOptValue): boolean {
+    return !(typeof geo === "object" && geo.unit === GeometryUnit.Percent);
+}
+
 export type GeometryOptValue = number | GeometryValue;
 
 type GeometryPropKeys<T> = { [K in keyof T]:

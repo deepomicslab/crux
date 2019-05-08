@@ -1,4 +1,4 @@
-import { Anchor, GeometryValue } from "../defs/geometry";
+import { Anchor, GeometryValue, isFixed } from "../defs/geometry";
 import { BaseElement } from "../element/base-element";
 import { BaseOption } from "../element/base-options";
 import { Component } from "../element/component";
@@ -10,6 +10,8 @@ function updateGeometryProps(el: BaseElement, propName: string, parentSize: numb
         el.$geometry[propName] = 0;
     } else if (typeof val === "number") {
         el.$geometry[propName] = val;
+    } else if ("__internal__" in val) {
+        el.$geometry[propName] = el.prop[propName] = el[val.name].apply(el, val.args);
     } else if ("value" in val) {
         el.$geometry[propName] = GeometryValue.cal(val, parentSize);
     } else {
@@ -17,11 +19,17 @@ function updateGeometryProps(el: BaseElement, propName: string, parentSize: numb
     }
 }
 
-export function layoutElement(el: BaseElement) {
+export function layoutElement(el: BaseElement, skipFixed = false) {
     const isRoot = el instanceof Component && el.isRoot;
-    const pWidth = isRoot ? el.$v.size.width : el.parent.$geometry.width;
-    const pHeight = isRoot ? el.$v.size.height : el.parent.$geometry.height;
-    const [hProps, vProps] = (el.constructor as typeof BaseElement).$geometryProps;
+    const parent = el.logicalParent && el.logicalParent.parent ?
+        el.logicalParent.parent : el.parent;
+    const pWidth = isRoot ? el.$v.size.width : parent.$geometry.width;
+    const pHeight = isRoot ? el.$v.size.height : parent.$geometry.height;
+    let [hProps, vProps] = (el.constructor as typeof BaseElement).$geometryProps;
+    if (skipFixed) {
+        hProps = hProps.filter(p => !isFixed(el.prop[p]));
+        vProps = vProps.filter(p => !isFixed(el.prop[p]));
+    }
 
     for (const prop of hProps) {
         updateGeometryProps(el, prop, pWidth);
@@ -30,6 +38,7 @@ export function layoutElement(el: BaseElement) {
         updateGeometryProps(el, prop, pHeight);
     }
 
+    el.$callHook("willAdjustAnchor");
     if (el instanceof Component) {
         adjustByAnchor(el);
     }
