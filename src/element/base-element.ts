@@ -1,5 +1,5 @@
 import { VNode } from "snabbdom/vnode";
-import { GeometryOptions } from "../defs/geometry";
+import { GeometryOptions, GeometryUnit, GeometryValue } from "../defs/geometry";
 import { SVGRenderable } from "../rendering/svg";
 import { defaultUIDGenerator } from "../utils/uid";
 import { Visualizer } from "../visualizer/visualizer";
@@ -21,6 +21,7 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
     public prop: Partial<Option> = {};
     protected state: any;
 
+    public $parent?: Component;
     public $on: Record<string, any> = {};
     public $styles: Record<string, string> = {};
     public $geometry: GeometryOptions<Option>;
@@ -68,7 +69,7 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
                     propsWithMods[m][name] = value;
                 });
             }
-            this._setProp(k, value);
+            this.prop[k] = value;
         });
 
         // modifier
@@ -83,55 +84,15 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
         });
     }
 
-    protected _setProp(key: string, value: any) {
-        this.prop[key] = value;
-    }
-
     protected _setPropsWithModifier(mod: string, props: Record<string, any>) {
-        if (mod === "scaled") {
-            let xValue: number, yValue: number;
-
-            // x
-            if ("x" in props) {
-                xValue = this.prop.x = this._scale(props.x, true);
-            }
-            // y
-            if ("y" in props)
-                yValue = this.prop.y = this._scale(props.y, false);
-            // xEnd
-            if ("xEnd" in props) {
-                if (xValue === undefined)
-                    throw new Error(`Prop "xEnd.scaled" must be supplied together with "x.scaled".`);
-                this.prop["width"] = this._scale(props.xEnd, true) - xValue;
-            }
-            // yEnd
-            if ("yEnd" in props) {
-                if (xValue === undefined)
-                    throw new Error(`Prop "xEnd.scaled" must be supplied together with "x.scaled".`);
-                this.prop["height"] = this._scale(props.yEnd, false) - yValue;
-            }
-            // if nested
-            if ("x.scaled" in this.parent.prop) {
-                (this.prop.x as number) -= this.parent.$geometry.x;
-            }
-            if ("y.scaled" in this.parent.prop) {
-                (this.prop.y as number) -= this.parent.$geometry.y;
-            }
-            // others
-            const [hProp, vProp] = (this.constructor as typeof BaseElement).$geometryProps;
-            Object.keys(props).forEach(k => {
-                if (k === "x" || k === "y" || k === "xEnd" || k === "yEnd") return;
-                const value = props[k];
-                this.prop[k] = this._scale(value, !vProp.includes(k));
-            });
-        }
+        // wip
     }
 
     public parseInternalProps() {
         Object.keys(this.prop).forEach(key => {
             const value = this.prop[key];
-            if (typeof value === "object" && "__internal__" in value) {
-                this.prop[key] = this[value.name].apply(this, value.args);
+            if (typeof value === "function" && "__internal__" in value) {
+                this.prop[key] = value.call(this);
             }
         });
         this.$detached = !!this.prop.detached;
@@ -177,6 +138,10 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
 
     protected _rotate(val: number) {
         return [val, (this.$geometry as any).x, (this.$geometry as any).y];
+    }
+
+    protected _geo(val: number, offset: number): GeometryValue {
+        return GeometryValue.create(val, GeometryUnit.Percent, offset);
     }
 
     /* svg */

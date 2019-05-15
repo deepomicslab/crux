@@ -52,9 +52,9 @@ function genEventHdl(node: ASTNodeComp) {
     const events = node.on.map(o => {
         let handler: string;
         if (o.handler.match(/^[A-z0-9_]+$/)) {
-            handler = `o.handler.bind(this)`;
+            handler = `${o.handler}.bind(this)`;
         } else {
-            handler = `function($ev) { ${o.handler} }`;
+            handler = `(function($ev) { ${o.handler} }).bind(this)`;
         }
         return `${o.name}: ${handler}`;
     }).join(",");
@@ -63,7 +63,7 @@ function genEventHdl(node: ASTNodeComp) {
 
 function genStyle(node: ASTNodeComp) {
     if (node.styles.length === 0) return "";
-    const styles = node.styles.map(s => `${s.name}: ${s.expr}`).join(",");
+    const styles = node.styles.map(s => `'${s.name}': ${s.expr}`).join(",");
     return `styles: { ${styles} },`;
 }
 
@@ -130,8 +130,9 @@ function node2code(node: ASTNode, uidGen: UIDGenerator): string {
             return hasLocalData ? wrappedWithLocalData(node, str) : str;
         case "op-for":
             const { forName, forIndex, expr } = node as ASTNodeFor;
+            const args = forIndex ? `${forName}, ${forIndex}` : forName;
             return stripIndent`
-            _l(${expr}, function(${forName}, ${forIndex}) {
+            _l(${expr}, function(${args}) {
                 ${hasLocalData ? genLocalData(node) : ""}
                 return [ ${genChildren(node, uidGen)} ];
             })`;

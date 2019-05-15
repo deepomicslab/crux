@@ -14,6 +14,10 @@ export class ParserStream {
         this.str = this.str.substring(step);
     }
 
+    public eof(): boolean {
+        return this.str.length === 0;
+    }
+
     public expect(
         token: string,
         desc: string = token,
@@ -42,9 +46,9 @@ export class ParserStream {
         this.advance(i);
     }
 
-    public consumeTill(token: string, consumeEnd = true): string {
+    public consumeTill(token: string, consumeEnd = true, checkError = true): string {
         const i = this.str.indexOf(token);
-        if (i === this.str.length) {
+        if (checkError && i === this.str.length) {
             this._error(`${this.pos}: Expect ${token}`);
         }
         const result = this.str.substring(0, i);
@@ -64,6 +68,14 @@ export class ParserStream {
             i++;
         }
         this._error(`Error: Expect ${desc}`);
+    }
+
+    public consumeSync(predicate: (ch) => [boolean, boolean], desc: string): string {
+        while (!this.eof()) {
+            const [end, consume] = predicate(this.str[0]);
+            this.advance(consume ? 1 : 0);
+            if (end) return;
+        }
     }
 
     public peek(n = 1): string {

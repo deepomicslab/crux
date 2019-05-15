@@ -1,13 +1,14 @@
-import { GeometryOptions, GeometryValue } from "../defs/geometry";
+import { GeometryValue } from "../defs/geometry";
 import { RenderHelper } from "../rendering/render-helper";
 import { ElementDef, updateTree } from "../rendering/render-tree";
-import { render, SVGRenderable } from "../rendering/svg";
+import { SVGRenderable } from "../rendering/svg";
 import { svgPropClip } from "../rendering/svg-helper";
 import { Renderer } from "../template/compiler";
 import { applyMixins } from "../utils/mixin";
 import { BaseElement } from "./base-element";
 import { BaseOption } from "./base-options";
 import { ComponentOption } from "./component-options";
+import { isRenderable } from "./is";
 import { ScaleHelper } from "./scale";
 
 export type ActualElement = BaseElement<BaseOption>;
@@ -102,6 +103,16 @@ export class Component<Option extends ComponentOption = ComponentOption>
 
     public get maxY(): number {
         return (this.$geometry as any).y + (this.$geometry as any).height;
+    }
+
+    protected _updateGeometry(key: "width" | "height", value: number) {
+        let c: BaseElement = this as any;
+        while (true) {
+            c.$geometry[key] = value;
+            if (isRenderable(c)) {
+                c = c.children[0];
+            } else break;
+        }
     }
 
     protected _scale(val: number, horizontal: boolean): number {

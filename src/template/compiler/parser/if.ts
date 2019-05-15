@@ -26,7 +26,7 @@ function parseIfBlocks<T extends ASTNode>(p: ParserStream, kw: string, type: str
     };
 
     if (hasExpr) {
-        const expr = p.expect(FOR_EXPR)[0];
+        const expr = p.consumeTill("{", false);
         p.skipSpaces();
         (node as ASTNodeIf).condition = expr;
     }

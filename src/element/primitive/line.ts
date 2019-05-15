@@ -9,6 +9,7 @@ export interface LineOption extends BaseElementOption {
     y1: GeometryOptValue;
     y2: GeometryOptValue;
     shapeRendering: string;
+    dashArray: string;
 }
 
 export class Line extends PrimitiveElement<LineOption> {
@@ -16,7 +17,10 @@ export class Line extends PrimitiveElement<LineOption> {
     public svgAttrs() {
         return {
             ...svgPropFillAndStroke(this),
-            ...svgPropPassthrough({ "shape-rendering": "shapeRendering" })(this),
+            ...svgPropPassthrough({
+                "shape-rendering": "shapeRendering",
+                "stroke-dasharray": "dashArray",
+            })(this),
             x1: this.$geometry.x1,
             x2: this.$geometry.x2,
             y1: this.$geometry.y1,

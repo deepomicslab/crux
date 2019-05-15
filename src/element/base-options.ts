@@ -27,4 +27,6 @@ export interface BaseOption {
     svgProp: {
         [name: string]: boolean | number | string | any[] | {[k: string]: any};
     };
+
+    debug: boolean;
 }

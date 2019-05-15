@@ -18,7 +18,9 @@ export interface ElementDef {
     children: ElementDef[];
 }
 
-let currElement: Component<ComponentOption>;
+const currElements: Component<ComponentOption>[] = [];
+const currElement = () => currElements[currElements.length - 1];
+let currElementInheriting = false;
 
 function findComponent(component: Component, name: string, id: number): [ActualElement, boolean] {
     const ctor = getComponent(name);
@@ -29,7 +31,11 @@ function findComponent(component: Component, name: string, id: number): [ActualE
     }
     const newElm = new ctor(id);
     component.append(newElm);
-    if (currElement) newElm.logicalParent = currElement;
+    let c: Component<ComponentOption>;
+    if (c = currElement()) {
+        newElm.$parent = c;
+        if (currElementInheriting) newElm.logicalParent = c;
+    }
     return [newElm, true];
 }
 
@@ -42,6 +48,10 @@ export function updateTree(parent: Component<ComponentOption>, def?: ElementDef)
         const { tag, opt } = def;
         const key = typeof opt.props.key === "undefined" ? opt.id : opt.props.key;
         [elm, created] = findComponent(parent, tag, key);
+
+        if (opt.props.debug) {
+            console.log("d");
+        }
         // if (!created && (isRenderable(elm) || isPrimitive(elm)) && eq(elm.prop, opt.props)) {
         //     return;
         // }
@@ -55,20 +65,25 @@ export function updateTree(parent: Component<ComponentOption>, def?: ElementDef)
     layoutElement(elm);
     elm.parseInternalProps();
 
+    if (elm.prop.debug) {
+        console.log(elm);
+    }
+
     // ref
     if (elm.prop.ref && currElement) {
-        currElement.$ref[elm.prop.ref] = elm;
+        currElement().$ref[elm.prop.ref] = elm;
     }
 
     elm.$callHook("didLayout");
 
     if (isRenderable(elm)) {
-        currElement = elm;
+        currElements.push(elm);
+        currElementInheriting = true;
         const tree = elm.render();
         updateTree(elm, tree);
-        currElement = null;
+        currElements.pop();
     } else if (elm instanceof Component) {
-        currElement = null;
+        currElementInheriting = false;
         elm.children.forEach(c => c.isActive = false);
         for (const child of def.children) {
             updateTree(elm, child);

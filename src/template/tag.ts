@@ -11,3 +11,17 @@ export function template(literals: TemplateStringsArray, ...placeholders: string
 
     return compile(result)[0];
 }
+
+type StringLike = string | { toString(): string };
+
+export function internal(literals: TemplateStringsArray, ...placeholders: StringLike[]): string {
+    let code = "";
+
+    for (let i = 0; i < placeholders.length; i++) {
+        code += literals[i];
+        code += `$arg[${i}]`;
+    }
+    code += literals[literals.length - 1];
+
+    return `__internal__("${code}", [${placeholders.join(",")}])`;
+}

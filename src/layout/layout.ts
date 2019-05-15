@@ -5,13 +5,15 @@ import { Component } from "../element/component";
 import { posWithAnchor } from "./anchor";
 
 function updateGeometryProps(el: BaseElement, propName: string, parentSize: number) {
-    const val = el.prop[propName];
+    let val = el.prop[propName];
+    if (typeof val === "function" && "__internal__" in val) {
+        val = val.call(el);
+    }
+
     if (typeof val === "undefined") {
         el.$geometry[propName] = 0;
     } else if (typeof val === "number") {
         el.$geometry[propName] = val;
-    } else if ("__internal__" in val) {
-        el.$geometry[propName] = el.prop[propName] = el[val.name].apply(el, val.args);
     } else if ("value" in val) {
         el.$geometry[propName] = GeometryValue.cal(val, parentSize);
     } else {

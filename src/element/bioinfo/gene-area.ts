@@ -31,18 +31,21 @@ export class GeneArea extends Component<GeneAreaOption> {
         y = prop.y
         width = prop.width
         height = prop.height
-        xScale = @scale-linear(geneMinPos, geneMaxPos)
+        xScale = getScale(true) ? undefined : @scale-linear(geneMinPos, geneMaxPos)
+        clip = @clip(bound)
 
         @let layers = layout()
 
         @for (genes, layer) in layers {
             @for (gene, index) in genes {
+                @let gl = gene.most_left_pos
+                @let gr = gene.most_right_pos
                 Component {
-                    key          = gene.trans_name
-                    x.scaled     = gene.most_left_pos
-                    xEnd.scaled  = gene.most_right_pos
-                    y            = layer * (prop.exonHeight + prop.rowGap)
-                    height       = prop.exonHeight
+                    key    = gene.trans_name
+                    x      = @scaled(gl)
+                    y      = layer * (prop.exonHeight + prop.rowGap)
+                    width  = @scaled(gr) - @scaled(gl)
+                    height = prop.exonHeight
 
                     @if prop.displayPromoters {
                         Rect {
@@ -56,13 +59,15 @@ export class GeneArea extends Component<GeneAreaOption> {
                         fill   = "#66c"
                     }
                     @for (exon, index) in gene.exons {
+                        @let el = exon.most_left_pos
+                        @let er = exon.most_left_pos + exon.length
                         Rect {
-                            key          = "ex" + index
-                            height       = 100%
-                            x.scaled     = exon.most_left_pos
-                            xEnd.scaled  = exon.most_left_pos + exon.length
-                            minWidth     = 1
-                            fill   = "#66c"
+                            key      = "ex" + index
+                            x        = @scaled(el) - @scaled(gl)
+                            width    = @scaled(er) - @scaled(el)
+                            height   = 100%
+                            minWidth = 1
+                            fill     = "#66c"
                         }
                     }
                     Text(gene.trans_name) {
@@ -95,6 +100,9 @@ export class GeneArea extends Component<GeneAreaOption> {
     }
 
     public didLayoutSubTree() {
-        this.$geometry.height = this._layerCount * (this.prop.exonHeight + this.prop.rowGap);
+        this._updateGeometry(
+            "height",
+            this._layerCount * (this.prop.exonHeight + this.prop.rowGap),
+        );
     }
 }
