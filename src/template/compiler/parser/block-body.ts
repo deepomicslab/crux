@@ -1,11 +1,12 @@
 import { ASTNode, isCompNode } from "../ast-node";
 import { ParserStream } from "../parse-stream";
-import { BLOCK_NAME, NAME } from "../tokens";
+import { BLOCK_NAME, NAME, BEHAVIOR_BLOCK_NAME } from "../tokens";
 import { parseBlock } from "./block";
 import { parseFor } from "./for";
 import { parseElse, parseElsif, parseIf } from "./if";
 import { parseLet } from "./let";
 import { parseProp } from "./prop";
+import { parseBehaviorBlock } from "./internal-block";
 
 function last<T>(array: T[]): T {
     return array[array.length - 1];
@@ -51,6 +52,12 @@ export function parseBlockBody(p: ParserStream, node: ASTNode) {
             }
         } else if (testResult = p.test(BLOCK_NAME)) {
             node.children.push(parseBlock(p));
+        } else if(testResult = p.test(BEHAVIOR_BLOCK_NAME)) {
+            if (isCompNode(node)) {
+                node.behavior.push(parseBehaviorBlock(p));
+            } else {
+                p._error(`Behavior blocks can only appear in component blocks.`);
+            }
         } else if (testResult = p.test(NAME)) {
             if (isCompNode(node)) {
                 parseProp(p, node);

@@ -102,6 +102,12 @@ export class Brush extends Component<BrushOption> {
         }
     }
 
+    public $setCurrentRange(l: number, r: number) {
+        const i = this._brushScale.invert;
+        this.state.brushL = i(l);
+        this.state.brushR = i(r);
+    }
+
     private brushX(): number {
         return this.state.brushL;
     }

@@ -10,6 +10,7 @@ import { Component } from "../element/component";
 import { isRenderable } from "../element/is";
 import { BaseElementOption } from "../element/primitive/base-elm-options";
 import ns from "./ns";
+import { gatherEventListeners } from "./utils";
 
 const patch = init([
     moduleAttrs,
@@ -71,14 +72,14 @@ function _genView(element: BaseElement<any>): VNode {
         opt.props = { innerHTML: attrs.innerHTML };
     }
 
-    let keys: string[];
     // events
-    keys = Object.keys(element.$on);
-    if (keys.length > 0) {
-        opt.on = element.$on;
+    const listeners = gatherEventListeners(element);
+    if (listeners) {
+        opt.on = listeners;
     }
 
     // styles
+    let keys: string[];
     keys = Object.keys(element.$styles);
     if (keys.length > 0) {
         opt.style = element.$styles;
@@ -115,6 +116,7 @@ function _createRootElm(element: BaseElement): Element {
     svg.setAttribute("xmlns", ns);
     svg.setAttribute("width", element.$v.size.width);
     svg.setAttribute("height", element.$v.size.height);
+    svg.setAttribute("style", "font-family: Arial");
     svg.appendChild(rootElm);
     svg.appendChild(defElm);
     element.$v.container.appendChild(svg);

@@ -6,6 +6,8 @@ import { registerGlobalComponent } from "../src/element/global";
 import { template } from "../src/template/tag";
 
 import d3 = require("d3-scale");
+import mouse from "../src/behavior/mouse";
+import { Brush } from "../src/element/interaction";
 
 interface ReconstructedOption extends ComponentOption {
     virus: any;
@@ -29,6 +31,14 @@ export class Reconstructed extends Component<ReconstructedOption> {
                 on:mouseenter = depthAreaMouseMove
                 on:mousemove = depthAreaMouseMove
                 on:mouseleave = this.setState({ mousePos: -1 })
+
+                behavior:zoom {
+                    direction = "x"
+                    rangeX = [0, prop.virus.orig_len]
+                    currentRangeX = [state.scaledL, state.scaledR]
+                    minResolution = 1
+                    onZoom = updateRange.bind(this)
+                }
 
                 Rect {
                     width = 100%; height = 100%
@@ -123,6 +133,7 @@ export class Reconstructed extends Component<ReconstructedOption> {
                 }
             }
             Brush {
+                ref = "brush"
                 y = 20
                 height = 28
                 cornerRadius = 4
@@ -146,7 +157,7 @@ export class Reconstructed extends Component<ReconstructedOption> {
     }
 
     private depthAreaMouseMove(e) {
-        const x = e.clientX - e.target.getBoundingClientRect().left;
+        const x = mouse(this.vnode.elm as any, e)[0];
         const scale = (this.$ref.depth as Component).getScale(true);
         this.setState({ mousePos: scale.invert(x).toFixed() });
     }
@@ -165,6 +176,7 @@ export class Reconstructed extends Component<ReconstructedOption> {
     }
 
     private updateRange(range: [number, number]) {
+        (this.$ref.brush as Brush).$setCurrentRange(range[0], range[1]);
         this.setState({
             scaledL: range[0],
             scaledR: range[1],

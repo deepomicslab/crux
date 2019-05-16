@@ -8,25 +8,17 @@ export interface BaseOption {
     anchor?: Anchor;
     x?: GeometryOptValue;
     y?: GeometryOptValue;
-    "x.scaled"?: GeometryOptValue;
-    "y.scaled"?: GeometryOptValue;
 
     rotation?: number | [number, number, number];
     rotateAfterTranslate?: boolean;
-
-    html?: string;
 
     detached: boolean;  // for Container
 
     // interactions
     tooltip?: any;
-    activeClass?: string;
+    zoom?: any;
 
     ref: string;
-
-    svgProp: {
-        [name: string]: boolean | number | string | any[] | {[k: string]: any};
-    };
 
     debug: boolean;
 }

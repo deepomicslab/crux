@@ -67,6 +67,14 @@ function genStyle(node: ASTNodeComp) {
     return `styles: { ${styles} },`;
 }
 
+function genBehavior(node: ASTNodeComp) {
+    if (node.behavior.length === 0) return "";
+    const behaviors = node.behavior.map(s => `'${s.name}': {${
+        s.args.map(a => `${a.name}: ${a.expr}`).join(", ")
+    }}`).join(",");
+    return `behaviors: { ${behaviors} },`;
+}
+
 function gatherCondBlocks(node: ASTNode) {
     if (node.type === "cond" || !node.children.some(c => c.type === "op-if")) {
         return;
@@ -116,15 +124,17 @@ function node2code(node: ASTNode, uidGen: UIDGenerator): string {
     let str: string;
     switch (node.type) {
         case "comp":
+            const n = node as ASTNodeComp;
             str = isRootElement(node) ?
                 genChildren(node, uidGen) :
                 stripIndent`
-                _c("${(node as ASTNodeComp).name}",
+                _c("${n.name}",
                     {
                         id: ${uidGen.gen()},
-                        ${genAttrs(node as ASTNodeComp)}
-                        ${genEventHdl(node as ASTNodeComp)}
-                        ${genStyle(node as ASTNodeComp)}
+                        ${genAttrs(n)}
+                        ${genEventHdl(n)}
+                        ${genStyle(n)}
+                        ${genBehavior(n)}
                     },
                     [ ${genChildren(node, uidGen)} ])`;
             return hasLocalData ? wrappedWithLocalData(node, str) : str;

@@ -1,4 +1,6 @@
 import { VNode } from "snabbdom/vnode";
+import { Behavior } from "../behavior/behavior";
+import { Zoom } from "../behavior/zoom";
 import { GeometryOptions, GeometryUnit, GeometryValue } from "../defs/geometry";
 import { SVGRenderable } from "../rendering/svg";
 import { defaultUIDGenerator } from "../utils/uid";
@@ -24,6 +26,7 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
     public $parent?: Component;
     public $on: Record<string, any> = {};
     public $styles: Record<string, string> = {};
+    public $behavior: Record<string, Behavior> = {};
     public $geometry: GeometryOptions<Option>;
     public $defaultProp: Partial<Option>;
 
@@ -107,6 +110,24 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
 
     public setStyles(s: Record<string, string>) {
         this.$styles = s;
+    }
+
+    public setBehaviors(s: Record<string, Record<string, any>>) {
+        if (s.zoom) {
+            const zoomDef = s.zoom;
+            if (!this.$behavior.zoom) {
+                const zoom = this.$behavior.zoom = new Zoom(this as any, zoomDef);
+            } else {
+                (this.$behavior.zoom as Zoom).updateProps(zoomDef);
+            }
+        }
+    }
+
+    /* event */
+
+    public on(event: string, handler: any) {
+        if (!this.$on[event]) this.$on[event] = [];
+        this.$on[event].push(handler);
     }
 
     /* state */

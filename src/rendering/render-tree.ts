@@ -10,6 +10,7 @@ export interface OptDict {
     on: Record<string, any>;
     id: number;
     styles: Record<string, string>;
+    behaviors: Record<string, Record<string, any>>;
 }
 
 export interface ElementDef {
@@ -58,6 +59,7 @@ export function updateTree(parent: Component<ComponentOption>, def?: ElementDef)
         elm.setProp(opt.props);
         if (opt.on) elm.setEventHandlers(opt.on);
         if (opt.styles) elm.setStyles(opt.styles);
+        if (opt.behaviors) elm.setBehaviors(opt.behaviors);
         if (created)
             elm.$callHook("didCreate");
     }
@@ -70,8 +72,9 @@ export function updateTree(parent: Component<ComponentOption>, def?: ElementDef)
     }
 
     // ref
-    if (elm.prop.ref && currElement) {
-        currElement().$ref[elm.prop.ref] = elm;
+    const ce = currElement();
+    if (ce && elm.prop.ref) {
+        ce.$ref[elm.prop.ref] = elm;
     }
 
     elm.$callHook("didLayout");

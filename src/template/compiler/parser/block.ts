@@ -14,6 +14,7 @@ export function parseBlock(p: ParserStream): ASTNode {
         props: [],
         on: [],
         styles: [],
+        behavior: [],
     };
 
     if (initArg) {

@@ -9,3 +9,12 @@ export function isRenderable(el: BaseElement): el is Component {
 export function isPrimitive(el: BaseElement): boolean {
     return (el as PrimitiveElement).__primitive__;
 }
+
+const inheritableProps = new Set<string>([
+    "x", "y", "width", "height",
+    "clip", "anchor",
+]);
+
+export function isInheritableProp(name: string): boolean {
+    return inheritableProps.has(name);
+}
