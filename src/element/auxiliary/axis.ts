@@ -1,9 +1,10 @@
 import _ = require("lodash");
 
-import { GeometryValue, Anchor } from "../../defs/geometry";
+import { Anchor, GeometryValue } from "../../defs/geometry";
 import { template } from "../../template/tag";
 import { Component } from "../component";
 import { ComponentOption } from "../component-options";
+import { XYPlot } from "../plot";
 
 export interface AxisOption extends ComponentOption {
     orientation: "top" | "bottom" | "left" | "right";
@@ -14,23 +15,13 @@ export interface AxisOption extends ComponentOption {
 }
 
 export class Axis extends Component<AxisOption> {
-    public defaultProp() {
-        return {
-            orientation: "top",
-            tickCount: 5,
-            includeEndTicks: true,
-        };
-    }
-
     public render = template`
     Component {
-        x = prop.x
-        y = prop.y
         width = isHorizontal ? prop.width : 0
         height = isHorizontal ? 0 : prop.height
         Line {
-            x1 = 0; x2 = getX
-            y1 = 0; y2 = getY
+            x1 = 0; x2 = getX()
+            y1 = 0; y2 = getY()
             stroke = "#000"
             shapeRendering = "crispEdges"
         }
@@ -39,15 +30,19 @@ export class Axis extends Component<AxisOption> {
         @for (tick, index) in ticks {
             Component {
                 key = index
-                x = tick.pos
+                x = isHorizontal ? tick.pos : 0
+                y = isHorizontal ? 0 : tick.pos
                 Line {
-                    x1 = 0; x2 = 0
-                    y1 = 0; y2 = offset
+                    x1 = 0
+                    x2 = isHorizontal ? 0 : offset
+                    y1 = 0
+                    y2 = isHorizontal ? offset : 0
                     stroke = "#000"
                 }
                 Text {
                     text = tick.value
-                    y = offset
+                    x = isHorizontal ? 0 : offset
+                    y = isHorizontal ? offset : 0
                     anchor = labelAnchor
                     fontSize = 10
                     style:visibility = tick.show ? "visible" : "hidden"
@@ -57,6 +52,24 @@ export class Axis extends Component<AxisOption> {
     }
     `;
 
+    public defaultProp() {
+        return {
+            orientation: "top",
+            tickCount: 5,
+            includeEndTicks: true,
+        };
+    }
+
+    private _tickValues: any[];
+
+    public willRender() {
+        if (this.$parent instanceof XYPlot &&
+            this.$parent.flipped !== this.isHorizontal) {
+            const domain = this.$parent.categoryScale.domain();
+            this._tickValues = _.range(domain[0], domain[1] + 1);
+        }
+    }
+
     private get isHorizontal() {
         return this.prop.orientation === "top" || this.prop.orientation === "bottom";
     }
@@ -65,11 +78,11 @@ export class Axis extends Component<AxisOption> {
         return this.prop.orientation === "top" || this.prop.orientation === "left";
     }
 
-    private get getX(): any {
+    private getX(): any {
         return this.isHorizontal ? GeometryValue.fullSize : 0;
     }
 
-    private get getY(): any {
+    private getY(): any {
         return this.isHorizontal ? 0 : GeometryValue.fullSize;
     }
 
@@ -79,18 +92,32 @@ export class Axis extends Component<AxisOption> {
     }
 
     private get ticks(): any[] {
-        const scale = this.getScale(this.isHorizontal);
-        if (!scale) {
-            throw new Error(`Axis: you must supply a scale.`);
-        }
+        return getTicks(
+            this.getScale(this.isHorizontal),
+            this._tickValues || this.prop.ticks,
+            this.prop.tickInterval,
+            this.prop.tickCount,
+            this.prop.includeEndTicks,
+        );
+    }
+}
 
-        const ticks = [];
+export type TickValue = { value: string, pos: number, show: boolean };
+
+export function getTicks(scale: any, providedTicks: any, interval: number, count: number, includeEndTicks: boolean): TickValue[] {
+    if (!scale) {
+        throw new Error(`Axis: you must supply a scale.`);
+    }
+
+    const hasProvidedTicks = Array.isArray(providedTicks);
+    let ticks: number[];
+    if (hasProvidedTicks) {
+        ticks = providedTicks;
+    } else {
+        ticks = [];
         const domain = scale.domain();
-        let interval: number;
-        if (this.prop.tickInterval) {
-            interval = this.prop.tickInterval;
-        } else {
-            const rawInterval = (domain[1] - domain[0]) / this.prop.tickCount;
+        if (!interval) {
+            const rawInterval = (domain[1] - domain[0]) / count;
             const digits = baseDigitOf(rawInterval);
             interval = _.minBy([0.1, 0.2, 0.5, 1, 2, 5].map(x => x * digits), x => {
                 if (x > domain[1]) { return Number.MAX_SAFE_INTEGER; }
@@ -106,33 +133,33 @@ export class Axis extends Component<AxisOption> {
         }
 
         // add start and end ticks
-        if (this.prop.includeEndTicks) {
+        if (includeEndTicks) {
             ticks.unshift(domain[0].toFixed());
             ticks.push(domain[1].toFixed());
         }
-
-        const tickValues = ticks.map(t => ({
-            value: t.toString(),
-            pos: scale(t),
-            show: true,
-        }));
-
-        if (this.prop.includeEndTicks) {
-            // remove overlap
-            const FACTOR = 3;
-            if (Math.abs(tickValues[0].pos - tickValues[1].pos) <
-                3 * (tickValues[0].value.length + tickValues[1].value.length)) {
-                tickValues[1].show = false;
-            }
-            const last = ticks.length - 1;
-            if (Math.abs(tickValues[last].pos - tickValues[last - 1].pos) <
-                3 * (tickValues[last].value.length + tickValues[last - 1].value.length)) {
-                tickValues[last - 1].show = false;
-            }
-        }
-
-        return tickValues;
     }
+
+    const tickValues = ticks.map(t => ({
+        value: t.toString(),
+        pos: scale(t),
+        show: true,
+    }));
+
+    if (includeEndTicks && !hasProvidedTicks) {
+        // remove overlap
+        const FACTOR = 3;
+        if (Math.abs(tickValues[0].pos - tickValues[1].pos) <
+            FACTOR * (tickValues[0].value.length + tickValues[1].value.length)) {
+            tickValues[1].show = false;
+        }
+        const last = ticks.length - 1;
+        if (Math.abs(tickValues[last].pos - tickValues[last - 1].pos) <
+            3 * (tickValues[last].value.length + tickValues[last - 1].value.length)) {
+            tickValues[last - 1].show = false;
+        }
+    }
+
+    return tickValues;
 }
 
 function baseDigitOf(n: number): number {

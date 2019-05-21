@@ -1,10 +1,11 @@
 import { componentList } from "./get-component";
 
-import { Axis } from "./auxiliary";
-import { Area } from "./chart";
+import { Axis, AxisBackground } from "./auxiliary";
+import { Area, Bars, Labels } from "./chart";
 import { Component } from "./component";
 import { Brush } from "./interaction";
 import { Container, Rows } from "./layout";
+import { XYPlot } from "./plot";
 import { Circle, Line, Path, Rect, Text } from "./primitive";
 
 import { GeneArea } from "./bioinfo";
@@ -17,11 +18,18 @@ export function registerDefaultGlobalComponents() {
         Text,
         Path,
         Line,
+        // plot
+        XYPlot,
+        // chart
         Area,
+        Bars,
+        Labels,
+        // layout
         Container,
         Rows,
         Brush,
         Axis,
+        AxisBackground,
     });
 }
 

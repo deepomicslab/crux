@@ -1,5 +1,6 @@
 import { Component } from "../component";
 import { ComponentOption } from "../component-options";
+import { isRenderable } from "../is";
 
 export class Rows extends Component {
     public didLayoutSubTree() {
@@ -10,9 +11,13 @@ export class Rows extends Component {
         let counter = 0;
         for (const child of this.children) {
             if (child instanceof Component) {
-                const $g = (child as Component<ComponentOption>).$geometry;
-                $g.y = counter;
-                counter += $g.height;
+                let c = child as Component<ComponentOption>;
+                c.$geometry.y = counter;
+                while (c && isRenderable(c)) {
+                    c = c.children[0] as Component<ComponentOption>;
+                    c.$geometry.y = counter;
+                }
+                counter += c.$geometry.height;
             } else {
                 throw Error(`Rows can only contain Components as direct child`);
             }

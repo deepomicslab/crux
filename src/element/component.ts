@@ -35,6 +35,8 @@ export class Component<Option extends ComponentOption = ComponentOption>
 
     public defaultProp() {
         return {
+            x: 0,
+            y: 0,
             width: GeometryValue.fullSize,
         } as any;
     }
@@ -47,14 +49,16 @@ export class Component<Option extends ComponentOption = ComponentOption>
 
     private _setScale(horizontal: boolean) {
         const s = horizontal ? this.prop.xScale : this.prop.yScale;
+        const k = horizontal ? "$scaleX" : "$scaleY";
         if (typeof s === "object" && s.__scale__) {
-            const k = horizontal ? "$scaleX" : "$scaleY";
             if (this[k] && s.type === "linear") {
                 if (s.domain) (this[k] as Scale).domain(s.domain);
                 if (s.range) (this[k] as Scale).range(s.range);
             } else {
                 this[k] = this._createScale_linear(horizontal, s.domain, s.range);
             }
+        } else if (typeof s === "function") {
+            this[k] = s as any;
         }
     }
 
@@ -104,6 +108,9 @@ export class Component<Option extends ComponentOption = ComponentOption>
     public get maxY(): number {
         return (this.$geometry as any).y + (this.$geometry as any).height;
     }
+
+    // hooks
+    public willInsertChildren?(children: ElementDef[]): void;
 
     protected _updateGeometry(key: "width" | "height", value: number) {
         let c: BaseElement = this as any;

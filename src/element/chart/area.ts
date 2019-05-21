@@ -1,12 +1,11 @@
 import { template } from "../../template/tag";
-import { Component } from "../component";
-import { ComponentOption } from "../component-options";
+import { BaseChart, BaseChartOption } from "./base-chart";
 
-export interface AreaOption extends ComponentOption {
+export interface AreaOption extends BaseChartOption {
     data: any[];
 }
 
-export class Area extends Component<AreaOption> {
+export class Area extends BaseChart<AreaOption> {
     public render = template`
     Component {
         Path {
@@ -22,7 +21,7 @@ export class Area extends Component<AreaOption> {
 
     private getPath(): string {
         const maxY = this.$geometry.height;
-        const data = this.prop.data.map((d, i) => [
+        const data = this.data.map((d, i) => [
             this._scale(i, true),
             this._scale(d, false),
         ] as [number, number]);

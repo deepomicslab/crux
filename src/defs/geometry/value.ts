@@ -61,6 +61,14 @@ export function isFixed(geo: GeometryOptValue): boolean {
     return !(typeof geo === "object" && geo.unit === GeometryUnit.Percent);
 }
 
+export function offset(val: GeometryOptValue, offset: number): GeometryOptValue {
+    if (typeof val === "number") return val + offset;
+    else {
+        val.offset += offset;
+        return val;
+    }
+}
+
 export type GeometryOptValue = number | GeometryValue;
 
 type GeometryPropKeys<T> = { [K in keyof T]:

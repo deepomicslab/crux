@@ -3,7 +3,6 @@ import { Component } from "../component";
 import { ComponentOption } from "../component-options";
 
 import { scaleLinear } from "d3-scale";
-import { render } from "../../rendering/svg";
 
 export interface BrushOption extends ComponentOption {
     range: [number, number];
@@ -23,11 +22,6 @@ export class Brush extends Component<BrushOption> {
 
     public render = template`
     Component {
-        x = prop.x
-        y = prop.y
-        width = prop.width
-        height = prop.height
-
         @let x = brushX()
         @let y = brushY()
         @let w = brushWidth()

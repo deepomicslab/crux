@@ -76,6 +76,7 @@ function genBehavior(node: ASTNodeComp) {
 }
 
 function gatherCondBlocks(node: ASTNode) {
+    if (node.type === "children") return;
     if (node.type === "cond" || !node.children.some(c => c.type === "op-if")) {
         return;
     }
@@ -123,6 +124,8 @@ function node2code(node: ASTNode, uidGen: UIDGenerator): string {
     const hasLocalData = node.localData.length > 0;
     let str: string;
     switch (node.type) {
+        case "children":
+            return `{ __children__: true }`;
         case "comp":
             const n = node as ASTNodeComp;
             str = isRootElement(node) ?

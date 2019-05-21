@@ -47,9 +47,13 @@ export class ParserStream {
     }
 
     public consumeTill(token: string, consumeEnd = true, checkError = true): string {
-        const i = this.str.indexOf(token);
-        if (checkError && i === this.str.length) {
-            this._error(`${this.pos}: Expect ${token}`);
+        let i = this.str.indexOf(token);
+        if (i < 0) {
+            if (checkError) {
+                this._error(`${this.pos}: Expect ${token}`);
+            } else {
+                i = this.str.length;
+            }
         }
         const result = this.str.substring(0, i);
         this.advance(i + (consumeEnd ? token.length : 0));

@@ -5,28 +5,80 @@ import { visualize } from "./src/visualizer";
 const t1 = `
 svg {
     width = auto
-    height = 600
+    height = 1200
 
-    @let array = [1, 2, 3, 4]
+    @let array = [1, 3, 8, 6, 5, 4, 2, 7, 3]
+    @let array2 = [6, 4, 3, 2, 4, 9, 1, 5, 8]
 
     Rows {
-        Rows {
-            @for (data, index) in array {
-                Container {
-                    key = index;
-                    padding-b = 10;
-                    Rect {
-                        width = 300; height = data * 20;
-                        fill = "#aaa"
-                        fill-opacity = 0.5
-                    }
-                }
+        XYPlot {
+            height = 300
+            width = 500
+            padding-y = 20
+            padding-x = 20
+            data = { array, array2 }
+            Rect { fill = "#efefef" }
+            AxisBackground {}
+            Bars {
+                data = "array2"
+            }
+            Bars {
+                data = "array"
+                barFill = "red"
+            }
+            Labels {
+                data = "array2"
+                labelGetter = d => "Value:" + d.value
+            }
+            Axis {
+                orientation = "bottom"
+                y = 100%
+            }
+            Axis {
+                x = 100%
+                orientation = "right"
             }
         }
-        Container {
-            Rect {
-                width = 300; height = 200;
-                fill = "#aaa";
+        XYPlot {
+            height = 300
+            width = 500
+            padding-y = 20
+            padding-x = 20
+            data = array
+            invertValueAxis = true
+            Rect { fill = "#efefef" }
+            Bars {
+            }
+            Labels {
+                labelGetter = d => "Value:" + d.value
+            }
+            Axis {
+                orientation = "top"
+            }
+            Axis {
+                x = 100%
+                orientation = "right"
+            }
+        }
+        XYPlot {
+            height = 300
+            width = 500
+            padding-y = 20
+            padding-x = 20
+            data = array
+            flip = true
+            invertValueAxis = true
+            Rect { fill = "#efefef" }
+            Bars {
+            }
+            Labels {
+                labelGetter = d => "Value:" + d.value
+            }
+            Axis {
+                orientation = "top"
+            }
+            Axis {
+                orientation = "left"
             }
         }
     }
@@ -66,6 +118,7 @@ registerDefaultBioInfoComponents();
 document.addEventListener("DOMContentLoaded", () => {
     const data = [];
 
+    /*
     dataLoader.load().then((data) => {
         // console.log(data);
         const v = window["$v"] = visualize({
@@ -82,10 +135,11 @@ document.addEventListener("DOMContentLoaded", () => {
             height: 800,
         });
     });
+    */
 
-    // fetch(url).then(x => x.json()).then(x => {
-    //     const d: any[] = window["$dd"] = x.data.map(toGeneData);
-    //     (v.root as any).prop.data = d;
-    //     v.run();
-    // });
+
+    const v = window["$v"] = visualize({
+        el: "#canvas",
+        template: t1,
+    });
 });

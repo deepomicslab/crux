@@ -1,5 +1,5 @@
 export interface ASTNode {
-    type: "comp" | "cond" | "op-if" | "op-for" | "op-elsif" | "op-else";
+    type: "comp" | "cond" | "op-if" | "op-for" | "op-elsif" | "op-else" | "children";
     localData: { name: string, expr: string }[];
     children: ASTNode[];
 }
