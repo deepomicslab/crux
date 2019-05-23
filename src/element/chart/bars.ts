@@ -13,6 +13,8 @@ export interface BarsOption extends BaseChartOption {
 }
 
 export class Bars extends BaseChart<BarsOption> {
+    protected data: any[];
+
     public render = template`
         Component {
             xScale = getScale(true) || createXScale()

@@ -12,7 +12,9 @@ function wrappedWithLocalData(node: ASTNode, wrapped: string) {
 }
 
 function genLocalData(node: ASTNode) {
-    return node.localData.map(d => `let ${d.name} = ${d.expr}; `).join("");
+    return node.localData.map(d =>
+        d.name === "@expr" ? `${d.expr};` : `let ${d.name} = ${d.expr};`,
+    ).join(" ");
 }
 
 function genGeoExpr(match: RegExpMatchArray): string {

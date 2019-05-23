@@ -8,6 +8,8 @@ export interface LabelsOption extends BaseChartOption {
 }
 
 export class Labels extends BaseChart<LabelsOption> {
+    protected data: any[];
+
     public render = template`
     Component {
         xScale = getScale(true) || createXScale()

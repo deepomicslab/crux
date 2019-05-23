@@ -2,6 +2,7 @@ import { ASTNode, isCompNode } from "../ast-node";
 import { ParserStream } from "../parse-stream";
 import { BEHAVIOR_BLOCK_NAME, BLOCK_NAME, NAME } from "../tokens";
 import { parseBlock } from "./block";
+import { parseExpr } from "./expr";
 import { parseFor } from "./for";
 import { parseElse, parseElsif, parseIf } from "./if";
 import { parseBehaviorBlock } from "./internal-block";
@@ -48,6 +49,9 @@ export function parseBlockBody(p: ParserStream, node: ASTNode) {
                     break;
                 case "let":
                     node.localData.push(parseLet(p));
+                    break;
+                case "expr":
+                    node.localData.push(parseExpr(p));
                     break;
                 case "children":
                     p.expect("@children");

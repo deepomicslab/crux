@@ -1,3 +1,4 @@
+import { oneLineTrim } from "common-tags";
 import { Component } from "../component";
 import { ComponentOption } from "../component-options";
 import { parseData, XYPlot, XYPlotDataAcceptable } from "../plot";
@@ -7,7 +8,7 @@ export interface BaseChartOption extends ComponentOption, XYPlotDataAcceptable {
 }
 
 export class BaseChart<Option extends BaseChartOption = BaseChartOption> extends Component<Option> {
-    protected data: any[];
+    protected data: any[] | Record<string, any>;
     protected columnWidth: number;
 
     protected flipped = false;
@@ -15,24 +16,39 @@ export class BaseChart<Option extends BaseChartOption = BaseChartOption> extends
 
     public willRender() {
         const dataProp = this.prop.data;
-        if (Array.isArray(dataProp)) {
-            this.data = parseData(this as any, dataProp);
-        }
         if (this.$parent instanceof XYPlot) {
-            if (!this.data) {
-                if (this.$parent.hasMultipleData) {
-                    if (typeof dataProp !== "string")
-                        throw new Error(`Chart: a data key must be used when supplying multiple data to the plot.`);
-                    this.data = this.$parent.data[dataProp];
-                } else {
-                    this.data = this.$parent.data as any[];
-                }
-            }
+            this.inheritData();
             this.columnWidth = this.$parent.columnWidth;
             this.flipped = this.$parent.flipped;
             this.inverted = this.$parent.inverted;
+        } else if (Array.isArray(dataProp)) {
+            this.data = parseData(this as any, dataProp);
         } else {
             throw new Error(`Chart: please supply data.`);
+        }
+    }
+
+    protected inheritData() {
+        const dataProp = this.prop.data;
+        const $p = this.$parent as XYPlot;
+        if ($p.hasMultipleData) {
+            const getData = k => {
+                if (!(k in (this.$parent as any).data)) {
+                    throw new Error(`${k} doesn't exist in the plot.`);
+                }
+                return (this.$parent as any).data[k];
+            };
+            if (typeof dataProp === "string") {
+                this.data = getData(dataProp);
+            } else if (Array.isArray(dataProp)) {
+                this.data = {};
+                dataProp.forEach(p => this.data[p] = getData(p));
+            } else {
+                throw new Error(oneLineTrim`Chart: a data key or an array of data keys
+                 must be used when supplying multiple data to the plot.`);
+            }
+        } else {
+            this.data = $p.data as any[];
         }
     }
 

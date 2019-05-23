@@ -1,7 +1,7 @@
 import { ASTNodeComp } from "../ast-node";
 import { ParserStream } from "../parse-stream";
-import { NAME, HELPER } from "../tokens";
-import { parseHelper, parseHelper_ } from "./helper";
+import { NAME } from "../tokens";
+import { parseHelper_ } from "./helper";
 
 export function parseProp(p: ParserStream, node: ASTNodeComp) {
     const name = p.expect(NAME)[0];

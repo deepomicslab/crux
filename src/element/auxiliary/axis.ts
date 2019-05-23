@@ -60,6 +60,8 @@ export class Axis extends Component<AxisOption> {
         };
     }
 
+    public static propNameForInitializer() { return "orientation"; }
+
     private _tickValues: any[];
 
     public willRender() {

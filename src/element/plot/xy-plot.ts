@@ -1,4 +1,5 @@
 import d3 = require("d3-array");
+import _ = require("lodash");
 
 import { GeometryValue, offset } from "../../defs/geometry";
 import { ElementDef } from "../../rendering/render-tree";
@@ -19,6 +20,9 @@ export interface XYPlotDataAcceptable {
 
 export interface XYPlotOption extends ComponentOption, XYPlotDataAcceptable {
     data: any[] | Record<string, any>;
+    stackedData: Record<string, string[]>;
+    categoryRange: any[];
+    valueRange: [number, number];
     gap: number;
     // layout
     flip: boolean;
@@ -58,21 +62,44 @@ export class XYPlot extends Component<XYPlotOption> {
     private _paddings: [number, number, number, number];
     private _xScale: any;
     private _yScale: any;
-    private _allData: XYPlotPoint[];
+    private _cRange: any[];
+    private _vRange: [number, number];
 
     public willRender() {
         const data = this.prop.data;
         if (data) {
+            let allData: XYPlotPoint[];
             if (Array.isArray(data)) {
-                this.data = this._allData = parseData(this, data);
+                this.data = allData = parseData(this, data);
             } else if (typeof data === "object") {
                 this.hasMultipleData = true;
                 this.data = {};
                 Object.keys(data).forEach(k => this.data[k] = parseData(this, data[k]));
-                this._allData = Object.values(this.data).flat();
+                // all data
+                allData = [];
+                const keys = new Set(Object.keys(this.data));
+                const stackedData = this.prop.stackedData;
+                if (typeof stackedData === "object") {
+                    Object.keys(stackedData).forEach(k => {
+                        if (typeof k !== "string" || !(k in stackedData))
+                            throw new Error(`${k} is not a valid data key.`);
+                        const flatten = stackedData[k].map(sd => {
+                            keys.delete(sd);
+                            return this.data[sd];
+                        }).flat();
+                        const grouped = _.groupBy(flatten, "pos");
+                        const gather = pos => grouped[pos].reduce((p, c) => ({ pos: p.pos, value: p.value + c.value }));
+                        allData.push(...Object.keys(grouped).map(gather));
+                    });
+                }
+                for (const e of keys.entries()) {
+                    allData.push(...this.data[e[0]]);
+                }
             } else {
                 throw new Error(`XYPlot: data supplied must be an array or an object.`);
             }
+            this._cRange = d3.extent(allData, d => d.pos);
+            this._vRange = [0, d3.max(allData, d => d.value)];
         }
         this._paddings = this.getPadding();
         this._xScale = this.createScale(true);
@@ -93,6 +120,8 @@ export class XYPlot extends Component<XYPlotOption> {
     public get categoryScale() { return this.flipped ? this._yScale : this._xScale; }
     public get valueScale() { return this.flipped ? this._xScale : this._yScale; }
 
+    public stackedDataKeys(key: string) { return this.prop.stackedData[key]; }
+
     // private use
 
     private createScale(x: boolean) {
@@ -103,7 +132,6 @@ export class XYPlot extends Component<XYPlotOption> {
 
     private createCategoryScale(size: number) {
         const [pt, pr, pb, pl] = this._paddings;
-        const pRange = d3.extent(this._allData, d => d.pos);
         const n = (this.hasMultipleData ? this.data[Object.keys(this.data)[0]] : this.data).length;
 
         const width = size - pl - pr;
@@ -112,7 +140,7 @@ export class XYPlot extends Component<XYPlotOption> {
         this.columnWidth = columnSizeWithGap - gap;
         const padding = (columnSizeWithGap + gap) * 0.5;
         const domain: [number, number] = [padding, width - padding];
-        return this._createScale_linear(true, pRange, domain);
+        return this._createScale_linear(true, this._cRange as any, domain);
     }
 
     private createValueScale(size: number) {
@@ -120,7 +148,7 @@ export class XYPlot extends Component<XYPlotOption> {
         const width = size - pt - pb;
         return this._createScale_linear(
             false,
-            [0, d3.max(this._allData, d => d.value)],
+            this._vRange,
             this.inverted ? [0, width] : [width, 0],
         );
     }
