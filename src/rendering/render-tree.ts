@@ -14,10 +14,10 @@ export interface OptDict {
     id: number;
     styles: Record<string, string>;
     behaviors: Record<string, Record<string, any>>;
+    namedChildren: Record<string, () => any>;
 }
 
 export interface ElementDef {
-    __children__?: boolean;
     tag: string;
     opt: OptDict;
     children: ElementDef[];
@@ -72,6 +72,10 @@ export function updateTree(parent: Component<ComponentOption>, def?: ElementDef)
                 }
             }
         }
+
+        opt.props.children = def.children;
+        opt.props.namedChildren = def.opt.namedChildren || {};
+
         elm.setProp(opt.props);
         if (opt.on) elm.setEventHandlers(opt.on);
         if (opt.styles) elm.setStyles(opt.styles);
@@ -101,7 +105,6 @@ export function updateTree(parent: Component<ComponentOption>, def?: ElementDef)
 
         elm.$callHook("willRender");
         const tree = elm.render();
-        if (def && def.children.length > 0) insertChildren(elm, tree, def.children);
         updateTree(elm, tree);
 
         currElements.pop();
@@ -114,19 +117,8 @@ export function updateTree(parent: Component<ComponentOption>, def?: ElementDef)
     }
 
     elm.$callHook("didLayoutSubTree");
+    elm.$callHook("willAdjustAnchor");
     adjustByAnchor(elm);
 
     elm.$callHook("didUpdate");
-}
-
-function insertChildren(elm: Component, tree: ElementDef, children: ElementDef[]) {
-    const index = tree.children.findIndex(c => c.__children__);
-    if (index >= 0) {
-        elm.willInsertChildren(children);
-        tree.children.splice(index, 1, ...children);
-        return;
-    } else {
-        for (const c of tree.children)
-            insertChildren(elm, c, children);
-    }
 }

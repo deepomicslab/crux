@@ -36,6 +36,7 @@ export function parseFor(p: ParserStream): ASTNodeFor {
         expr,
         localData: [],
         children: [],
+        namedChildren: {},
     };
 
     if (withIndex) {

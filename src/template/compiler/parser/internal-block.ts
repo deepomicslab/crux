@@ -11,6 +11,7 @@ export function parseBehaviorBlock(p: ParserStream): { name: string, args: Recor
         name,
         localData: [],
         children: [],
+        namedChildren: {},
         props: [],
         on: [],
         styles: [],

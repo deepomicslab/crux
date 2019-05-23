@@ -2,12 +2,14 @@ import { ASTNode, isCompNode } from "../ast-node";
 import { ParserStream } from "../parse-stream";
 import { BEHAVIOR_BLOCK_NAME, BLOCK_NAME, NAME } from "../tokens";
 import { parseBlock } from "./block";
+import { parseChildren } from "./children";
 import { parseExpr } from "./expr";
 import { parseFor } from "./for";
 import { parseElse, parseElsif, parseIf } from "./if";
 import { parseBehaviorBlock } from "./internal-block";
 import { parseLet } from "./let";
 import { parseProp } from "./prop";
+import { parseYield } from "./yield";
 
 function last<T>(array: T[]): T {
     return array[array.length - 1];
@@ -53,16 +55,18 @@ export function parseBlockBody(p: ParserStream, node: ASTNode) {
                 case "expr":
                     node.localData.push(parseExpr(p));
                     break;
-                case "children":
-                    p.expect("@children");
-                    node.children.push({ type: "children", children: [], localData: [] });
+                case "yield":
+                    node.children.push(parseYield(p));
                     break;
                 default:
                     throw new Error(`Unknown command: @${op}`);
             }
+        } else if (p.peek() === ":") {
+            const children = parseChildren(p);
+            node.namedChildren[children.name] = children;
         } else if (testResult = p.test(BLOCK_NAME)) {
             node.children.push(parseBlock(p));
-        } else if(testResult = p.test(BEHAVIOR_BLOCK_NAME)) {
+        } else if (testResult = p.test(BEHAVIOR_BLOCK_NAME)) {
             if (isCompNode(node)) {
                 node.behavior.push(parseBehaviorBlock(p));
             } else {

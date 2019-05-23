@@ -37,6 +37,12 @@ export class Rect extends PrimitiveElement<RectOption> {
         };
     }
 
+    public defaultProp() {
+        return {
+            fill: "#aaa",
+        };
+    }
+
     public get maxX(): number {
         return this.$geometry.x + this.$geometry.width;
     }

@@ -1,7 +1,8 @@
 export interface ASTNode {
-    type: "comp" | "cond" | "op-if" | "op-for" | "op-elsif" | "op-else" | "children";
+    type: "comp" | "cond" | "op-if" | "op-for" | "op-elsif" | "op-else" | "yield" | "children";
     localData: { name: string, expr: string }[];
     children: ASTNode[];
+    namedChildren: Record<string, ASTNodeChildren>;
 }
 
 export interface ASTNodeFor extends ASTNode {
@@ -39,11 +40,25 @@ export interface ASTNodeCondition extends ASTNode {
     children: (ASTNodeIf | ASTNodeElsif | ASTNodeElse)[];
 }
 
+export interface ASTNodeYield extends ASTNode {
+    type: "yield";
+    name: string;
+    data: string;
+    processor: string;
+}
+
+export interface ASTNodeChildren extends ASTNode {
+    type: "children";
+    name: string;
+    dataName: string;
+}
+
 export function newNode<T extends ASTNode>(type: string): T {
     return {
         type,
         localData: [],
         children: [],
+        namedChildren: {},
     } as T;
 }
 

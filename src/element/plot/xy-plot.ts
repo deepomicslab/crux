@@ -50,7 +50,7 @@ export class XYPlot extends Component<XYPlotOption> {
             xScale = _xScale
             yScale = _yScale
 
-            @children
+            @yield children then handleChildren
         }
     }
     `;
@@ -106,11 +106,12 @@ export class XYPlot extends Component<XYPlotOption> {
         this._yScale = this.createScale(false);
     }
 
-    public willInsertChildren(children: ElementDef[]) {
+    public handleChildren(children: ElementDef[]) {
         children.forEach(c => {
             c.opt.props.width = GeometryValue.fullSize;
             c.opt.props.height = GeometryValue.fullSize;
         });
+        return children;
     }
 
     // API

@@ -39,11 +39,6 @@ export function layoutElement(el: BaseElement, skipFixed = false) {
     for (const prop of vProps) {
         updateGeometryProps(el, prop, pHeight);
     }
-
-    el.$callHook("willAdjustAnchor");
-    if (el instanceof Component) {
-        adjustByAnchor(el);
-    }
 }
 
 export function adjustByAnchor(el: BaseElement<BaseOption>) {

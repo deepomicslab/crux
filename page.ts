@@ -23,18 +23,26 @@ svg {
             AxisBackground {}
             StackedBars {
                 data = "stacked"
+                :children(data) {
+                    Rect {
+                        width = 100%; height = 100%
+                        fill = data.key === "array2" ? "green" : "yellow"
+                    }
+                }
             }
             Bars {
                 data = "array3"
-                barFill = "red"
+                :children(data) {
+                    Rect {
+                        width = 100%; height = 100%
+                        fill = "red"
+                    }
+                    Text {
+                        text = "Value:" + data.value
+                    }
+                }
             }
-            Labels {
-                data = "array2"
-                labelGetter = d => "Value:" + d.value
-            }
-            Axis("bottom") {
-                y = 100%
-            }
+            Axis("bottom") { y = 100% }
             Axis("left") {}
         }
         XYPlot {
@@ -46,6 +54,7 @@ svg {
             invertValueAxis = true
             Rect { fill = "#efefef" }
             Bars {
+                Rect { width = 100%; height = 100% }
             }
             Labels {
                 labelGetter = d => "Value:" + d.value
@@ -68,6 +77,7 @@ svg {
             invertValueAxis = true
             Rect { fill = "#efefef" }
             Bars {
+                Rect { width = 100%; height = 100% }
             }
             Labels {
                 labelGetter = d => "Value:" + d.value

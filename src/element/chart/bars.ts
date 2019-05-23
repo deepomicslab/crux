@@ -4,12 +4,8 @@ import { Anchor, GeometryUnit, GeometryValue } from "../../defs/geometry";
 import { template } from "../../template/tag";
 import { BaseChart, BaseChartOption } from "./base-chart";
 
-type ValueDef = string | ((d: any, i: number, g: any[]) => string);
-
 export interface BarsOption extends BaseChartOption {
     barWidth: number;
-    barFill: ValueDef;
-    barStroke: ValueDef;
 }
 
 export class Bars extends BaseChart<BarsOption> {
@@ -21,23 +17,20 @@ export class Bars extends BaseChart<BarsOption> {
             yScale = getScale(false) || createYScale()
 
             @for (d, index) in data {
-                Rect {
-                    key = index
-                    anchor = getAnchor()
-
+                Component {
                     @let x = getX(d)
                     @let y = getY()
                     @let width = getWidth()
                     @let height = getHeight(d)
 
+                    key = index
+                    anchor = getAnchor()
                     x = flipped ? y : x
                     y = flipped ? x : y
                     width = flipped ? height : width
                     height = flipped ? width : height
 
-                    fill = propValue("barFill", d, index, data)
-                    stroke = propValue("barStroke", d, index, data)
-                    strokeWidth = propValue("barStrokeWidth", d, index)
+                    @yield children with d
                 }
             }
         }

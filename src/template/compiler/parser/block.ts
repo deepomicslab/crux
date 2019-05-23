@@ -11,6 +11,7 @@ export function parseBlock(p: ParserStream): ASTNode {
         name,
         localData: [],
         children: [],
+        namedChildren: {},
         props: [],
         on: [],
         styles: [],

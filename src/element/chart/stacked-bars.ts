@@ -18,7 +18,7 @@ export class StackedBars extends BaseChart<StackedBarsOption> {
             @let tSize = 0
             @for key in dataKeys {
                 @let d = group[key]
-                Rect {
+                Component {
                     @let x = getX(d.pos)
                     @let y = getY(tSize)
                     @let width = getWidth()
@@ -32,6 +32,9 @@ export class StackedBars extends BaseChart<StackedBarsOption> {
                     y = flipped ? x : y
                     width = flipped ? height : width
                     height = flipped ? width : height
+
+                    @let dd = { data: d, key: key }
+                    @yield children with dd
                 }
             }
         }
