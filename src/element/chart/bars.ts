@@ -13,15 +13,16 @@ export class Bars extends BaseChart<BarsOption> {
 
     public render = template`
         Component {
+            @let y = getY()
+
             xScale = getScale(true) || createXScale()
             yScale = getScale(false) || createYScale()
 
             @for (d, index) in data {
                 Component {
-                    @let x = getX(d)
-                    @let y = getY()
+                    @let x = getX(d.pos)
                     @let width = getWidth()
-                    @let height = getHeight(d)
+                    @let height = getHeight(d.value)
 
                     key = index
                     anchor = getAnchor()
@@ -48,8 +49,8 @@ export class Bars extends BaseChart<BarsOption> {
             (this.inverted ? Anchor.Top : Anchor.Bottom) | Anchor.Center;
     }
 
-    private getX(d: any) {
-        return this._scale(d.pos, !this.flipped);
+    private getX(pos: any) {
+        return this._scale(pos, !this.flipped);
     }
 
     private getY() {
@@ -60,10 +61,10 @@ export class Bars extends BaseChart<BarsOption> {
         return this.prop.barWidth || this.columnWidth;
     }
 
-    private getHeight(d: any) {
+    private getHeight(value: number) {
         return this.inverted ?
-            this._scale(d.value, this.flipped) :
-            GeometryValue.create(100, GeometryUnit.Percent, -this._scale(d.value, this.flipped));
+            this._scale(value, this.flipped) :
+            GeometryValue.create(100, GeometryUnit.Percent, -this._scale(value, this.flipped));
     }
 
     private get maxValue() {

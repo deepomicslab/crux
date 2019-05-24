@@ -164,8 +164,12 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
         this.draw();
     }
 
-    public stage(s: string) {
+    public setStage(s: string) {
         this.setState({ stage: s });
+    }
+
+    public get stage() {
+        return this.state.stage;
     }
 
     /* drawing */

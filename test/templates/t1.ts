@@ -34,9 +34,9 @@ svg {
                         stage:active {
                             fill = "green"
                         }
-                        on:click = $el.stage($el.state.stage ? null : "active")
-                        on:mouseenter = $el.stage("active")
-                        on:mouseleave = $el.stage(null)
+                        on:click = $el.setStage($el.stage ? null : "active")
+                        on:mouseenter = $el.setStage("active")
+                        on:mouseleave = $el.setStage(null)
                     }
                     Text {
                         text = "Value:" + data.value
@@ -51,14 +51,13 @@ svg {
             width = 500
             padding-y = 20
             padding-x = 20
-            data = array
+            data = { array, array2, array3 }
             invertValueAxis = true
             Rect { fill = "#efefef" }
-            Bars {
-                Rect.full { fill = "red" }
-            }
-            Dots {
-                Circle.centered { r = 4; fill = "blue" }
+            GroupedBars {
+                data = ["array", "array2", "array3"]
+                Rect.full { fill = "grey"; stroke = "blue" }
+                Circle.centered { x = 50%; y = 50%; r = 4; fill = "blue" }
             }
             Axis {
                 orientation = "top"
