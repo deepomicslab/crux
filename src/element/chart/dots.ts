@@ -16,14 +16,27 @@ export class Dots extends BaseChart<DotsOption> {
 
         @for (d, index) in data {
             Component {
-                @let x = getX(d)
-                @let y = getY(d)
                 key = index
-                x = flipped ? y : x
-                y = flipped ? x : y
-                width = 0; height = 0
+                @let x = flipped ? getY(d) : getX(d)
+                @let y = flipped ? getX(d) : getY(d)
+                @if prop.namedChildren.links && index < data.length - 1 {
+                    Component {
+                        @let fromData = { x: x, y: y, data: d }
+                        @let next = data[index + 1]
+                        @let nx = flipped ? getY(next) : getX(next)
+                        @let ny = flipped ? getX(next) : getY(next)
+                        @let toData = { x: nx, y: ny, data: next }
+                        @let linksData = { from: fromData, to: toData }
+                        @yield links with linksData
+                    }
+                }
+                Component {
+                    x = x
+                    y = y
+                    width = 0; height = 0
 
-                @yield children with d
+                    @yield children with d
+                }
             }
         }
     }

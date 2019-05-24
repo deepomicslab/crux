@@ -79,6 +79,19 @@ svg {
             Bars {
                 Rect { width = 100%; height = 100% }
             }
+            Dots {
+                Circle.centered { r = 4; fill = "blue" }
+                :links(d) {
+                    Line {
+                        x1 = d.from.x
+                        y1 = d.from.y
+                        x2 = d.to.x
+                        y2 = d.to.y
+                        stroke = "red"
+                        strokeWidth = 4
+                    }
+                }
+            }
             Axis {
                 orientation = "top"
             }

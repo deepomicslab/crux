@@ -10,6 +10,7 @@ export function svgPropFillAndStroke(elm: BaseElement<BaseElementOption>) {
 
     if (v = elm.prop.fill) result.fill = v;
     if (v = elm.prop.stroke) result.stroke = v;
+    if (v = elm.prop.strokeWidth) result["stroke-width"] = v;
     return result;
 }
 
