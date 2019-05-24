@@ -3,12 +3,17 @@ import { BaseOption } from "../element/base-options";
 import { isRenderable } from "../element/is";
 
 export function gatherEventListeners(el: BaseElement<BaseOption>) {
-    const listeners: Record<string, ((e: Event) => void)[]> = {};
+    const listeners: Record<string, ((e: Event) => void)[] | ((e: Event) => void)> = {};
     let p = el;
     let empty = true;
     function gather(k: string, l: any) {
-        if (!listeners[k]) listeners[k] = [null];
-        listeners[k].push(l);
+        if (typeof listeners[k] === "undefined") {
+            listeners[k] = l;
+        } else if (typeof listeners[k] === "function") {
+            listeners[k] = [null, listeners[k] as any, l];
+        } else {
+            (listeners[k] as any[]).push(l);
+        }
         empty = false;
     }
     do {

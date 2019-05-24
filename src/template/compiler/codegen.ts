@@ -2,7 +2,7 @@ import { oneLineTrim, stripIndent } from "common-tags";
 import { Anchor, GEOMETRY_LITERAL } from "../../defs/geometry";
 import { getComponent } from "../../element/get-component";
 import { UIDGenerator } from "../../utils/uid";
-import { ASTNode, ASTNodeComp, ASTNodeCondition, ASTNodeElse, ASTNodeFor, ASTNodeIf, isRootElement, newNode, ASTNodeChildren, ASTNodeYield } from "./ast-node";
+import { ASTNode, ASTNodeComp, ASTNodeCondition, ASTNodeElse, ASTNodeFor, ASTNodeIf, ASTNodeYield, isRootElement, newNode } from "./ast-node";
 
 function wrappedWithLocalData(node: ASTNode, wrapped: string) {
     return `(function(){
@@ -53,10 +53,12 @@ function genEventHdl(node: ASTNodeComp) {
     if (node.on.length === 0) return "";
     const events = node.on.map(o => {
         let handler: string;
-        if (o.handler.match(/^[A-z0-9_]+$/)) {
+        if (o.handler.startsWith("function") || o.handler.match(/^\(.+?\) *=>/)) {
+            handler = o.handler;
+        } else if (o.handler.match(/^[A-z0-9_]+$/)) {
             handler = `${o.handler}.bind(this)`;
         } else {
-            handler = `(function($ev) { ${o.handler} }).bind(this)`;
+            handler = `(function($ev, $el) { ${o.handler} }).bind(this)`;
         }
         return `${o.name}: ${handler}`;
     }).join(",");
@@ -75,6 +77,14 @@ function genBehavior(node: ASTNodeComp) {
         s.args.map(a => `${a.name}: ${a.expr}`).join(", ")
     }}`).join(",");
     return `behaviors: { ${behaviors} },`;
+}
+
+function genStage(node: ASTNodeComp) {
+    if (node.stage.length === 0) return "";
+    const stages = node.stage.map(s => `'${s.name}': {${
+        s.args.map(a => `${a.name}: ${a.expr}`).join(", ")
+    }}`).join(",");
+    return `stages: { ${stages} },`;
 }
 
 function genNamedChildren(node: ASTNodeComp, uidGen: UIDGenerator) {
@@ -151,6 +161,7 @@ function genNodeComp(node: ASTNodeComp, uidGen: UIDGenerator) {
                     genEventHdl(n),
                     genStyle(n),
                     genBehavior(n),
+                    genStage(n),
                     genNamedChildren(n, uidGen),
                 ].filter(s => s).join("\n")}
             },

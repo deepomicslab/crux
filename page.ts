@@ -36,6 +36,12 @@ svg {
                     Rect {
                         width = 100%; height = 100%
                         fill = "red"
+                        stage:active {
+                            fill = "green"
+                        }
+                        on:click = $el.stage($el.state.stage ? null : "active")
+                        on:mouseenter = $el.stage("active")
+                        on:mouseleave = $el.stage(null)
                     }
                     Text {
                         text = "Value:" + data.value

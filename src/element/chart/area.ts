@@ -22,8 +22,8 @@ export class Area extends BaseChart<AreaOption> {
     private getPath(): string {
         const maxY = this.$geometry.height;
         const data = this.data.map((d, i) => [
-            this._scale(i, true),
-            this._scale(d, false),
+            this._scale(d.pos, true),
+            this._scale(d.value, false),
         ] as [number, number]);
 
         // check dirty

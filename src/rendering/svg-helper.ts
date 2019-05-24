@@ -49,7 +49,7 @@ export function svgPropClip(elm: Component<ComponentOption>) {
     return result;
 }
 
-export function svgInnerHTML(elm: BaseElement<BaseElementOption>) {
+export function svgInnerHTML(elm: BaseElement<BaseElementOption & { html: string }>) {
     const result = {} as any;
     let v: any;
 

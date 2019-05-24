@@ -8,6 +8,11 @@ import { Visualizer } from "../visualizer/visualizer";
 import { BaseOption } from "./base-options";
 import { Component } from "./component";
 
+interface State {
+    stage: string;
+    [name: string]: any;
+}
+
 export abstract class BaseElement<Option extends BaseOption = BaseOption>
     implements SVGRenderable {
 
@@ -20,13 +25,15 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
     public logicalParent?: Component;
     public vnode: VNode;
 
-    public prop: Partial<Option> = {};
-    protected state: any;
+    private _prop: Partial<Option>;
+    public prop: Partial<Option>;
+    protected state: State = { stage: null } ;
 
     public $parent?: Component;
     public $on: Record<string, any> = {};
     public $styles: Record<string, string> = {};
     public $behavior: Record<string, Behavior> = {};
+    public $stages: Record<string, Record<string, any>>;
     public $geometry: GeometryOptions<Option>;
     public $defaultProp: Partial<Option>;
 
@@ -48,6 +55,8 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
         this.uid = defaultUIDGenerator.gen();
         this.$geometry = {} as any;
         this.$defaultProp = this.defaultProp();
+        this._prop = {};
+        this.setupPropProxy();
         this.init();
     }
 
@@ -58,6 +67,22 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
     /* properties */
 
     public defaultProp(): Partial<Option> { return {}; }
+
+    private setupPropProxy() {
+        this.prop = new Proxy(this._prop, {
+            get: (target, p) => {
+                let s: any;
+                if (this.state.stage && (s = this.$stages[this.state.stage]) && (p in s)) {
+                    return s[p];
+                }
+                return target[p];
+            },
+            set: (target, p, value) => {
+                console.warn("this.prop is readonly.");
+                return false;
+            },
+        });
+    }
 
     public setProp(prop: Partial<Option>) {
         const propsWithMods = {};
@@ -72,7 +97,7 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
                     propsWithMods[m][name] = value;
                 });
             }
-            this.prop[k] = value;
+            this._prop[k] = value;
         });
 
         // modifier
@@ -82,8 +107,8 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
 
         // add default props
         Object.keys(this.$defaultProp).forEach(k => {
-            if (!(k in this.prop))
-                this.prop[k] = this.$defaultProp[k];
+            if (!(k in this._prop))
+                this._prop[k] = this.$defaultProp[k];
         });
     }
 
@@ -137,6 +162,10 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
             this.state[k] = s[k];
         });
         this.draw();
+    }
+
+    public stage(s: string) {
+        this.setState({ stage: s });
     }
 
     /* drawing */

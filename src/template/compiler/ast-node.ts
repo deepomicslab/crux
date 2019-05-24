@@ -19,6 +19,7 @@ export interface ASTNodeComp extends ASTNode {
     styles: { name: string, expr: string }[];
     on: { name: string, handler: string }[];
     behavior: { name: string, args: Record<string, any> }[];
+    stage: { name: string, args: Record<string, any> }[];
 }
 
 export interface ASTNodeIf extends ASTNode {
@@ -60,6 +61,21 @@ export function newNode<T extends ASTNode>(type: string): T {
         children: [],
         namedChildren: {},
     } as T;
+}
+
+export function newCompNode(name: string): ASTNodeComp {
+    return {
+        type: "comp",
+        name,
+        localData: [],
+        children: [],
+        namedChildren: {},
+        props: [],
+        on: [],
+        styles: [],
+        behavior: [],
+        stage: [],
+    };
 }
 
 export function isCompNode(node: ASTNode): node is ASTNodeComp {

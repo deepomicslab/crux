@@ -65,6 +65,7 @@ function _genView(element: BaseElement<any>): VNode {
         hook: {
             insert: insertHook(element),
         },
+        _elm: element,
     };
 
     // innerHTML

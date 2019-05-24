@@ -14,6 +14,7 @@ export interface OptDict {
     id: number;
     styles: Record<string, string>;
     behaviors: Record<string, Record<string, any>>;
+    stages: Record<string, Record<string, any>>;
     namedChildren: Record<string, () => any>;
 }
 
@@ -57,7 +58,7 @@ export function updateTree(parent: Component<ComponentOption>, def?: ElementDef)
         [elm, created] = findComponent(parent, tag, key);
 
         if (opt.props.debug) {
-            console.log("d");
+            console.log("Rendering component:");
         }
         // if (!created && (isRenderable(elm) || isPrimitive(elm)) && eq(elm.prop, opt.props)) {
         //     return;
@@ -76,10 +77,12 @@ export function updateTree(parent: Component<ComponentOption>, def?: ElementDef)
         opt.props.children = def.children;
         opt.props.namedChildren = def.opt.namedChildren || {};
 
-        elm.setProp(opt.props);
         if (opt.on) elm.setEventHandlers(opt.on);
         if (opt.styles) elm.setStyles(opt.styles);
         if (opt.behaviors) elm.setBehaviors(opt.behaviors);
+        if (opt.stages) elm.$stages = opt.stages;
+        elm.setProp(opt.props);
+
         if (created)
             elm.$callHook("didCreate");
     }

@@ -10,18 +10,19 @@ export type On = {
 function invokeHandler(handler: any, vnode?: VNode, event?: Event): void {
     if (typeof handler === "function") {
         // call function handler
-        handler.call(vnode, event, vnode);
+        handler.call(null, event, vnode.data._elm, vnode);
     } else if (typeof handler === "object") {
         // call handler with arguments
         if (typeof handler[0] === "function") {
             // special case for single argument for performance
             if (handler.length === 2) {
-                handler[0].call(vnode, handler[1], event, vnode);
+                handler[0].call(null, handler[1], event, vnode.data._elm, vnode);
             } else {
                 const args = handler.slice(1);
                 args.push(event);
+                args.push(vnode.data._elm);
                 args.push(vnode);
-                handler[0].apply(vnode, args);
+                handler[0].apply(null, args);
             }
         } else {
             // call multiple handlers
@@ -64,6 +65,7 @@ function updateEventListeners(oldVnode: VNode, vnode?: VNode): void {
     if (oldOn && oldListener) {
         // if element changed or deleted we remove all existing listeners unconditionally
         if (!on) {
+            // tslint:disable-next-line: forin
             for (name in oldOn) {
                 // remove listener if element was changed or existing listeners removed
                 oldElm.removeEventListener(name, oldListener, false);
@@ -81,12 +83,13 @@ function updateEventListeners(oldVnode: VNode, vnode?: VNode): void {
     // add new listeners which has not already attached
     if (on) {
         // reuse existing listener or create new
-        let listener = (vnode as any).listener = (oldVnode as any).listener || createListener();
+        const listener = (vnode as any).listener = (oldVnode as any).listener || createListener();
         // update vnode for listener
         listener.vnode = vnode;
 
         // if element changed or added we add all needed listeners unconditionally
         if (!oldOn) {
+            // tslint:disable-next-line: forin
             for (name in on) {
                 // add listener if element was changed or new listeners added
                 elm.addEventListener(name, listener, false);

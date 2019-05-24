@@ -39,9 +39,6 @@ export class Bars extends BaseChart<BarsOption> {
     public defaultProp() {
         return {
             ...super.defaultProp(),
-            barFill: "#aaa",
-            barStroke: "#999",
-            barStrokeWidth: 0,
         };
     }
 

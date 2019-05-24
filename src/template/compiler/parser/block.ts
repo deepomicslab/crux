@@ -1,4 +1,4 @@
-import { ASTNode, ASTNodeComp } from "../ast-node";
+import { ASTNode, newCompNode } from "../ast-node";
 import { ParserStream } from "../parse-stream";
 import { parseBlockBody } from "../parser/block-body";
 import { BLOCK_NAME } from "../tokens";
@@ -6,17 +6,7 @@ import { BLOCK_NAME } from "../tokens";
 export function parseBlock(p: ParserStream): ASTNode {
     const [_, name, initArg] = p.expect(BLOCK_NAME);
 
-    const node: ASTNodeComp = {
-        type: "comp",
-        name,
-        localData: [],
-        children: [],
-        namedChildren: {},
-        props: [],
-        on: [],
-        styles: [],
-        behavior: [],
-    };
+    const node = newCompNode(name);
 
     if (initArg) {
         node.props.push({ name: "_initArg", expr: initArg });

@@ -1,12 +1,12 @@
 import { ASTNode, isCompNode } from "../ast-node";
 import { ParserStream } from "../parse-stream";
-import { BEHAVIOR_BLOCK_NAME, BLOCK_NAME, NAME } from "../tokens";
+import { BEHAVIOR_BLOCK_NAME, BLOCK_NAME, NAME, STAGE_BLOCK_NAME } from "../tokens";
 import { parseBlock } from "./block";
 import { parseChildren } from "./children";
 import { parseExpr } from "./expr";
 import { parseFor } from "./for";
 import { parseElse, parseElsif, parseIf } from "./if";
-import { parseBehaviorBlock } from "./internal-block";
+import { parseBehaviorBlock, parseStageBlock } from "./internal-block";
 import { parseLet } from "./let";
 import { parseProp } from "./prop";
 import { parseYield } from "./yield";
@@ -66,6 +66,12 @@ export function parseBlockBody(p: ParserStream, node: ASTNode) {
             node.namedChildren[children.name] = children;
         } else if (testResult = p.test(BLOCK_NAME)) {
             node.children.push(parseBlock(p));
+        } else if (testResult = p.test(STAGE_BLOCK_NAME)) {
+            if (isCompNode(node)) {
+                node.stage.push(parseStageBlock(p));
+            } else {
+                p._error(`Stage blocks can only appear in component blocks.`);
+            }
         } else if (testResult = p.test(BEHAVIOR_BLOCK_NAME)) {
             if (isCompNode(node)) {
                 node.behavior.push(parseBehaviorBlock(p));
