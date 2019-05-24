@@ -27,10 +27,10 @@ export class Circle extends PrimitiveElement<CircleOption> {
     }
 
     public get maxX() {
-        return this.$geometry.x + this.$geometry.r;
+        return this.$geometry.x + this.$geometry.r * 2;
     }
 
     public get maxY() {
-        return this.$geometry.y + this.$geometry.r;
+        return this.$geometry.y + this.$geometry.r * 2;
     }
 }

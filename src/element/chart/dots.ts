@@ -3,11 +3,10 @@ import { template } from "../../template/tag";
 import { getGetter } from "../plot";
 import { BaseChart, BaseChartOption } from "./base-chart";
 
-export interface LabelsOption extends BaseChartOption {
-    labelGetter?: string | ((d: any) => string);
+export interface DotsOption extends BaseChartOption {
 }
 
-export class Labels extends BaseChart<LabelsOption> {
+export class Dots extends BaseChart<DotsOption> {
     protected data: any[];
 
     public render = template`
@@ -15,16 +14,16 @@ export class Labels extends BaseChart<LabelsOption> {
         xScale = getScale(true) || createXScale()
         yScale = getScale(false) || createYScale()
 
-        @let labelFunc = getLabelFunc()
         @for (d, index) in data {
-            Text {
+            Component {
                 @let x = getX(d)
                 @let y = getY(d)
                 key = index
-                anchor = getAnchor()
                 x = flipped ? y : x
                 y = flipped ? x : y
-                text = labelFunc(d, index, data)
+                width = 0; height = 0
+
+                @yield children with d
             }
         }
     }
@@ -42,9 +41,5 @@ export class Labels extends BaseChart<LabelsOption> {
 
     private getY(d: any) {
         return this._scale(d.value, this.flipped);
-    }
-
-    private getLabelFunc() {
-        return getGetter(this.prop.labelGetter) || (d => d.data.label || d.value);
     }
 }

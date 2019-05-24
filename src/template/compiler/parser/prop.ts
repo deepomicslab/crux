@@ -10,7 +10,7 @@ export function parseProp(p: ParserStream, node: ASTNodeComp) {
     p.skipSpaces();
 
     let leftBracketCount = 0;
-    let expr = p.consume(ch => {
+    const expr = p.consume(ch => {
         if (ch === "\n" || ch === ";") return [true, true];
         if (ch === "{") leftBracketCount ++;
         if (ch === "}") {
@@ -20,6 +20,10 @@ export function parseProp(p: ParserStream, node: ASTNodeComp) {
         return [false, false];
     }, "property expression");
 
+    parseExpr(node, name, expr);
+}
+
+export function parseExpr(node: ASTNodeComp, name: string, expr: string) {
     if (name.startsWith("on:")) {
         const eventName = name.slice(3);
         node.on.push({ name: eventName, handler: expr });
@@ -27,15 +31,11 @@ export function parseProp(p: ParserStream, node: ASTNodeComp) {
         const styleName = name.slice(6);
         node.styles.push({ name: styleName, expr });
     } else {
-        if (expr.indexOf("@") >= 0) {
-            expr = parseExpr(expr);
-        }
-        node.props.push({ name, expr });
+        node.props.push({ name, expr: expr.indexOf("@") >= 0 ? parseHelper(expr) : expr });
     }
-
 }
 
-function parseExpr(expr: string) {
+function parseHelper(expr: string) {
     let lazy = false;
     let replaced = "";
     const p = new ParserStream(expr);
