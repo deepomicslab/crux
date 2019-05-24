@@ -184,10 +184,13 @@ function genNodeCond(node: ASTNodeCondition, uidGen: UIDGenerator) {
     const nodes = node.children;
     return nodes.map((n: ASTNodeIf, i) => {
         const isLast = i === nodes.length - 1;
+        const hasLocalData = n.localData.length > 0;
+        const str = genChildren(n, uidGen);
+        const childrenStr = hasLocalData ? wrappedWithLocalData(n, str) : str;
         if (n.condition) {
-            return `${n.condition} ? ${genChildren(n, uidGen)} : ${isLast ? "null" : ""}`;
+            return `${n.condition} ? ${childrenStr} : ${isLast ? "null" : ""}`;
         } else {
-            return genChildren(n, uidGen);
+            return childrenStr;
         }
     }).join("");
 }
