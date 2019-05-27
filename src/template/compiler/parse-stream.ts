@@ -112,6 +112,6 @@ export class ParserStream {
 
     public _error(msg: string) {
         this._logPos();
-        console.error(msg);
+        throw new Error(msg);
     }
 }

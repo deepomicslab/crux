@@ -1,5 +1,6 @@
 import { ParserStream } from "../parse-stream";
 import { NAME } from "../tokens";
+import { consumeExpr } from "./prop";
 
 export function parseLet(p: ParserStream): { name: string, expr: string } {
     p.expect("@let");
@@ -8,6 +9,6 @@ export function parseLet(p: ParserStream): { name: string, expr: string } {
     p.skipSpaces();
     p.expect("=");
     p.skipSpaces();
-    const expr = p.consumeTill("\n").trim();
+    const expr = consumeExpr(p);
     return { name, expr };
 }

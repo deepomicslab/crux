@@ -10,19 +10,29 @@ import { ComponentOption } from "../component-options";
 export interface XYPlotPoint {
     pos: number;
     value: number;
+    minValue: number;
     data?: any;
 }
 
-export interface XYPlotDataAcceptable {
-    posGetter?: string | ((d: any) => number);
-    valueGetter?: string | ((d: any) => number);
+export interface ParsedData {
+    values: XYPlotPoint[];
+    raw: any;
 }
 
-export interface XYPlotOption extends ComponentOption, XYPlotDataAcceptable {
+interface DataHandler {
+    values: (d: any) => any[];
+    min: (d: any, i: number) => number;
+    max: (d: any, i: number) => number;
+    pos: (d: any, i: number) => any;
+}
+
+export interface XYPlotOption extends ComponentOption {
     data: any[] | Record<string, any>;
+    dataHandler: { [name: string]: DataHandler };
     stackedData: Record<string, string[]>;
     categoryRange: any[];
     valueRange: [number, number];
+    capToMinValue: boolean;
     gap: number;
     // layout
     flip: boolean;
@@ -55,7 +65,7 @@ export class XYPlot extends Component<XYPlotOption> {
     }
     `;
 
-    public data: XYPlotPoint[] | Record<string, XYPlotPoint[]>;
+    public data: ParsedData | Record<string, ParsedData>;
     public hasMultipleData = false;
     public columnWidth: number;
 
@@ -67,14 +77,17 @@ export class XYPlot extends Component<XYPlotOption> {
 
     public willRender() {
         const data = this.prop.data;
+        const handler = this.prop.dataHandler || {};
         if (data) {
             let allData: XYPlotPoint[];
             if (Array.isArray(data)) {
-                this.data = allData = parseData(this, data);
+                this.data = parseData(this, data, handler.default);
+                allData = this.data.values;
             } else if (typeof data === "object") {
                 this.hasMultipleData = true;
                 this.data = {};
-                Object.keys(data).forEach(k => this.data[k] = parseData(this, data[k]));
+                Object.keys(data).forEach(k =>
+                    this.data[k] = parseData(this, data[k], handler[k] || handler.default));
                 // all data
                 allData = [];
                 const keys = new Set(Object.keys(this.data));
@@ -83,23 +96,26 @@ export class XYPlot extends Component<XYPlotOption> {
                     Object.keys(stackedData).forEach(k => {
                         if (typeof k !== "string" || !(k in stackedData))
                             throw new Error(`${k} is not a valid data key.`);
-                        const flatten = stackedData[k].map(sd => {
+                        const flatten: XYPlotPoint[] = stackedData[k].map(sd => {
                             keys.delete(sd);
-                            return this.data[sd];
+                            return this.data[sd].values;
                         }).flat();
                         const grouped = _.groupBy(flatten, "pos");
-                        const gather = pos => grouped[pos].reduce((p, c) => ({ pos: p.pos, value: p.value + c.value }));
+                        const gather = pos => grouped[pos].reduce((p, c) => ({ pos: p.pos, value: p.value + c.value, minValue: 0 }));
                         allData.push(...Object.keys(grouped).map(gather));
                     });
                 }
                 for (const e of keys.entries()) {
-                    allData.push(...this.data[e[0]]);
+                    allData.push(...this.data[e[0]].values);
                 }
             } else {
                 throw new Error(`XYPlot: data supplied must be an array or an object.`);
             }
             this._cRange = d3.extent(allData, d => d.pos);
-            this._vRange = [0, d3.max(allData, d => d.value)];
+            this._vRange = [
+                this.prop.capToMinValue ? d3.min(allData, d => d.minValue) : 0,
+                d3.max(allData, d => d.value),
+            ];
         }
         this._paddings = this.getPadding();
         this._xScale = this.createScale(true);
@@ -133,7 +149,7 @@ export class XYPlot extends Component<XYPlotOption> {
 
     private createCategoryScale(size: number) {
         const [pt, pr, pb, pl] = this._paddings;
-        const n = (this.hasMultipleData ? this.data[Object.keys(this.data)[0]] : this.data).length;
+        const n = (this.hasMultipleData ? this.data[Object.keys(this.data)[0]] : this.data).values.length;
 
         const width = size - pl - pr;
         const gap = typeof this.prop.gap === "number" ? this.prop.gap : (width * 0.1 / n);
@@ -176,17 +192,42 @@ export function getGetter(vf: string | ((d: any, i: number) => any)) {
     return typeof vf === "string" ? (d: any) => d[vf] : vf;
 }
 
-export function parseData(elm: Component<ComponentOption & XYPlotDataAcceptable>, data: any[]) {
-    const d = data[0];
-    if (typeof d === "number") {
-        return data.map((d, i) => ({ pos: i, value: d, data: d }));
-    } else if (Array.isArray(d)) {
-        return data.map(([i, d]) => ({ pos: i, value: d, data: d }));
+export function parseData(elm: Component<ComponentOption>, data: any, h: DataHandler) {
+    if (!h) h = createDataHandler(data);
+    return {
+        values: h.values(data).map((d, i) => ({
+            pos: h.pos(d, i), value: h.max(d, i), minValue: h.min(d, i), data: d,
+        })),
+        raw: data,
+    };
+}
+
+function createDataHandler(data: any): DataHandler {
+    let values: (d: any) => number[];
+    let v: any[];
+    if (Array.isArray(data)) {
+        values = d => d;
+        v = data;
     } else {
-        const value = getGetter(elm.prop.valueGetter || "value");
-        const pos = getGetter(elm.prop.posGetter) || ((d, i) => i);
-        return data.map((d, i) => ({
-            pos: pos(d, i), value: value(d, i), data: d,
-        }));
+        values = d => d["values"];
+        v = data.values;
+        if (!Array.isArray(v))
+            throw new Error(`XYPlot is unable to handle the data. Please use a customized data handler.`);
     }
+    const d = v[0];
+    let pos = (d: any, i: number) => i;
+    let min = (d: any, i: number) => 0;
+    let max: (d: any, i: number) => number;
+    if (typeof d === "number") {
+        max = d => d;
+    } else if (Array.isArray(d)) {
+        if (d.length === 2 && typeof d[0] === "string") {
+            max = d => d[1]; pos = d => d[0];
+        } else {
+            max = d => d[d.length - 1]; min = d => d[0];
+        }
+    } else {
+        max = d => d.value;
+    }
+    return { values, min, max, pos };
 }

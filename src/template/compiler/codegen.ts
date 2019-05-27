@@ -93,12 +93,10 @@ function genNamedChildren(node: ASTNodeComp, uidGen: UIDGenerator) {
     const str = keys.map(k => {
         const nc = node.namedChildren[k];
         const func = stripIndent`
-        function (${nc.dataName || ""}) {
-            return [ ${genChildren(nc, uidGen)} ]
-        }
+        function (${nc.dataName || ""}) { return [ ${genChildren(nc, uidGen)} ] }
         `;
         return `${k}: ${func},`;
-    });
+    }).join("");
     return `namedChildren: { ${str} },`;
 }
 
@@ -199,7 +197,7 @@ function genNodeYield(node: ASTNodeYield, uidGen: UIDGenerator) {
     const data = node.data || "";
     const str = node.name === "children" ?
         `(prop.namedChildren.children ? prop.namedChildren.children(${data}) : prop.children)` :
-        `(prop.namedChildren["${node.name}"](${data}))`;
+        `(prop.namedChildren["${node.name}"] ? prop.namedChildren["${node.name}"](${data}) : [])`;
     return node.processor ? `${node.processor}${str}` : str;
 }
 

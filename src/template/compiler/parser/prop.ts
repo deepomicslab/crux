@@ -9,18 +9,38 @@ export function parseProp(p: ParserStream, node: ASTNodeComp) {
     p.expect("=");
     p.skipSpaces();
 
+    parseExpr(node, name, consumeExpr(p));
+}
+
+export function consumeExpr(p): string {
     let leftBracketCount = 0;
+    let leftBracketCount2 = 0;
+    let leftBracketCount3 = 0;
     const expr = p.consume(ch => {
-        if (ch === "\n" || ch === ";") return [true, true];
-        if (ch === "{") leftBracketCount ++;
-        if (ch === "}") {
-            if (leftBracketCount > 0) leftBracketCount --;
-            else return [true, false];
+        switch (ch) {
+            case ";":
+                if (leftBracketCount > 0) p._error(`Unbalanced brackets: "}" expected.`);
+                return [true, true];
+            case "\n":
+                if (leftBracketCount > 0 || leftBracketCount2 > 0 || leftBracketCount3 > 0) return [false, false];
+                return [true, true];
+            case "{":
+                leftBracketCount ++; break;
+            case "}":
+                if (leftBracketCount > 0) { leftBracketCount --; break; }
+                return [true, false];
+            case "[":
+                leftBracketCount2++; break;
+            case "]":
+                leftBracketCount2--; break;
+            case "(":
+                leftBracketCount3++; break;
+            case ")":
+                leftBracketCount3--; break;
         }
         return [false, false];
     }, "property expression");
-
-    parseExpr(node, name, expr);
+    return expr.replace("\n", "");
 }
 
 export function parseExpr(node: ASTNodeComp, name: string, expr: string) {

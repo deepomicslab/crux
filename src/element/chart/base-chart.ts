@@ -1,14 +1,17 @@
 import { oneLineTrim } from "common-tags";
+import { Anchor } from "../../defs/geometry";
 import { Component } from "../component";
 import { ComponentOption } from "../component-options";
-import { parseData, XYPlot, XYPlotDataAcceptable } from "../plot";
+import { parseData, ParsedData, XYPlot } from "../plot";
 
-export interface BaseChartOption extends ComponentOption, XYPlotDataAcceptable {
+export interface BaseChartOption extends ComponentOption {
     data: any[];
+    dataHandler: any;
+    columnWidth: number;
 }
 
 export class BaseChart<Option extends BaseChartOption = BaseChartOption> extends Component<Option> {
-    protected data: any[] | Record<string, any>;
+    protected data: ParsedData | Record<string, ParsedData>;
     protected columnWidth: number;
 
     protected flipped = false;
@@ -22,7 +25,7 @@ export class BaseChart<Option extends BaseChartOption = BaseChartOption> extends
             this.flipped = this.$parent.flipped;
             this.inverted = this.$parent.inverted;
         } else if (Array.isArray(dataProp)) {
-            this.data = parseData(this as any, dataProp);
+            this.data = parseData(this as any, dataProp, this.prop.dataHandler);
         } else {
             throw new Error(`Chart: please supply data.`);
         }
@@ -48,12 +51,35 @@ export class BaseChart<Option extends BaseChartOption = BaseChartOption> extends
                  must be used when supplying multiple data to the plot.`);
             }
         } else {
-            this.data = $p.data as any[];
+            this.data = $p.data;
         }
     }
 
     protected propValue(name: string, d: any, i: number, g: any[]): any {
         const val = this.prop[name];
         return typeof val === "function" ? val.call(null, d, i, g) : val;
+    }
+
+    protected getAnchor() {
+        return this.flipped ?
+            (this.inverted ? Anchor.Left : Anchor.Right) | Anchor.Middle :
+            (this.inverted ? Anchor.Top : Anchor.Bottom) | Anchor.Center;
+    }
+
+    protected getX(value: number) {
+        return this._scale(value, !this.flipped);
+    }
+
+    protected getY(value: number) {
+        return this._scale(value, this.flipped);
+    }
+
+    protected getWidth() {
+        return this.prop.columnWidth || this.columnWidth;
+    }
+
+    protected getHeight(value: number, offset: number) {
+        const h = this._scale(value + offset, this.flipped) - this._scale(offset, this.flipped);
+        return this.inverted ? h : -h;
     }
 }

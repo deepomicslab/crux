@@ -30,6 +30,7 @@ import { dataLoader } from "./reconstructed/data";
 import { Reconstructed } from "./reconstructed/reconstructed";
 
 import t1 from "./test/templates/t1";
+import tbox from "./test/templates/tbox";
 
 registerDefaultBioInfoComponents();
 
@@ -57,6 +58,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const v = window["$v"] = visualize({
         el: "#canvas",
-        template: t1,
+        template: tbox,
     });
 });

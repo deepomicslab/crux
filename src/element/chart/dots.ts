@@ -7,8 +7,6 @@ export interface DotsOption extends BaseChartOption {
 }
 
 export class Dots extends BaseChart<DotsOption> {
-    protected data: any[];
-
     public render = template`
     Component {
         xScale = getScale(true) || createXScale()
@@ -17,13 +15,13 @@ export class Dots extends BaseChart<DotsOption> {
         @for (d, index) in data {
             Component {
                 key = index
-                @let x = flipped ? getY(d) : getX(d)
-                @let y = flipped ? getX(d) : getY(d)
+                @let x = flipped ? getY(d.value) : getX(d.pos)
+                @let y = flipped ? getX(d.pos) : getY(d.value)
                 @if prop.namedChildren.links && index < data.length - 1 {
                     @let fromData = { x: x, y: y, data: d }
                     @let next = data[index + 1]
-                    @let nx = flipped ? getY(next) : getX(next)
-                    @let ny = flipped ? getX(next) : getY(next)
+                    @let nx = flipped ? getY(next.value) : getX(next.pos)
+                    @let ny = flipped ? getX(next.pos) : getY(next.value)
                     @let toData = { x: nx, y: ny, data: next }
                     @let linksData = { from: fromData, to: toData }
                     @yield links with linksData
@@ -40,17 +38,8 @@ export class Dots extends BaseChart<DotsOption> {
     }
     `;
 
-    private getAnchor() {
-        return this.flipped ?
-            (this.inverted ? Anchor.Left : Anchor.Right) | Anchor.Middle :
-            (this.inverted ? Anchor.Top : Anchor.Bottom) | Anchor.Center;
-    }
-
-    private getX(d: any) {
-        return this._scale(d.pos, !this.flipped);
-    }
-
-    private getY(d: any) {
-        return this._scale(d.value, this.flipped);
+    public inheritData() {
+        super.inheritData();
+        this.data = this.data.values as any;
     }
 }

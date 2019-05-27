@@ -1,7 +1,7 @@
 import { componentList } from "./get-component";
 
 import { Axis, AxisBackground } from "./auxiliary";
-import { Area, Bars, Dots, GroupedBars, StackedBars } from "./chart";
+import { Area, Bars, Boxes, Dots, GroupedBars, StackedBars } from "./chart";
 import { Component } from "./component";
 import { Brush } from "./interaction";
 import { Container, Rows } from "./layout";
@@ -23,6 +23,7 @@ export function registerDefaultGlobalComponents() {
         // chart
         Area,
         Bars,
+        Boxes,
         Dots,
         StackedBars,
         GroupedBars,

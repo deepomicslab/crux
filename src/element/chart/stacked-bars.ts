@@ -4,7 +4,6 @@ import { XYPlot } from "../plot";
 import { BaseChart, BaseChartOption } from "./base-chart";
 
 export interface StackedBarsOption extends BaseChartOption {
-    barWidth: number;
 }
 
 export class StackedBars extends BaseChart<StackedBarsOption> {
@@ -20,9 +19,9 @@ export class StackedBars extends BaseChart<StackedBarsOption> {
                 @let d = group[key]
                 Component {
                     @let x = getX(d.pos)
-                    @let y = getY(tSize)
+                    @let y = getYPos(tSize)
                     @let width = getWidth()
-                    @let height = getHeight(tValue, d.value)
+                    @let height = getHeight(d.value, tValue)
                     @expr tSize += height
                     @expr tValue += d.value
 
@@ -41,27 +40,8 @@ export class StackedBars extends BaseChart<StackedBarsOption> {
     }
     `;
 
-    private getAnchor() {
-        return this.flipped ?
-            (this.inverted ? Anchor.Left : Anchor.Right) | Anchor.Middle :
-            (this.inverted ? Anchor.Top : Anchor.Bottom) | Anchor.Center;
-    }
-
-    private getX(pos: any) {
-        return this._scale(pos, !this.flipped);
-    }
-
-    private getY(offset: number) {
+    private getYPos(offset: number) {
         return this.inverted ? offset : GeometryValue.create(100, GeometryUnit.Percent, -offset);
-    }
-
-    private getWidth() {
-        return this.prop.barWidth || this.columnWidth;
-    }
-
-    private getHeight(accumulated: number, value: number) {
-        const h = this._scale(accumulated + value, this.flipped) - this._scale(accumulated, this.flipped);
-        return this.inverted ? h : -h;
     }
 
     protected inheritData() {
@@ -73,7 +53,7 @@ export class StackedBars extends BaseChart<StackedBarsOption> {
         const data = {};
         this.dataKeys = $p.stackedDataKeys(this.prop.data);
         this.dataKeys.forEach(key => {
-            $p.data[key].forEach(d => {
+            $p.data[key].values.forEach(d => {
                 const pos = d.pos;
                 if (!data[pos]) data[pos] = {};
                 data[pos][key] = d;

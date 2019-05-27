@@ -13,7 +13,8 @@ export class GroupedBars extends BaseChart<GroupedBarsOption> {
         @let fk = prop.data[0]
         @let gWidth = getWidth()
         @let width = gWidth * 1.0 / prop.data.length
-        @let y = getY()
+        @let y = getYStartPos()
+
         @for (group, pos) in data {
             Component {
                 @let tX = 0
@@ -30,7 +31,7 @@ export class GroupedBars extends BaseChart<GroupedBarsOption> {
                     @let d = group[key]
                     Component {
                         @let x = tX
-                        @let height = getHeight(d.value)
+                        @let height = getHeight(d.value, 0)
                         @expr tX += width
 
                         key = key
@@ -48,28 +49,8 @@ export class GroupedBars extends BaseChart<GroupedBarsOption> {
     }
     `;
 
-    private getAnchor() {
-        return this.flipped ?
-            (this.inverted ? Anchor.Left : Anchor.Right) | Anchor.Middle :
-            (this.inverted ? Anchor.Top : Anchor.Bottom) | Anchor.Center;
-    }
-
-    private getWidth() {
-        return this.prop.barWidth || this.columnWidth;
-    }
-
-    private getX(pos: any) {
-        return this._scale(pos, !this.flipped);
-    }
-
-    private getY() {
+    private getYStartPos() {
         return this.inverted ? 0 : GeometryValue.fullSize;
-    }
-
-    private getHeight(value: number) {
-        return this.inverted ?
-            this._scale(value, this.flipped) :
-            GeometryValue.create(100, GeometryUnit.Percent, -this._scale(value, this.flipped));
     }
 
     protected inheritData() {
@@ -80,7 +61,7 @@ export class GroupedBars extends BaseChart<GroupedBarsOption> {
         const $p = this.$parent;
         const data = {};
         this.prop.data.forEach(key => {
-            $p.data[key].forEach(d => {
+            $p.data[key].values.forEach(d => {
                 const pos = d.pos;
                 if (!data[pos]) data[pos] = {};
                 data[pos][key] = d;
