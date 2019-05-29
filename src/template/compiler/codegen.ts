@@ -196,8 +196,10 @@ function genNodeCond(node: ASTNodeCondition, uidGen: UIDGenerator) {
 function genNodeYield(node: ASTNodeYield, uidGen: UIDGenerator) {
     const data = node.data || "";
     const str = node.name === "children" ?
-        `(prop.namedChildren.children ? prop.namedChildren.children(${data}) : prop.children)` :
-        `(prop.namedChildren["${node.name}"] ? prop.namedChildren["${node.name}"](${data}) : [])`;
+        `(prop.namedChildren.children ?
+            prop.namedChildren.children(${data}) :
+            prop.children.length === 0 ? [${genChildren(node, uidGen)}] : prop.children)` :
+        `(prop.namedChildren["${node.name}"] ? prop.namedChildren["${node.name}"](${data}) : [${genChildren(node, uidGen)}])`;
     return node.processor ? `${node.processor}${str}` : str;
 }
 

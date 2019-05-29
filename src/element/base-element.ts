@@ -117,10 +117,10 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
     }
 
     public parseInternalProps() {
-        Object.keys(this.prop).forEach(key => {
+        Object.keys(this._prop).forEach(key => {
             const value = this.prop[key];
             if (typeof value === "function" && "__internal__" in value) {
-                this.prop[key] = value.call(this);
+                this._prop[key] = value.call(this);
             }
         });
         this.$detached = !!this.prop.detached;

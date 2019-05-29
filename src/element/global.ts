@@ -1,7 +1,7 @@
 import { componentList } from "./get-component";
 
 import { Axis, AxisBackground } from "./auxiliary";
-import { Area, Bars, Boxes, Dots, GroupedBars, StackedBars } from "./chart";
+import { Area, Bars, Boxes, Dots, GroupedBars, StackedArea, StackedBars } from "./chart";
 import { Component } from "./component";
 import { Brush } from "./interaction";
 import { Container, Rows } from "./layout";
@@ -22,6 +22,7 @@ export function registerDefaultGlobalComponents() {
         XYPlot,
         // chart
         Area,
+        StackedArea,
         Bars,
         Boxes,
         Dots,

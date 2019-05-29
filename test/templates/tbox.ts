@@ -1,4 +1,4 @@
-export default `
+export default `//bvt
 svg {
     width = auto
     height = 1200
@@ -30,20 +30,6 @@ svg {
             AxisBackground {}
             Boxes {
                 data = "boxData";
-                :outlier {
-                    Circle.centered { r = 2; fill = "red" }
-                }
-                :box {
-                    Rect.full { stroke = "#000" }
-                }
-                :whiskle {
-                    Line { x1 = 0; x2 = 100%; y1 = 0; y2 = 0; stroke = "#000" }
-                    Line { x1 = 0; x2 = 100%; y1 = 100%; y2 = 100%; stroke = "#000" }
-                    Line { x1 = 50%; x2 = 50%; y1 = 0; y2 = 100%; stroke = "#000" }
-                }
-                :median {
-                    Line { x1 = 0; x2 = 100%; y1 = 0; y2 = 0; stroke = "#000" }
-                }
             }
             Axis("bottom") { y = 100% }
             Axis("left") {}

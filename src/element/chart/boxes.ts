@@ -28,20 +28,28 @@ export class Boxes extends BaseChart<BoxesOption> {
                     y = getY(d[0])
                     height = getHeight(d[4] - d[0], d[0])
                     anchor = getBoxAnchor()
-                    @yield whiskle with d
+                    @yield whiskle with d default {
+                        Line { x1 = 0; x2 = 100%; y1 = 0; y2 = 0; stroke = "#000" }
+                        Line { x1 = 0; x2 = 100%; y1 = 100%; y2 = 100%; stroke = "#000" }
+                        Line { x1 = 50%; x2 = 50%; y1 = 0; y2 = 100%; stroke = "#000" }
+                    }
                 }
                 Component {
                     width = 100%
                     y = getY(d[1])
                     height = getHeight(d[3] - d[1], d[1])
                     anchor = getBoxAnchor()
-                    @yield box with d
+                    @yield box with d default {
+                        Rect.full { stroke = "#000" }
+                    }
                 }
                 Component {
                     width = 100%
                     y = getY(d[2])
                     height = 0
-                    @yield median with d
+                    @yield median with d default {
+                        Line { x1 = 0; x2 = 100%; y1 = 0; y2 = 0; stroke = "#000" }
+                    }
                 }
             }
         }
@@ -55,7 +63,9 @@ export class Boxes extends BaseChart<BoxesOption> {
                 x = flipped ? y : x
                 y = flipped ? x : y
 
-                @yield outlier with o
+                @yield outlier with o default {
+                    Circle.centered { r = 2; fill = "red" }
+                }
             }
         }
     }

@@ -1,4 +1,5 @@
 export * from "./area";
+export * from "./stacked-area";
 export * from "./bars";
 export * from "./boxes";
 export * from "./dots";

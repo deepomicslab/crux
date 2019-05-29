@@ -3,6 +3,8 @@ import { BaseChart, BaseChartOption } from "./base-chart";
 
 export interface AreaOption extends BaseChartOption {
     data: any[];
+    fill: string;
+    stroke: string;
 }
 
 export class Area extends BaseChart<AreaOption> {
@@ -10,7 +12,7 @@ export class Area extends BaseChart<AreaOption> {
     Component {
         Path {
             d = getPath()
-            fill = prop.fill
+            fill = prop.fill || "#aaa"
             stroke = prop.stroke
         }
     }
@@ -21,7 +23,8 @@ export class Area extends BaseChart<AreaOption> {
 
     private getPath(): string {
         const maxY = this.$geometry.height;
-        const data = this.data.map((d, i) => [
+        const value = this.data.values as any[];
+        const data = value.map((d, i) => [
             this._scale(d.pos, true),
             this._scale(d.value, false),
         ] as [number, number]);

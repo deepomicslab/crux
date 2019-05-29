@@ -8,16 +8,15 @@ export interface BarsOption extends BaseChartOption {
 export class Bars extends BaseChart<BarsOption> {
     public render = template`
         Component {
-            @let y = getYStartPos()
-
             xScale = getScale(true) || createXScale()
             yScale = getScale(false) || createYScale()
 
             @for (d, index) in data.values {
                 Component {
                     @let x = getX(d.pos)
+                    @let y = getY(d.minValue)
                     @let width = getWidth()
-                    @let height = getHeight(d.value, 0)
+                    @let height = getHeight(d.value - d.minValue, d.minValue)
 
                     key = index
                     anchor = getAnchor()
@@ -26,7 +25,9 @@ export class Bars extends BaseChart<BarsOption> {
                     width = flipped ? height : width
                     height = flipped ? width : height
 
-                    @yield children with d
+                    @yield children with d default {
+                        Rect.full {}
+                    }
                 }
             }
         }

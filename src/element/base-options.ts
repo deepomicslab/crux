@@ -1,10 +1,7 @@
 import { Anchor, GeometryOptValue, GeometryValue } from "../defs/geometry";
 
 export interface BaseOption {
-    role?: string;
-
     // presentation
-    display?: boolean;
     anchor?: Anchor;
     x?: GeometryOptValue;
     y?: GeometryOptValue;

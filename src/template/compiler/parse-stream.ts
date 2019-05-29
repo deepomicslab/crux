@@ -5,7 +5,8 @@ export class ParserStream {
     constructor(str: string) {
         this.str = str
             .split("\n")
-            .filter(x => !x.match(/ *\/\//))
+            .filter(x => !x.match(/^ *\/\//))
+            .map(x => x.replace(/\/\/.*$/, ""))
             .join("\n");
     }
 

@@ -30,6 +30,7 @@ import { dataLoader } from "./reconstructed/data";
 import { Reconstructed } from "./reconstructed/reconstructed";
 
 import t1 from "./test/templates/t1";
+import tarea from "./test/templates/tarea";
 import tbox from "./test/templates/tbox";
 
 registerDefaultBioInfoComponents();

@@ -31,7 +31,9 @@ export class Dots extends BaseChart<DotsOption> {
                     y = y
                     width = 0; height = 0
 
-                    @yield children with d
+                    @yield children with d default {
+                        Circle.centered { r = 2; fill ="#aaa" }
+                    }
                 }
             }
         }

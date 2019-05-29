@@ -146,6 +146,7 @@ export class Reconstructed extends Component<ReconstructedOption> {
     `;
 
     protected state = {
+        stage: null,
         scaledL: 0,
         scaledR: 1,
         mousePos: 1000,
@@ -176,7 +177,7 @@ export class Reconstructed extends Component<ReconstructedOption> {
     }
 
     private updateRange(range: [number, number]) {
-        (this.$ref.brush as Brush).$setCurrentRange(range[0], range[1]);
+        (this.$ref.brush as unknown as Brush).$setCurrentRange(range[0], range[1]);
         this.setState({
             scaledL: range[0],
             scaledR: range[1],

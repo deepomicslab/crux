@@ -34,6 +34,7 @@ export interface XYPlotOption extends ComponentOption {
     valueRange: [number, number];
     capToMinValue: boolean;
     gap: number;
+    hasPadding: boolean;
     // layout
     flip: boolean;
     invertValueAxis: boolean;
@@ -74,6 +75,13 @@ export class XYPlot extends Component<XYPlotOption> {
     private _yScale: any;
     private _cRange: any[];
     private _vRange: [number, number];
+
+    public defaultProp() {
+        return {
+            ...super.defaultProp(),
+            hasPadding: true,
+        };
+    }
 
     public willRender() {
         const data = this.prop.data;
@@ -149,13 +157,13 @@ export class XYPlot extends Component<XYPlotOption> {
 
     private createCategoryScale(size: number) {
         const [pt, pr, pb, pl] = this._paddings;
-        const n = (this.hasMultipleData ? this.data[Object.keys(this.data)[0]] : this.data).values.length;
-
         const width = size - pl - pr;
+        let n = (this.hasMultipleData ? this.data[Object.keys(this.data)[0]] : this.data).values.length;
+        if (!this.prop.hasPadding) n -= 1;
         const gap = typeof this.prop.gap === "number" ? this.prop.gap : (width * 0.1 / n);
         const columnSizeWithGap = (width - gap) / n;
         this.columnWidth = columnSizeWithGap - gap;
-        const padding = (columnSizeWithGap + gap) * 0.5;
+        const padding = this.prop.hasPadding ? (columnSizeWithGap + gap) * 0.5 : 0;
         const domain: [number, number] = [padding, width - padding];
         return this._createScale_linear(true, this._cRange as any, domain);
     }
