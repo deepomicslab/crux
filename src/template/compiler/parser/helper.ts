@@ -1,5 +1,5 @@
 import { Anchor } from "../../../defs/geometry";
-import { rad2Deg } from "../../../utils/math";
+import { toDeg } from "../../../utils/math";
 import { HELPER } from "../tokens";
 
 const ANCHOR_LIST = {
@@ -42,7 +42,7 @@ const exprHelpers: Record<string, (args: string[]) => [string, boolean]> = {
     "rotate": (args) => {
         const angle = parseInt(args[0].slice(0, -3));
         const unit = args[0].slice(-3);
-        const value = unit === "rad" ? rad2Deg(angle) : angle;
+        const value = unit === "rad" ? toDeg(angle) : angle;
         return [`this._rotate(${value})`, true];
     },
     "anchor": (args) => {

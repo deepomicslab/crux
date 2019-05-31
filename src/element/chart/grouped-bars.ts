@@ -13,7 +13,7 @@ export class GroupedBars extends BaseChart<GroupedBarsOption> {
         @let fk = prop.data[0]
         @let gWidth = getWidth()
         @let width = gWidth * 1.0 / prop.data.length
-        @let y = getYStartPos()
+        @let y = getY(0)
 
         @for (group, pos) in data {
             Component {
@@ -21,36 +21,42 @@ export class GroupedBars extends BaseChart<GroupedBarsOption> {
                 @let gX = getX(group[fk].pos)
 
                 key = pos
-                anchor = getAnchor()
-                x = flipped ? y : gX
-                y = flipped ? gX : y
+                anchor = @anchor(center, top)
+                x = flipped ? 0 : gX
+                y = flipped ? gX : 0
                 width = flipped ? @geo(100, 0) : gWidth
                 height = flipped ? gWidth : @geo(100, 0)
+
+                @yield group with group
 
                 @for key in prop.data {
                     @let d = group[key]
                     Component {
                         @let x = tX
-                        @let height = getHeight(d.value, 0)
+                        @let height = getHeight(d.value - d.minValue, d.minValue)
                         @expr tX += width
 
                         key = key
                         x = flipped ? y : x
+                        anchor = getAnchor()
                         y = flipped ? x : y
                         width = flipped ? height : width
                         height = flipped ? width : height
 
                         @let dd = { data: d, key: key }
-                        @yield children with dd
+                        @yield children with dd default {
+                            Rect.full { fill = "#aaa" }
+                        }
                     }
                 }
             }
         }
     }
     `;
-
-    private getYStartPos() {
-        return this.inverted ? 0 : GeometryValue.fullSize;
+    protected getAnchor() {
+        return this.flipped ?
+            (this.inverted ? Anchor.Left : Anchor.Right) | Anchor.Top :
+            (this.inverted ? Anchor.Top : Anchor.Bottom) | Anchor.Left;
     }
 
     protected inheritData() {

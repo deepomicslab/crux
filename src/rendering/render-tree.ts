@@ -28,6 +28,11 @@ const currElements: Component<ComponentOption>[] = [];
 const currElement = () => currElements[currElements.length - 1];
 let currElementInheriting = false;
 
+const currCoordRoots: Component<ComponentOption>[] = [];
+const currCoordRoot = () => currCoordRoots.length === 0 ? null : currCoordRoots[currCoordRoots.length - 1];
+const currCoordSystems: ("polar" | "cartesian")[] = ["cartesian"];
+const currCoordSystem = () => currCoordSystems[currCoordSystems.length - 1];
+
 function findComponent(component: Component, name: string, id: number): [ActualElement, boolean] {
     const ctor = getComponent(name);
     const comp = component.children.find(c => c instanceof ctor && c.id === id);
@@ -87,6 +92,14 @@ export function updateTree(parent: Component<ComponentOption>, def?: ElementDef)
             elm.$callHook("didCreate");
     }
 
+    const newCoordSystem = elm instanceof Component &&
+        elm.prop.coord && elm.prop.coord !== currCoordSystem();
+    elm.$coord = currCoordRoot();
+    if (newCoordSystem) {
+        currCoordRoots.push(elm as Component);
+        currCoordSystems.push((elm as Component).prop.coord);
+    }
+
     layoutElement(elm);
     elm.parseInternalProps();
 
@@ -100,6 +113,7 @@ export function updateTree(parent: Component<ComponentOption>, def?: ElementDef)
         ce.$ref[elm.prop.ref] = elm;
     }
 
+    elm.$callHook("__didLayout");
     elm.$callHook("didLayout");
 
     if (isRenderable(elm)) {
@@ -117,6 +131,11 @@ export function updateTree(parent: Component<ComponentOption>, def?: ElementDef)
         for (const child of def.children) {
             updateTree(elm, child);
         }
+    }
+
+    if (newCoordSystem) {
+        currCoordRoots.pop();
+        currCoordSystems.pop();
     }
 
     elm.$callHook("didLayoutSubTree");

@@ -10,10 +10,13 @@ interface CircleOption extends BaseElementOption {
 export class Circle extends PrimitiveElement<CircleOption> {
 
     public svgAttrs() {
+        const [cx, cy] = this.translatePoint(
+            this.$geometry.x + this.$geometry.r,
+            this.$geometry.y + this.$geometry.r,
+        );
         return {
             ...svgPropFillAndStroke(this),
-            cx: this.$geometry.x + this.$geometry.r,
-            cy: this.$geometry.y + this.$geometry.r,
+            cx, cy,
             r: this.$geometry.r,
         };
     }

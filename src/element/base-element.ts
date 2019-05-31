@@ -3,6 +3,7 @@ import { Behavior } from "../behavior/behavior";
 import { Zoom } from "../behavior/zoom";
 import { GeometryOptions, GeometryUnit, GeometryValue } from "../defs/geometry";
 import { SVGRenderable } from "../rendering/svg";
+import { toCartesian } from "../utils/math";
 import { defaultUIDGenerator } from "../utils/uid";
 import { Visualizer } from "../visualizer/visualizer";
 import { BaseOption } from "./base-options";
@@ -21,15 +22,17 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
 
     public isRoot = false;
     public isActive = true;
-    public parent: Component;
-    public logicalParent?: Component;
+    public parent: Component; // the direct parent
+    public logicalParent?: Component; // parent when rendering
     public vnode: VNode;
 
     private _prop: Partial<Option>;
     public prop: Partial<Option>;
     protected state: State = { stage: null } ;
 
-    public $parent?: Component;
+    public $parent?: Component; // the containing renderable component
+    public $coord?: Component; // component which defined the root coord system
+
     public $on: Record<string, any> = {};
     public $styles: Record<string, string> = {};
     public $behavior: Record<string, Behavior> = {};
@@ -53,7 +56,10 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
     constructor(id: number) {
         this.id = id;
         this.uid = defaultUIDGenerator.gen();
-        this.$geometry = {} as any;
+        this.$geometry = {
+            _xOffset: 0,
+            _yOffset: 0,
+        } as any;
         this.$defaultProp = this.defaultProp();
         this._prop = {};
         this.setupPropProxy();
@@ -183,6 +189,20 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
         this.$v.renderer.call(null, this);
     }
 
+    /* geometry */
+
+    public get inPolorCoordSystem() {
+        return this.$coord && this.$coord.$polar;
+    }
+
+    public translatePoint(x: number, y: number): [number, number] {
+        if (this.inPolorCoordSystem) {
+            return toCartesian(x, y);
+        }
+        return [x, y];
+    }
+
+
     /* scale */
 
     protected _scale(val: number, horizontal: boolean): number {
@@ -234,4 +254,5 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
 
 type HookNames = "didCreate" | "didUpdate" | "willRender" |
     "didLayout" | "didLayoutSubTree" | "willAdjustAnchor" |
-    "didMount" | "didPatch";
+    "didMount" | "didPatch" |
+    "__didLayout";

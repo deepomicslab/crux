@@ -19,7 +19,7 @@ svg {
             AxisBackground {}
             StackedBars {
                 data = "stacked"
-                :children(data) {
+                :children (data) {
                     Rect.full {
                         fill = data.key === "array2" ? "green" : "yellow"
                     }

@@ -1,4 +1,4 @@
-export default `
+export default `//bvt
 svg{
     width = auto
     height = 1200

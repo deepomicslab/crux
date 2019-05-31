@@ -12,6 +12,7 @@ export interface AxisOption extends ComponentOption {
     tickInterval: number;
     ticks: number[];
     includeEndTicks: boolean;
+    stroke: string;
 }
 
 export class Axis extends Component<AxisOption> {
@@ -22,7 +23,7 @@ export class Axis extends Component<AxisOption> {
         Line {
             x1 = 0; x2 = getX()
             y1 = 0; y2 = getY()
-            stroke = "#000"
+            stroke = prop.stroke
             shapeRendering = "crispEdges"
         }
         @let offset = isInner ? -4 : 4
@@ -37,7 +38,7 @@ export class Axis extends Component<AxisOption> {
                     x2 = isHorizontal ? 0 : offset
                     y1 = 0
                     y2 = isHorizontal ? offset : 0
-                    stroke = "#000"
+                    stroke = prop.stroke
                 }
                 Text {
                     text = tick.value
@@ -45,6 +46,7 @@ export class Axis extends Component<AxisOption> {
                     y = isHorizontal ? offset : 0
                     anchor = labelAnchor
                     fontSize = 10
+                    fill = prop.stroke
                     style:visibility = tick.show ? "visible" : "hidden"
                 }
             }
@@ -57,6 +59,7 @@ export class Axis extends Component<AxisOption> {
             orientation: "top",
             tickCount: 5,
             includeEndTicks: true,
+            stroke: "#000",
         };
     }
 

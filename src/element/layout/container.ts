@@ -23,6 +23,13 @@ function layoutDetachedChildren(el: BaseElement, check = true) {
 }
 
 export class Container extends Component<ContainerOption> {
+    public defaultProp() {
+        return {
+            x: 0,
+            y: 0,
+        } as any;
+    }
+
     public didLayoutSubTree() {
         this._layoutSubTree();
     }

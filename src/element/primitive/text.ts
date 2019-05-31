@@ -33,14 +33,17 @@ export class Text extends PrimitiveElement<TextOption> {
     }
 
     public svgAttrs() {
+        const [x, y] = this.translatePoint(
+            this.$geometry.x,
+            this.$geometry.y + this.$cachedHeight,
+        );
         return {
             ...svgPropFillAndStroke(this),
             ...svgInnerHTML(this),
             ...svgPropPassthrough({
                 "font-size": "fontSize",
             })(this),
-            x: this.$geometry.x,
-            y: this.$geometry.y + this.$cachedHeight,
+            x, y,
         };
     }
 

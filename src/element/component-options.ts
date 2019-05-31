@@ -7,6 +7,7 @@ export interface ComponentOption extends BaseOption {
 
     xScale?: any;
     yScale?: any;
+    coord?: "polar" | "cartesian";
 
     html?: string;
 

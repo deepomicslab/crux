@@ -26,7 +26,7 @@ export class Reconstructed extends Component<ReconstructedOption> {
                 y = 180
                 height = 120
                 xScale = @scale-linear(state.scaledL, state.scaledR)
-                yScale = @scale-linear(0, prop.depthMax)
+                yScale = @scale-linear(prop.depthMax, 0)
 
                 on:mouseenter = depthAreaMouseMove
                 on:mousemove = depthAreaMouseMove
@@ -63,14 +63,14 @@ export class Reconstructed extends Component<ReconstructedOption> {
 
                         Line {
                             x1 = 0; x2 = 0
-                            y1 = @geo(100, -@scaled-y(depth))
+                            y1 = @scaled-y(depth)
                             y2 = 100%
                             stroke = "#000"
                             dashArray = "4,4"
                         }
                         Text {
                             fill = "#000"
-                            y = @geo(100, -@scaled-y(depth))
+                            y = @scaled-y(depth)
                             anchor = @anchor(bottom, center)
                             text = depth
                         }
@@ -128,7 +128,7 @@ export class Reconstructed extends Component<ReconstructedOption> {
                     height = 100%
                     data = prop.depth
                     xScale = @scale-linear(1, prop.virus.orig_len)
-                    yScale = @scale-linear(0, prop.depthMax)
+                    yScale = @scale-linear(prop.depthMax, 0)
                     fill = "#aaa"
                 }
             }

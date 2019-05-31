@@ -1,4 +1,4 @@
-import { GeometryValue } from "../defs/geometry";
+import { GeometryOptions, GeometryValue } from "../defs/geometry";
 import { RenderHelper } from "../rendering/render-helper";
 import { ElementDef, updateTree } from "../rendering/render-tree";
 import { SVGRenderable } from "../rendering/svg";
@@ -15,6 +15,12 @@ export type ActualElement = BaseElement<BaseOption>;
 
 type Scale = d3.ScaleContinuousNumeric<number, number>;
 
+interface PolarCoordInfo {
+    r: number;
+    cx: number;
+    cy: number;
+}
+
 export class Component<Option extends ComponentOption = ComponentOption>
     extends BaseElement<Option>
     implements SVGRenderable, RenderHelper, ScaleHelper {
@@ -25,6 +31,8 @@ export class Component<Option extends ComponentOption = ComponentOption>
 
     public $scaleX: Scale;
     public $scaleY: Scale;
+
+    public $polar: PolarCoordInfo;
 
     constructor(id: number, renderer?: Renderer) {
         super(id);
@@ -74,23 +82,37 @@ export class Component<Option extends ComponentOption = ComponentOption>
         updateTree(this as any);
     }
 
-    public getScale(horizontal: boolean): any {
-        return (horizontal ? this.$scaleX : this.$scaleY) ||
-            (this.parent ? this.parent.getScale(horizontal) : null);
-    }
-
     public svgTagName() { return "g"; }
     public svgTextContent() { return null; }
     public svgAttrs(): Record<string, string|number|boolean> {
         let v: any;
-        const $g = this.$geometry as any;
-        let transform = `translate(${$g.x},${$g.y})`;
+        const $g = this.$geometry as unknown as GeometryOptions<ComponentOption>;
+        let transform = `translate(${$g.x + $g._xOffset},${$g.y + $g._yOffset})`;
         if (v = this.prop.rotation)
             transform = `rotate(${v[0]},${v[1]},${v[2]}) ${transform}`;
         return {
             ...svgPropClip(this as any),
             transform,
         };
+    }
+
+    // geometry
+
+    public __didLayout() {
+        if (this.prop.coord === "polar" && !this.inPolorCoordSystem) {
+            const $g = this.$geometry as unknown as GeometryOptions<ComponentOption>;
+            const r = Math.min($g.width, $g.height) * 0.5;
+            const cx = $g.width * 0.5;
+            const cy = $g.height * 0.5;
+            this.$polar = { r, cx, cy };
+            this.$geometry._xOffset += cx;
+            this.$geometry._yOffset += cy;
+        }
+    }
+
+    public getScale(horizontal: boolean): any {
+        return (horizontal ? this.$scaleX : this.$scaleY) ||
+            (this.parent ? this.parent.getScale(horizontal) : null);
     }
 
     public static geometryProps() {

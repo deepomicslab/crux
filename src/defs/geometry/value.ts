@@ -79,4 +79,7 @@ type GeometryPropKeys<T> = { [K in keyof T]:
 
 export type GeometryOptions<T> = {
     [K in GeometryPropKeys<T>]: number;
+} & {
+    _xOffset: number;
+    _yOffset: number;
 };
