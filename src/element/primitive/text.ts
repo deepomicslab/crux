@@ -2,6 +2,8 @@ import { svgInnerHTML, svgPropFillAndStroke, svgPropPassthrough } from "../../re
 import { measuredTextSize } from "../../utils/text-size";
 import { BaseElementOption } from "./base-elm-options";
 import { PrimitiveElement } from "./primitive";
+import { Anchor } from "../../defs/geometry";
+import { posWithAnchor } from "../../layout/anchor";
 
 interface TextOption extends BaseElementOption {
     text: string;
@@ -12,6 +14,9 @@ interface TextOption extends BaseElementOption {
 export class Text extends PrimitiveElement<TextOption> {
     public $cachedWidth: number;
     public $cachedHeight: number;
+
+    private fx: number;
+    private fy: number;
 
     public static propNameForInitializer(): string { return "text"; }
 
@@ -33,17 +38,16 @@ export class Text extends PrimitiveElement<TextOption> {
     }
 
     public svgAttrs() {
-        const [x, y] = this.translatePoint(
-            this.$geometry.x,
-            this.$geometry.y + this.$cachedHeight,
-        );
+        const xOffset = Object.values(this.$geometry._xOffset).reduce((p, c) => p + c, 0);
+        const yOffset = Object.values(this.$geometry._yOffset).reduce((p, c) => p + c, 0);
         return {
             ...svgPropFillAndStroke(this),
             ...svgInnerHTML(this),
             ...svgPropPassthrough({
                 "font-size": "fontSize",
             })(this),
-            x, y,
+            x: this.fx + xOffset,
+            y: this.fy + this.$cachedHeight + yOffset,
         };
     }
 
@@ -58,6 +62,16 @@ export class Text extends PrimitiveElement<TextOption> {
 
     public get maxY() {
         return this.$geometry.y + this.$cachedHeight;
+    }
+
+    public adjustByAnchor = () => {
+        let anchor: Anchor;
+        if (anchor = this.prop.anchor) {
+            const [x, y] = this.translatePoint(this.$geometry.x, this.$geometry.y);
+            const g = this.$geometry;
+            this.fx = posWithAnchor(true, x, this.$cachedWidth, anchor);
+            this.fy = posWithAnchor(false, y, this.$cachedHeight, anchor);
+        }
     }
 }
 

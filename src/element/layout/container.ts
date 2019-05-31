@@ -40,28 +40,28 @@ export class Container extends Component<ContainerOption> {
         const realChildren = this.children.filter(c => !c.$detached);
         if (!this.prop.width) {
             realChildren.forEach(c => {
-                c.$geometry.x += pl;
+                c.$geometry._xOffset.container = pl;
                 let e = c;
                 while (e["render"]) {
                     e = (e as Component).children[0];
-                    e.$geometry.x += pl;
+                    e.$geometry._xOffset.container = pl;
                 }
             });
             const maxX = Math.max(...realChildren.map(c => c.maxX));
-            this.$geometry.width = maxX + pr;
+            this.$geometry.width = maxX + pl + pr;
         }
         if (!this.prop.height) {
             realChildren.forEach(c => {
                 if (c.$detached) return;
-                c.$geometry.y += pt;
+                c.$geometry._yOffset.container = pt;
                 let e = c;
                 while (e["render"]) {
                     e = (e as Component).children[0];
-                    e.$geometry.y += pt;
+                    e.$geometry._yOffset.container = pt;
                 }
             });
             const maxY = Math.max(...realChildren.map(c => c.maxY));
-            this.$geometry.height = maxY + pb;
+            this.$geometry.height = maxY + pt + pb;
         }
 
         this.children.forEach(c => {

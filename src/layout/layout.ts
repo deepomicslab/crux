@@ -42,6 +42,10 @@ export function layoutElement(el: BaseElement, skipFixed = false) {
 }
 
 export function adjustByAnchor(el: BaseElement<BaseOption>) {
+    if (el.adjustByAnchor) {
+        el.adjustByAnchor.call(el);
+        return;
+    }
     let anchor: Anchor;
     if (anchor = el.prop.anchor) {
         const g = el.$geometry;

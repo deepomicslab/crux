@@ -1,3 +1,8 @@
+import { registerGlobalComponent } from "../../src/element/global";
+import { Clock } from "./clock";
+
+registerGlobalComponent({ Clock });
+
 export default `//bvt
 svg {
     width = auto
@@ -56,6 +61,7 @@ svg {
                                 cornerRadius = 3
                             }
                             Text {
+                                anchor = @anchor(left, top)
                                 text = "Value:" + data.value
                                 fill = "#fff"
                             }
@@ -370,7 +376,6 @@ svg {
                         fill = ["#ff3d8b", "#3d8eff", "#ffb13d"][d.index]
                     }
                     Text.centered {
-                        debug = true
                         x = (d.start + d.end) * 0.5;
                         y = 40;
                         text = d.data.value
@@ -410,6 +415,9 @@ svg {
                         }
                     }
                 }
+            }
+            Clock {
+                height = 200; width = 300; padding = 20
             }
         }
     }

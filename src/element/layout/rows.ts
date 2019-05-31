@@ -12,10 +12,10 @@ export class Rows extends Component {
         for (const child of this.children) {
             if (child instanceof Component) {
                 let c = child as Component<ComponentOption>;
-                c.$geometry.y = counter;
+                c.$geometry._yOffset.row = counter;
                 while (c && isRenderable(c)) {
                     c = c.children[0] as Component<ComponentOption>;
-                    c.$geometry.y = counter;
+                    c.$geometry._yOffset.row = counter;
                 }
                 counter += c.$geometry.height;
             } else {

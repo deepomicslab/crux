@@ -119,8 +119,8 @@ export class XYPlot extends Component<XYPlotOption> {
             } else {
                 throw new Error(`XYPlot: data supplied must be an array or an object.`);
             }
-            this._cRange = d3.extent(allData, d => d.pos);
-            this._vRange = [
+            this._cRange = this.prop.categoryRange || d3.extent(allData, d => d.pos);
+            this._vRange = this.prop.valueRange || [
                 this.prop.capToMinValue ? d3.min(allData, d => d.minValue) : 0,
                 d3.max(allData, d => d.value),
             ];

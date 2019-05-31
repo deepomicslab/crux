@@ -57,8 +57,8 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
         this.id = id;
         this.uid = defaultUIDGenerator.gen();
         this.$geometry = {
-            _xOffset: 0,
-            _yOffset: 0,
+            _xOffset: {},
+            _yOffset: {},
         } as any;
         this.$defaultProp = this.defaultProp();
         this._prop = {};
@@ -202,6 +202,7 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
         return [x, y];
     }
 
+    public adjustByAnchor?: () => void;
 
     /* scale */
 

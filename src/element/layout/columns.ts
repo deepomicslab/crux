@@ -12,10 +12,10 @@ export class Columns extends Component {
         for (const child of this.children) {
             if (child instanceof Component) {
                 let c = child as Component<ComponentOption>;
-                c.$geometry.x = counter;
+                c.$geometry._xOffset.column = counter;
                 while (c && isRenderable(c)) {
                     c = c.children[0] as Component<ComponentOption>;
-                    c.$geometry.x = counter;
+                    c.$geometry._xOffset.column = counter;
                 }
                 counter += c.$geometry.width;
             } else {

@@ -34,6 +34,7 @@ import tarea from "./test/templates/tarea";
 import tbox from "./test/templates/tbox";
 import tcircos from "./test/templates/tcircos";
 import tdemo from "./test/templates/tdemo";
+import tdemo2 from "./test/templates/tdemo2";
 
 registerDefaultBioInfoComponents();
 

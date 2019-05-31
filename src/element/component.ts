@@ -87,7 +87,9 @@ export class Component<Option extends ComponentOption = ComponentOption>
     public svgAttrs(): Record<string, string|number|boolean> {
         let v: any;
         const $g = this.$geometry as unknown as GeometryOptions<ComponentOption>;
-        let transform = `translate(${$g.x + $g._xOffset},${$g.y + $g._yOffset})`;
+        const xOffset = Object.values($g._xOffset).reduce((p, c) => p + c, 0);
+        const yOffset = Object.values($g._yOffset).reduce((p, c) => p + c, 0);
+        let transform = `translate(${$g.x + xOffset},${$g.y + yOffset})`;
         if (v = this.prop.rotation)
             transform = `rotate(${v[0]},${v[1]},${v[2]}) ${transform}`;
         return {
@@ -105,8 +107,8 @@ export class Component<Option extends ComponentOption = ComponentOption>
             const cx = $g.width * 0.5;
             const cy = $g.height * 0.5;
             this.$polar = { r, cx, cy };
-            this.$geometry._xOffset += cx;
-            this.$geometry._yOffset += cy;
+            this.$geometry._xOffset.polor = cx;
+            this.$geometry._yOffset.polor = cy;
         }
     }
 
