@@ -1,4 +1,5 @@
 import { GeometryOptValue } from "../../defs/geometry";
+import { getFinalPosition } from "../../layout/layout";
 import { svgPropFillAndStroke } from "../../rendering/svg-helper";
 import { BaseElementOption } from "./base-elm-options";
 import { PrimitiveElement } from "./primitive";
@@ -10,14 +11,13 @@ interface CircleOption extends BaseElementOption {
 export class Circle extends PrimitiveElement<CircleOption> {
 
     public svgAttrs() {
-        const [cx, cy] = this.translatePoint(
-            this.$geometry.x + this.$geometry.r,
-            this.$geometry.y + this.$geometry.r,
-        );
+        const [x, y] = getFinalPosition(this);
+        const r = this.$geometry.r;
         return {
             ...svgPropFillAndStroke(this),
-            cx, cy,
-            r: this.$geometry.r,
+            cx: x + r,
+            cy: y + r,
+            r,
         };
     }
 
@@ -36,4 +36,7 @@ export class Circle extends PrimitiveElement<CircleOption> {
     public get maxY() {
         return this.$geometry.y + this.$geometry.r * 2;
     }
+
+    public get layoutWidth() { return this.$geometry.r * 2; }
+    public get layoutHeight() { return this.$geometry.r * 2; }
 }

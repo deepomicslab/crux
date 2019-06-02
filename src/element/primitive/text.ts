@@ -1,9 +1,10 @@
+import { Anchor } from "../../defs/geometry";
+import { posWithAnchor } from "../../layout/anchor";
 import { svgInnerHTML, svgPropFillAndStroke, svgPropPassthrough } from "../../rendering/svg-helper";
 import { measuredTextSize } from "../../utils/text-size";
 import { BaseElementOption } from "./base-elm-options";
 import { PrimitiveElement } from "./primitive";
-import { Anchor } from "../../defs/geometry";
-import { posWithAnchor } from "../../layout/anchor";
+import { getFinalPosition } from "../../layout/layout";
 
 interface TextOption extends BaseElementOption {
     text: string;
@@ -38,16 +39,15 @@ export class Text extends PrimitiveElement<TextOption> {
     }
 
     public svgAttrs() {
-        const xOffset = Object.values(this.$geometry._xOffset).reduce((p, c) => p + c, 0);
-        const yOffset = Object.values(this.$geometry._yOffset).reduce((p, c) => p + c, 0);
+        const [x, y] = getFinalPosition(this);
         return {
             ...svgPropFillAndStroke(this),
             ...svgInnerHTML(this),
             ...svgPropPassthrough({
                 "font-size": "fontSize",
             })(this),
-            x: this.fx + xOffset,
-            y: this.fy + this.$cachedHeight + yOffset,
+            x,
+            y: y + this.$cachedHeight,
         };
     }
 
@@ -64,15 +64,8 @@ export class Text extends PrimitiveElement<TextOption> {
         return this.$geometry.y + this.$cachedHeight;
     }
 
-    public adjustByAnchor = () => {
-        let anchor: Anchor;
-        if (anchor = this.prop.anchor) {
-            const [x, y] = this.translatePoint(this.$geometry.x, this.$geometry.y);
-            const g = this.$geometry;
-            this.fx = posWithAnchor(true, x, this.$cachedWidth, anchor);
-            this.fy = posWithAnchor(false, y, this.$cachedHeight, anchor);
-        }
-    }
+    public get layoutWidth() { return this.$cachedWidth; }
+    public get layoutHeight() { return this.$cachedHeight; }
 }
 
 function strip(html: string): string {

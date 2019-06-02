@@ -1,4 +1,5 @@
 import { GeometryOptions, GeometryValue } from "../defs/geometry";
+import { getFinalPosition } from "../layout/layout";
 import { RenderHelper } from "../rendering/render-helper";
 import { ElementDef, updateTree } from "../rendering/render-tree";
 import { SVGRenderable } from "../rendering/svg";
@@ -86,10 +87,8 @@ export class Component<Option extends ComponentOption = ComponentOption>
     public svgTextContent() { return null; }
     public svgAttrs(): Record<string, string|number|boolean> {
         let v: any;
-        const $g = this.$geometry as unknown as GeometryOptions<ComponentOption>;
-        const xOffset = Object.values($g._xOffset).reduce((p, c) => p + c, 0);
-        const yOffset = Object.values($g._yOffset).reduce((p, c) => p + c, 0);
-        let transform = `translate(${$g.x + xOffset},${$g.y + yOffset})`;
+        const [x, y] = getFinalPosition(this);
+        let transform = `translate(${x},${y})`;
         if (v = this.prop.rotation)
             transform = `rotate(${v[0]},${v[1]},${v[2]}) ${transform}`;
         return {

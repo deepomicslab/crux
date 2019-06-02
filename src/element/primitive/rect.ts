@@ -1,4 +1,5 @@
 import { GeometryOptValue } from "../../defs/geometry";
+import { getFinalPosition } from "../../layout/layout";
 import { svgPropFillAndStroke, svgPropPassthrough, svgPropXAndY } from "../../rendering/svg-helper";
 import { BaseElementOption } from "./base-elm-options";
 import { PrimitiveElement } from "./primitive";
@@ -14,13 +15,14 @@ interface RectOption extends BaseElementOption {
 export class Rect extends PrimitiveElement<RectOption> {
 
     public svgAttrs() {
+        const [x, y] = getFinalPosition(this);
         return {
             ...svgPropFillAndStroke(this),
-            ...svgPropXAndY(this),
             ...svgPropPassthrough({
                 rx: "cornerRadius",
                 ry: "cornerRadius",
             })(this),
+            x, y,
             width: this._widthWithMin(),
             height: this._heightWithMin(),
         };

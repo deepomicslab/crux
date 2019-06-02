@@ -38,4 +38,6 @@ export class Line extends PrimitiveElement<LineOption> {
             v: [...v, "y1", "y2"],
         };
     }
+
+    public positionDetached = true;
 }

@@ -1,5 +1,5 @@
 import { GeometryOptValue } from "../../../defs/geometry";
-import { svgPropFillAndStroke, svgPropPassthrough, svgPropXAndY } from "../../../rendering/svg-helper";
+import { svgPropFillAndStroke } from "../../../rendering/svg-helper";
 import { toRad } from "../../../utils/math";
 import { BaseElement } from "../../base-element";
 import { BaseElementOption } from "../base-elm-options";
@@ -50,4 +50,6 @@ export class Arc extends BaseElement<ArcOption> {
             v: [...v, "r1", "r2"],
         };
     }
+
+    public positionDetached = true;
 }

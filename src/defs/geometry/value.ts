@@ -82,4 +82,6 @@ export type GeometryOptions<T> = {
 } & {
     _xOffset: Record<string, number>;
     _yOffset: Record<string, number>;
+    _x: number;
+    _y: number;
 };

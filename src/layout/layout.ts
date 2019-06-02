@@ -42,14 +42,24 @@ export function layoutElement(el: BaseElement, skipFixed = false) {
 }
 
 export function adjustByAnchor(el: BaseElement<BaseOption>) {
-    if (el.adjustByAnchor) {
-        el.adjustByAnchor.call(el);
+    const g = el.$geometry;
+    if (el.positionDetached) {
+        g._x = g.x; g._y = g.y;
         return;
     }
     let anchor: Anchor;
+    const [x, y] = el.translatePoint(g.x, g.y);
     if (anchor = el.prop.anchor) {
-        const g = el.$geometry;
-        g.x = posWithAnchor(true, g.x, el.maxX - g.x, anchor);
-        g.y = posWithAnchor(false, g.y, el.maxY - g.y, anchor);
+        g._x = posWithAnchor(true, x, el.layoutWidth, anchor);
+        g._y = posWithAnchor(false, y, el.layoutHeight, anchor);
+    } else {
+        g._x = x; g._y = y;
     }
+}
+
+export function getFinalPosition(el: BaseElement<BaseOption>): [number, number] {
+    return [
+        el.$geometry._x + Object.values(el.$geometry._xOffset).reduce((p, c) => p + c, 0),
+        el.$geometry._y + Object.values(el.$geometry._yOffset).reduce((p, c) => p + c, 0),
+    ];
 }

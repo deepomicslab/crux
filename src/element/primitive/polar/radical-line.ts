@@ -33,4 +33,6 @@ export class RadicalLine extends BaseElement<RadicalLineOption> {
         const { h, v } = super.geometryProps();
         return { h, v: [...v, "r1", "r2"]};
     }
+
+    public positionDetached = true;
 }

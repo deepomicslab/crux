@@ -1,12 +1,13 @@
+import { GeometryOptValue } from "../../../defs/geometry";
 import { svgPropFillAndStroke } from "../../../rendering/svg-helper";
 import { toCartesian } from "../../../utils/math";
 import { BaseElement } from "../../base-element";
 import { BaseElementOption } from "../base-elm-options";
 
 export interface ArcLineOption extends BaseElementOption {
-    x1: number;
-    x2: number;
-    r: number;
+    x1: GeometryOptValue;
+    x2: GeometryOptValue;
+    r: GeometryOptValue;
 }
 
 export class ArcLine extends BaseElement<ArcLineOption> {
@@ -39,4 +40,6 @@ export class ArcLine extends BaseElement<ArcLineOption> {
         const largeArcFlag = x2 - x1 <= 180 ? "0" : "1";
         return `M${_x1},${_y1} A${r},${r},0,${largeArcFlag},1,${_x2},${_y2}`;
     }
+
+    public positionDetached = true;
 }

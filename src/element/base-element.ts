@@ -191,6 +191,8 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
 
     /* geometry */
 
+    public positionDetached = false;
+
     public get inPolorCoordSystem() {
         return this.$coord && this.$coord.$polar;
     }
@@ -201,8 +203,6 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
         }
         return [x, y];
     }
-
-    public adjustByAnchor?: () => void;
 
     /* scale */
 
@@ -234,6 +234,8 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
 
     public get maxX(): number { return (this.$geometry as any).x; }
     public get maxY(): number { return (this.$geometry as any).y; }
+    public get layoutWidth(): number { return (this.$geometry as any).width; }
+    public get layoutHeight(): number { return (this.$geometry as any).height; }
 
     /* Hooks */
 

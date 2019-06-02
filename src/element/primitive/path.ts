@@ -18,4 +18,6 @@ export class Path extends PrimitiveElement<PathOption> {
 
     public svgTagName() { return "path"; }
     public svgTextContent() { return null; }
+
+    public positionDetached = true;
 }
