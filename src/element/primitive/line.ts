@@ -39,5 +39,11 @@ export class Line extends PrimitiveElement<LineOption> {
         };
     }
 
+    public defaultProp() {
+        return {
+            stroke: "#000",
+        };
+    }
+
     public positionDetached = true;
 }

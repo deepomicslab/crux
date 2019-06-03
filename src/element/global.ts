@@ -1,6 +1,6 @@
 import { componentList } from "./get-component";
 
-import { Axis, AxisBackground } from "./auxiliary";
+import { Axis, AxisBackground, Legend } from "./auxiliary";
 import { Area, Bars, Boxes, Dots, GroupedBars, PieChart, StackedArea, StackedBars } from "./chart";
 import { Component } from "./component";
 import { Brush } from "./interaction";
@@ -37,8 +37,10 @@ export function registerDefaultGlobalComponents() {
         Rows,
         Columns,
         Brush,
+        // other
         Axis,
         AxisBackground,
+        Legend,
     });
 }
 

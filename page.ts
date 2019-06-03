@@ -62,6 +62,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const v = window["$v"] = visualize({
         el: "#canvas",
-        template: tdemo,
+        template: t1,
     });
 });

@@ -10,34 +10,13 @@ svg {
     Component {
         width = 800
         height = 600
-        coord = "polar"
-        Rect {
-            anchor = @anchor(middle, center)
-            width = 100%
-            height = 100%
-            fill = "none"
-            stroke = "#000"
-        }
-        Circle {
-            anchor = @anchor(middle, center)
-            r = 300
-            fill = "#ccc"
-        }
-        Circle.centered { r = 2; fill = "blue" }
-        Component {
-            Rect.centered {
-                x = 45; y = 100;
-                width = 10; height = 10; fill = "red"
-            }
-        }
-        Component {
-            x = 45; y = 100;
-            width = 200; height = 150;
-            coord = "cartesian"
-            Rect.full.centered {
-                stroke = "#000"
-                fill = "none"
-            }
+        Legend {
+            width = 200
+            data = [
+                { label: "Data 1", fill: "red" },
+                { label: "Data 2", type: "circle" },
+                { label: "Data 3", type: "line" },
+            ]
         }
     }
 }

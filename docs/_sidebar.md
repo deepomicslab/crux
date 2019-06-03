@@ -1,2 +1,3 @@
 - [Home](/)
 - [Helpers](helpers.md)
+- [Custom Components](custom-components.md)

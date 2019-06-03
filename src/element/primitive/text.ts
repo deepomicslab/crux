@@ -1,10 +1,8 @@
-import { Anchor } from "../../defs/geometry";
-import { posWithAnchor } from "../../layout/anchor";
+import { getFinalPosition } from "../../layout/layout";
 import { svgInnerHTML, svgPropFillAndStroke, svgPropPassthrough } from "../../rendering/svg-helper";
 import { measuredTextSize } from "../../utils/text-size";
 import { BaseElementOption } from "./base-elm-options";
 import { PrimitiveElement } from "./primitive";
-import { getFinalPosition } from "../../layout/layout";
 
 interface TextOption extends BaseElementOption {
     text: string;
@@ -30,7 +28,7 @@ export class Text extends PrimitiveElement<TextOption> {
             (this.prop.html && this.prop.html.toString) ? strip(this.prop.html.toString()) : null;
 
         if (text === null) {
-            throw new Error(`Text: you must supply either "text" ot "html".`);
+            throw new Error(`Text: you must supply either "text" or "html".`);
         }
 
         const box = measuredTextSize(text, this.prop.fontSize);
@@ -57,11 +55,11 @@ export class Text extends PrimitiveElement<TextOption> {
     }
 
     public get maxX() {
-        return this.$geometry.x + this.$cachedWidth;
+        return this.$geometry._x + this.$cachedWidth;
     }
 
     public get maxY() {
-        return this.$geometry.y + this.$cachedHeight;
+        return this.$geometry._y + this.$cachedHeight;
     }
 
     public get layoutWidth() { return this.$cachedWidth; }
