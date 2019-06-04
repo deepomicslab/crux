@@ -13,7 +13,7 @@ const ANCHOR_LIST = {
 
 const exprHelpers: Record<string, (args: string[]) => [string, boolean]> = {
     "scale-linear": (args) => {
-        const domain = `[${args[0]}, ${args[1]}]`;
+        const domain = args.length === 2 ? `[${args[0]}, ${args[1]}]` : "null";
         const range = args.length === 4 ? `[${args[2]}, ${args[3]}]` : "null";
         return [
             `{ __scale__: true, type: "linear", domain: ${domain}, range: ${range} }`,

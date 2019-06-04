@@ -11,6 +11,7 @@ export interface VisualizerOption {
     template?: string;
     props?: Record<string, any>;
     root?: Component;
+    components?: Record<string, typeof Component>;
     renderer?: "canvas" | "svg";
     width?: number | "auto";
     height?: number | "auto";
@@ -20,16 +21,23 @@ export class Visualizer {
     public container: Element;
     public root: BaseElement;
     public size: { width: number, height: number };
+    public components: Record<string, typeof Component>;
 
     public svgDef: Record<string, string> = {};
 
     public renderer: RenderFunc;
 
     constructor(opt: VisualizerOption) {
-        this.container = document.querySelector(getOpt(opt, "el"));
+        const el = getOpt(opt, "el") as any;
+        this.container = typeof el === "string" ? document.querySelector(el) :
+            (el instanceof HTMLElement) ? el : null;
         if (this.container === null) {
             throw new Error(`Cannot find the container element.`);
         }
+
+        this.container.innerHTML = "";
+
+        this.components = opt.components;
 
         if (opt.template) {
             const [renderer, metadata] = compile(getOpt(opt, "template"));
@@ -49,7 +57,7 @@ export class Visualizer {
             this.setRootElement(opt.root);
             this.size = {
                 width: this._parseSize(getOpt(opt, "width", "auto").toString(), true),
-                height: this._parseSize(getOpt(opt, "height", 400).toString(), false),
+                height: this._parseSize(getOpt(opt, "height", "auto").toString(), false),
             };
         }
 
@@ -74,7 +82,11 @@ export class Visualizer {
 
     private _parseSize(size: string, isWidth: boolean): number {
         if (size === "auto") {
-            return isWidth ? this.container.clientWidth : this.container.clientHeight;
+            const computedStyle = getComputedStyle(this.container);
+
+            return isWidth ?
+                this.container.clientWidth - parseFloat(computedStyle.paddingTop) - parseFloat(computedStyle.paddingBottom) :
+                this.container.clientHeight - parseFloat(computedStyle.paddingLeft) - parseFloat(computedStyle.paddingRight);
         } else {
             return parseFloat(size);
         }

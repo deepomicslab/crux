@@ -20,8 +20,9 @@ export function parse(template: string): [ASTNode, TemplateMetaData] {
         const metadata = ast.props.reduce((acc, curr) => {
             acc[curr.name] = curr.expr;
             return acc;
-        }, {});
+        }, {}) as TemplateMetaData;
 
+        metadata.rootComponent = (ast.children[0] as ASTNodeComp).name;
         ast.props = [];
         return [ast, metadata];
     }

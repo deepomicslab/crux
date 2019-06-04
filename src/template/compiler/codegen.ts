@@ -3,6 +3,7 @@ import { Anchor, GEOMETRY_LITERAL } from "../../defs/geometry";
 import { getComponent } from "../../element/get-component";
 import { UIDGenerator } from "../../utils/uid";
 import { ASTNode, ASTNodeComp, ASTNodeCondition, ASTNodeElse, ASTNodeFor, ASTNodeIf, ASTNodeYield, isRootElement, newNode } from "./ast-node";
+import { Component } from "../../element/component";
 
 function wrappedWithLocalData(node: ASTNode, wrapped: string) {
     return `(function(){
@@ -34,15 +35,10 @@ function genExpr(expr: string, name: string) {
 }
 
 function genAttrs(node: ASTNodeComp) {
-    const component = getComponent(node.name);
-    const geoProps = component.$geometryProps.flat(1);
-    const initArgPropName = component.propNameForInitializer();
     const attrs = node.props.map(p => {
         let match: RegExpMatchArray;
-        // replace _initArg
-        const name = p.name === "_initArg" ? initArgPropName : p.name;
-        const isGeoProp = geoProps.includes(p.name);
-        const expr = isGeoProp && (match = p.expr.match(GEOMETRY_LITERAL)) ?
+        const name = p.name;
+        const expr = (match = p.expr.match(GEOMETRY_LITERAL)) ?
             genGeoExpr(match) : p.expr;
         return `'${name}': ${genExpr(expr, name)}`;
     }).join(", ");

@@ -16,6 +16,13 @@ export function parseBlock(p: ParserStream): ASTNode {
         parseModifiers(node, modifiers);
     }
 
+    p.skipSpaces(false);
+    if (p.peek() === ";") {
+        p.expect(";");
+        p.skipSpaces(true);
+        return node;
+    }
+
     p.skipSpaces(true);
     parseBlockBody(p, node);
     p.skipSpaces(true);

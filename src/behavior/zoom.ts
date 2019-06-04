@@ -1,6 +1,6 @@
 import { BaseElement } from "../element/base-element";
+import mouse from "../utils/mouse";
 import { Behavior } from "./behavior";
-import mouse from "./mouse";
 
 export interface ZoomOption {
     direction: "x" | "y" | "xy";

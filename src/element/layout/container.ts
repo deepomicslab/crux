@@ -27,6 +27,8 @@ export class Container extends Component<ContainerOption> {
         return {
             x: 0,
             y: 0,
+            width: 0,
+            height: 0,
         } as any;
     }
 
@@ -38,7 +40,7 @@ export class Container extends Component<ContainerOption> {
         const [pt, pr, pb, pl] = this._getPadding();
 
         const realChildren = this.children.filter(c => !c.$detached);
-        if (!this.prop.width) {
+        if (!this.prop.width || (this.parent.isRoot && this._inheritedWidth)) {
             realChildren.forEach(c => {
                 c.$geometry._xOffset.container = pl;
                 let e = c;
@@ -50,7 +52,7 @@ export class Container extends Component<ContainerOption> {
             const maxX = Math.max(...realChildren.map(c => c.maxX));
             this.$geometry.width = maxX + pl + pr;
         }
-        if (!this.prop.height) {
+        if (!this.prop.height || (this.parent.isRoot && this._inheritedHeight)) {
             realChildren.forEach(c => {
                 if (c.$detached) return;
                 c.$geometry._yOffset.container = pt;

@@ -26,6 +26,8 @@ export class Component<Option extends ComponentOption = ComponentOption>
     extends BaseElement<Option>
     implements SVGRenderable, RenderHelper, ScaleHelper {
 
+    public static components: Record<string, typeof Component>;
+
     public $ref: Record<string, ActualElement> = {};
     public children: ActualElement[] = [];
     public tree: ElementDef;
@@ -33,6 +35,7 @@ export class Component<Option extends ComponentOption = ComponentOption>
     public $scaleX: Scale;
     public $scaleY: Scale;
 
+    public $isCoordRoot: boolean;
     public $polar: PolarCoordInfo;
 
     constructor(id: number, renderer?: Renderer) {
@@ -87,8 +90,13 @@ export class Component<Option extends ComponentOption = ComponentOption>
     public svgTextContent() { return null; }
     public svgAttrs(): Record<string, string|number|boolean> {
         let v: any;
-        const [x, y] = getFinalPosition(this);
-        let transform = `translate(${x},${y})`;
+        let transform: string;
+        if (this.$coord && this.$coord.$polar && !this.$isCoordRoot) {
+            transform = "";
+        } else {
+            const [x, y] = getFinalPosition(this as any);
+            transform = `translate(${x},${y})`;
+        }
         if (v = this.prop.rotation)
             transform = `rotate(${v[0]},${v[1]},${v[2]}) ${transform}`;
         return {

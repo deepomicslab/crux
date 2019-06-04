@@ -4,9 +4,9 @@ import { Component } from "../src/element/component";
 import { ComponentOption } from "../src/element/component-options";
 import { registerGlobalComponent } from "../src/element/global";
 import { template } from "../src/template/tag";
+import mouse from "../src/utils/mouse";
 
 import d3 = require("d3-scale");
-import mouse from "../src/behavior/mouse";
 import { Brush } from "../src/element/interaction";
 
 interface ReconstructedOption extends ComponentOption {
@@ -243,6 +243,7 @@ class MutPoint extends Component {
     `;
 
     public state = {
+        stage: null,
         active: false,
     };
 

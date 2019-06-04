@@ -1,3 +1,3 @@
-# Headline
+# Documentation
 
-> An awesome project.
+[Start the interactive tutorial](template.md).

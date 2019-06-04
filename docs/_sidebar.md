@@ -1,3 +1,13 @@
 - [Home](/)
-- [Helpers](helpers.md)
-- [Custom Components](custom-components.md)
+- [Getting Started](get-started.md)
+- **TUTORIAL**
+    - [Template](template.md)
+    - [Template Continued](template-contd.md)
+    - [Coordinate System](coord-system.md)
+    - [Advanced Layout](advanced-layout.md)
+    - [Usage in Browser](usage.md)
+    - [Custom Components](custom-components.md)
+    - [Advanced Components](advanced-components.md)
+- **PLOTS AND CHARTS**
+- **REFERENCE**
+    - [Helpers](ref/helpers.md)

@@ -16,7 +16,7 @@ export class ScaleHelper {
             self.$polar ? 360 : self.$geometry.width :
             self.$polar ? self.$polar.r : self.$geometry.height;
         return d3.scaleLinear()
-            .domain(domain)
+            .domain(domain || [0, size])
             .range(range || [0, size]);
     }
 }

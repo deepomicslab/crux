@@ -34,7 +34,7 @@ svg {
                 padding-t = 24
                 data = array
                 Rect { fill = "#efefef" }
-                AxisBackground {}
+                AxisBackground;
                 Bars {
                     :children (data) {
                         Rect.full {
@@ -69,16 +69,16 @@ svg {
                     }
                 }
                 Axis("bottom") { y = 100% }
-                Axis("left") {}
+                Axis("left");
             }
             XYPlot {
                 height = 200; width = 300; padding = 20
                 data = array
                 invertValueAxis = true
-                AxisBackground {}
-                Bars {}
-                Axis("top") {}
-                Axis("left") {}
+                AxisBackground;
+                Bars;
+                Axis("top");
+                Axis("left");
             }
             XYPlot {
                 height = 200; width = 300; padding = 20
@@ -86,8 +86,8 @@ svg {
                 flip = true
                 invertValueAxis = true
                 AxisBackground { orientation = "vertical" }
-                Bars {}
-                Axis("top") {}
+                Bars;
+                Axis("top");
             }
             XYPlot {
                 height = 200; width = 300; padding = 20

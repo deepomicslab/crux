@@ -1,3 +1,4 @@
+import { BaseElement } from "../element/base-element";
 import { ActualElement, Component } from "../element/component";
 import { ComponentOption } from "../element/component-options";
 import { getComponent } from "../element/get-component";
@@ -34,7 +35,7 @@ const currCoordSystems: ("polar" | "cartesian")[] = ["cartesian"];
 const currCoordSystem = () => currCoordSystems[currCoordSystems.length - 1];
 
 function findComponent(component: Component, name: string, id: number): [ActualElement, boolean] {
-    const ctor = getComponent(name);
+    const ctor = getComponent(component, name);
     const comp = component.children.find(c => c instanceof ctor && c.id === id);
     if (comp) {
         comp.isActive = true;
@@ -75,10 +76,16 @@ export function updateTree(parent: Component<ComponentOption>, def?: ElementDef)
             for (const prop of INHERITED_PROPS) {
                 if (!(prop in opt.props) && (prop in p)) {
                     opt.props[prop] = p[prop];
+                    if (prop === "width") elm._inheritedWidth = true;
+                    if (prop === "height") elm._inheritedHeight = true;
                 }
             }
         }
 
+        if ("_initArg" in opt.props) {
+            const initArgPropName = (elm.constructor as typeof BaseElement).propNameForInitializer();
+            opt.props[initArgPropName] = opt.props._initArg;
+        }
         opt.props.children = def.children;
         opt.props.namedChildren = def.opt.namedChildren || {};
 
@@ -98,10 +105,10 @@ export function updateTree(parent: Component<ComponentOption>, def?: ElementDef)
     if (newCoordSystem) {
         currCoordRoots.push(elm as Component);
         currCoordSystems.push((elm as Component).prop.coord);
+        (elm as Component).$isCoordRoot = true;
     }
 
     layoutElement(elm);
-    elm.parseInternalProps();
 
     if (elm.prop.debug) {
         console.log(elm);
@@ -115,6 +122,8 @@ export function updateTree(parent: Component<ComponentOption>, def?: ElementDef)
 
     elm.$callHook("__didLayout");
     elm.$callHook("didLayout");
+
+    elm.parseInternalProps();
 
     if (isRenderable(elm)) {
         currElements.push(elm);

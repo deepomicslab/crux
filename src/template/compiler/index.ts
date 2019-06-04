@@ -11,6 +11,7 @@ export type Renderer<
 export interface TemplateMetaData {
     width?: string;
     height?: string;
+    rootComponent: string;
 }
 
 export function compile(template: string): [Renderer, TemplateMetaData] {
