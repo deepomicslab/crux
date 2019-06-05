@@ -10,7 +10,7 @@ export interface Scalable {
 type Range = [number, number];
 
 export class ScaleHelper {
-    public _createScale_linear(horizontal: boolean, domain: Range, range?: Range) {
+    public _createScaleLinear(horizontal: boolean, domain: Range, range?: Range) {
         const self = (this as unknown as Component);
         const size = horizontal ?
             self.$polar ? 360 : self.$geometry.width :
@@ -18,5 +18,9 @@ export class ScaleHelper {
         return d3.scaleLinear()
             .domain(domain || [0, size])
             .range(range || [0, size]);
+    }
+
+    public _createScaleOrdinal(domain: string[], range: number[]) {
+        return d3.scaleOrdinal().domain(domain).range(range);
     }
 }

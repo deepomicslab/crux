@@ -45,7 +45,7 @@ export class PieChart extends Component<PieChartOption> {
             c._minValue = p;
             return p + c.value;
         }, 0);
-        this._xScale = this._createScale_linear(true,
+        this._xScale = this._createScaleLinear(true,
             [0, sum],
             [this.prop.startAngle || 0, this.prop.endAngle || 360]);
     }

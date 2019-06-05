@@ -40,14 +40,16 @@ export class Axis extends Component<AxisOption> {
                     y2 = isHorizontal ? offset : 0
                     stroke = prop.stroke
                 }
-                Text {
-                    text = tick.value
-                    x = isHorizontal ? 0 : offset
-                    y = isHorizontal ? offset : 0
-                    anchor = labelAnchor
-                    fontSize = 10
-                    fill = prop.stroke
-                    style:visibility = tick.show ? "visible" : "hidden"
+                @yield label with tick default {
+                    Text {
+                        text = tick.value
+                        x = isHorizontal ? 0 : offset
+                        y = isHorizontal ? offset : 0
+                        anchor = labelAnchor
+                        fontSize = 10
+                        fill = prop.stroke
+                        style:visibility = tick.show ? "visible" : "hidden"
+                    }
                 }
             }
         }
@@ -71,7 +73,8 @@ export class Axis extends Component<AxisOption> {
         if (this.$parent instanceof XYPlot &&
             this.$parent.flipped !== this.isHorizontal) {
             const domain = this.$parent.categoryScale.domain();
-            this._tickValues = _.range(domain[0], domain[1] + 1);
+            this._tickValues = this.$parent.prop.discreteCategory ?
+                domain : _.range(domain[0], domain[1] + 1);
         }
     }
 

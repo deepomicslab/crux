@@ -30,6 +30,7 @@ export interface XYPlotOption extends ComponentOption {
     data: any[] | Record<string, any>;
     dataHandler: { [name: string]: DataHandler };
     stackedData: Record<string, string[]>;
+    discreteCategory: boolean;
     categoryRange: any[];
     valueRange: [number, number];
     capToMinValue: boolean;
@@ -80,6 +81,7 @@ export class XYPlot extends Component<XYPlotOption> {
         return {
             ...super.defaultProp(),
             hasPadding: true,
+            discreteCategory: false,
         };
     }
 
@@ -119,7 +121,8 @@ export class XYPlot extends Component<XYPlotOption> {
             } else {
                 throw new Error(`XYPlot: data supplied must be an array or an object.`);
             }
-            this._cRange = this.prop.categoryRange || d3.extent(allData, d => d.pos);
+            this._cRange = this.prop.categoryRange ||
+                this.prop.discreteCategory ? _.uniq(allData.map(d => d.pos)) : d3.extent(allData, d => d.pos);
             this._vRange = this.prop.valueRange || [
                 this.prop.capToMinValue ? d3.min(allData, d => d.minValue) : 0,
                 d3.max(allData, d => d.value),
@@ -165,13 +168,24 @@ export class XYPlot extends Component<XYPlotOption> {
         this.columnWidth = columnSizeWithGap - gap;
         const padding = this.prop.hasPadding ? (columnSizeWithGap + gap) * 0.5 : 0;
         const domain: [number, number] = [padding, width - padding];
-        return this._createScale_linear(true, this._cRange as any, domain);
+
+        if (this.prop.discreteCategory) {
+            const ticks = [];
+            let v = domain[0];
+            while (v <= domain[1]) {
+                ticks.push(v);
+                v += columnSizeWithGap;
+            }
+            return this._createScaleOrdinal(this._cRange, ticks);
+        } else {
+            return this._createScaleLinear(true, this._cRange as any, domain);
+        }
     }
 
     private createValueScale(size: number) {
         const [pt, pr, pb, pl] = this._paddings;
         const width = size - pt - pb;
-        return this._createScale_linear(
+        return this._createScaleLinear(
             false,
             this._vRange,
             this.inverted ? [0, width] : [width, 0],

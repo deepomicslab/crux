@@ -67,7 +67,7 @@ export class Component<Option extends ComponentOption = ComponentOption>
                 if (s.domain) (this[k] as Scale).domain(s.domain);
                 if (s.range) (this[k] as Scale).range(s.range);
             } else {
-                this[k] = this._createScale_linear(horizontal, s.domain, s.range);
+                this[k] = this._createScaleLinear(horizontal, s.domain, s.range);
             }
         } else if (typeof s === "function") {
             this[k] = s as any;
@@ -160,8 +160,9 @@ export class Component<Option extends ComponentOption = ComponentOption>
 
     public _c: () => ElementDef;
     public _l: () => ElementDef[];
-    // tslint:disable-next-line: variable-name
-    public _createScale_linear: (horizontal: boolean, domain: [number, number], range?: [number, number]) => d3.ScaleLinear<number, number>;
+
+    public _createScaleLinear: (horizontal: boolean, domain: [number, number], range?: [number, number]) => d3.ScaleLinear<number, number>;
+    public _createScaleOrdinal: (domain: string[], range: number[]) => d3.ScaleOrdinal<string, number>;
 }
 
 applyMixins(Component, [RenderHelper, ScaleHelper]);
