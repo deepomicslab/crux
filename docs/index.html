@@ -68,7 +68,7 @@
 
               const sib = el.nextElementSibling;
               const components = {};
-              if (sib.className.indexOf("bvd-code") >= 0) {
+              if (sib && sib.className.indexOf("bvd-code") >= 0) {
                 const extraComp = eval(sib.textContent.replace(/<\/?p>/g, ""));
                 components[extraComp.name] = extraComp;
                 sib.style.display = "none";
