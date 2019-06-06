@@ -5,6 +5,7 @@ import { registerDefaultGlobalComponents } from "../element/global";
 import { RenderFunc } from "../rendering/base-renderer";
 import { render as svgRenderFunc } from "../rendering/svg";
 import { compile } from "../template/compiler";
+import { RootComponent } from "./root";
 
 export interface VisualizerOption {
     el: string;
@@ -42,15 +43,15 @@ export class Visualizer {
         if (opt.template) {
             const [renderer, metadata] = compile(getOpt(opt, "template"));
             this.size = {
-                width: this._parseSize(metadata.width, true),
-                height: this._parseSize(metadata.height, false),
+                width: this._parseSize(metadata.width || "auto", true),
+                height: this._parseSize(metadata.height || "auto", false),
             };
-
-            const root = new Component(0);
-            root.render = renderer;
-            root.prop = getOpt(opt, "props", {});
-            root.prop.width = GeometryValue.fullSize;
-            root.prop.height = GeometryValue.fullSize;
+            const root = new RootComponent(0, renderer);
+            root.setProp({
+                ...getOpt(opt, "props", {}),
+                width: GeometryValue.fullSize,
+                height: GeometryValue.fullSize,
+            });
             this.setRootElement(root);
         } else if (opt.root) {
             opt.root.setProp(getOpt(opt, "props", {}));

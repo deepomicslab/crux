@@ -27,7 +27,6 @@ svg {
 
     Rows {
         Columns {
-            height = 200;
             XYPlot {
                 height = 200; width = 300;
                 padding = 20
@@ -99,7 +98,6 @@ svg {
             }
         }
         Columns {
-            height = 200
             XYPlot {
                 height = 200; width = 300; padding = 20
                 data = array
@@ -181,7 +179,6 @@ svg {
             }
         }
         Columns {
-            height = 200
             XYPlot {
                 height = 200; width = 300; padding = 20
                 data = { array2, array3 }
@@ -260,7 +257,6 @@ svg {
             }
         }
         Columns {
-            height = 200
             XYPlot {
                 height = 200; width = 600; padding = 20
                 data = { array, array2, array3 }
@@ -365,7 +361,6 @@ svg {
             }
         }
         Columns {
-            height = 200
             @let pieData = [{ value: 6 }, { value: 5 }, { value: 2 }]
             PieChart {
                 height = 200; width = 300; padding = 20

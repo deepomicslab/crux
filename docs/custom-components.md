@@ -134,7 +134,7 @@ Greetings;
 The `defaultProp()` method should return an object. By extending `super.defaultProp()`, it inherits all default prop values for a
 regular `Component` such as `width = 100%`, but if you do not need them, simply return a fresh object.
 
-Several props, namely "x", "y", "width", "height", "anchor" and "rotation", are passed to the rendered root component.
+Several props, namely "x", "y", "width", "height", "anchor" and "rotation", are passed down to the actually rendered component.
 For example, if we write
 
 ```
@@ -144,8 +144,8 @@ Greetings {
 }
 ```
 
-`x = 20` and `y = 40` (of course) affect the position of the rendered text, and you can try adding them
-in the above demo.
+`x = 20` and `y = 40` will be passed down to the `Container` inside `Grettings`, therefore
+(of course) they will affect the position of the rendered text, and you can try adding them in the above demo.
 However, if you do not need this behavior, simply override them inside the root component:
 
 ```js
@@ -175,3 +175,54 @@ Component {
 `
 RectWith50PxWidth
 </div>
+
+## Accessing Class Members
+
+All class members, including member methods are available in the template. Please refer to the
+[Component reference](ref/component.md) for more details. In JavaScript, accessing other class members would
+require using `this` keyword; but **`this` is not needed** (and should not be used) in templates.
+
+For example, we can extract the string concatenation part in `Greetings` into a method:
+
+```js
+class Greetings extends Component<GreetingsOption> {
+    public render = template`
+    Container {
+        Text {
+            text = renderGreetings()
+            fill = prop.color
+        }
+    }
+    `;
+
+    private renderGreetings() {
+        return "Hello, " + this.prop.name;
+    }
+}
+```
+
+Note that `renderGreetings()` is used without `this` and in this method, `this.prop` is used to get props in JavaScript.
+
+Getters, setters, and other class members are also available in the template.
+It is also possible to use the method itself directly for props such as event handlers.
+
+```js
+class MyComponent extends Component {
+    public render = template`
+    Component {
+        x = computedValue
+        y = value
+        on:click = clickHandler
+    }
+    `;
+
+    private value;
+
+    private get computedValue() {
+        return // ...
+    }
+    private clickHandler(ev) {
+        // ...
+    }
+}
+```

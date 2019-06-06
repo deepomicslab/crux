@@ -38,6 +38,11 @@ export class Component<Option extends ComponentOption = ComponentOption>
     public $isCoordRoot: boolean;
     public $polar: PolarCoordInfo;
 
+    public _inheritedWidth: boolean;
+    public _inheritedHeight: boolean;
+    public _defaultedWidth: boolean;
+    public _defaultedHeight: boolean;
+
     constructor(id: number, renderer?: Renderer) {
         super(id);
         if (renderer) {
@@ -51,6 +56,14 @@ export class Component<Option extends ComponentOption = ComponentOption>
             y: 0,
             width: GeometryValue.fullSize,
         } as any;
+    }
+
+    public setProp(prop: Partial<Option>) {
+        if (!("width" in prop))
+            this._defaultedWidth = true;
+        if (!("height" in prop))
+            this._defaultedHeight = true;
+        super.setProp(prop);
     }
 
     public parseInternalProps() {
@@ -138,6 +151,14 @@ export class Component<Option extends ComponentOption = ComponentOption>
 
     public get maxY(): number {
         return (this.$geometry as any).y + (this.$geometry as any).height;
+    }
+
+    protected get widthIsNotDefined() {
+        return !this.prop.width || (this._inheritedWidth && this.parent._defaultedWidth);
+    }
+
+    protected get heightIsNotDefined() {
+        return !this.prop.height || (this._inheritedHeight && this.parent._defaultedHeight);
     }
 
     // hooks

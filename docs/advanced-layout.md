@@ -54,9 +54,13 @@ Container {
 }
 </div>
 
+If `width` or `height` is designated explicitly for a `Container`, it will always use this fixed value instead.
+You can try it by adding a fixed `width` or `height` value in the above demo.
+
 ## Rows
 
-`Rows` is another special component which will adjust its children so that they are stacked in different rows without overlapping. `Rows` can contain components (not primitive elements) as direct children.
+`Rows` is another special component which will adjust its children so that they are stacked in different rows without overlapping.
+`Rows` can contain only components (not primitive elements) as direct children.
 
 `Rows` can be used together with `Container`s.
 
@@ -64,10 +68,7 @@ Container {
 Rows {
     Component {
         width = 200; height = 20;
-        Rect {
-            width = 100%; height = 100%
-            fill = "red"
-        }
+        Rect.full { fill = "red" }
     }
     Container {
         padding = 4
@@ -78,10 +79,7 @@ Rows {
     }
     Component {
         width = 200; height = 20;
-        Rect {
-            width = 100%; height = 100%
-            fill = "blue"
-        }
+        Rect.full { fill = "blue" }
     }
     Container {
         padding = 4
@@ -90,6 +88,10 @@ Rows {
             fontSize = 16
         }
     }
+    Component {
+        width = 200; height = 40;
+        Rect.full { fill = "gray" }
+    }
 }
 </div>
 
@@ -97,41 +99,67 @@ Rows {
 
 Similarily, there is also a `Columns` to handle horizontal stacked layouts.
 
-`Rows` and `Columns` can be nested to create grids or more complicated layouts.
+Similar to `Container`, in horizontal direction, `Rows` will **adjust its width automatically** based on its children's width.
+And in vertical direction, `Columns` will **adjust its height automatically** based on its children's width.
+
+Therefore, `Rows`, `Columns` and `Container` can be nested to create grids or more complicated layouts.
 
 <div class="demo" data-height="200">
-Rows {
-    Columns {
-        height = 20
-        Component {
-            width = 100; height = 20;
-            Rect {
-                width = 100%; height = 100%
-                fill = "red"
+Columns {
+    Component {
+        width = 20; height = 42;
+        Rect.full { fill = "gray" }
+    }
+    Rows {
+        Columns {
+            Component {
+                width = 100; height = 20;
+                Rect.full { fill = "red" }
+            }
+            Container {
+                padding = 4
+                Text {
+                    text = "Some Text";
+                    fontSize = 16
+                }
             }
         }
-        Container {
-            padding = 4
-            Text {
-                text = "Some Text";
-                fontSize = 16
+        Columns {
+            Container {
+                padding = 4
+                Text {
+                    text = "Some Other Text";
+                    fontSize = 16
+                }
+            }
+            Component {
+                width = 100; height = 20;
+                Rect.full { fill = "blue" }
             }
         }
     }
-    Columns {
-        height = 20
-        Container {
-            padding = 4
-            Text {
-                text = "Some Other Text";
-                fontSize = 16
-            }
-        }
-        Component {
-            width = 100; height = 20;
-            Rect {
-                width = 100%; height = 100%
-                fill = "blue"
+    Component {
+        width = 20; height = 42;
+        Rect.full { fill = "gray" }
+    }
+}
+</div>
+
+Another example:
+
+<div class="demo" data-height="200">
+Rows {
+    @for i in 12 {
+        Columns {
+            key = i
+            @for j in 24 {
+                Container {
+                    key = j;
+                    Text {
+                        text = (i + j) % 2 ? "●" : "○"
+                        fontSize = 16
+                    }
+                }
             }
         }
     }

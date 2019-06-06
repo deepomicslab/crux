@@ -6,6 +6,7 @@ export type LegendType  = "dot" | "rect" | "line" | "custom";
 
 export interface LegendOption extends ComponentOption {
     type?: LegendType;
+    title?: string;
     data: { type: LegendType, label: string, stroke?: string, fill?: string }[];
     lineHeight: number;
     legendWidth: number;
@@ -22,11 +23,14 @@ export class Legend extends Component<LegendOption> {
         }
         Rows {
             x = 4
-            width = 100%-8
+            @if prop.title {
+                Container {
+                    Text(prop.title);
+                }
+            }
             @for (data, index) in prop.data {
-                Component {
+                Columns {
                     key = index
-                    width = 100%
                     height = prop.lineHeight;
                     Component {
                         width = prop.legendWidth
@@ -55,11 +59,14 @@ export class Legend extends Component<LegendOption> {
                             @yield legend with data
                         }
                     }
-                    Text {
-                        x = prop.legendWidth + 4
-                        y = 50%
-                        anchor = @anchor(left, middle)
-                        text = data.label
+                    Container {
+                        height = 100%
+                        Text {
+                            x = 4
+                            y = 50%
+                            anchor = @anchor(left, middle)
+                            text = data.label
+                        }
                     }
                 }
             }

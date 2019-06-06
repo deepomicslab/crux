@@ -7,7 +7,9 @@ export class RenderHelper {
     }
 
     public _l(data: any, iter: (data: any, index: any) => ElementDef): ElementDef[] {
-        if (data instanceof Array) {
+        if (typeof data === "number") {
+            return Array(data).fill(null).map((_, i) => iter(i, i));
+        } else if (data instanceof Array) {
             return data.map(iter);
         } else if (typeof data === "object") {
             return Object.keys(data).map(k => iter(data[k], k));

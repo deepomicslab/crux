@@ -187,9 +187,6 @@ It is possible to have multiple children inside one `@if` block.
 
 `@for` loops through data and renders its content for multiple times.
 
-!> The prop `key` must be supplied when using the `@for` command.
-`key` will be used to distinguish different copies of the same component within a loop.
-
 The basic syntax looks like:
 
 ```
@@ -199,6 +196,22 @@ The basic syntax looks like:
 ```
 
 It is also possible to refer the index in the loop:
+
+```
+@for (item, index) in data {
+    // ...
+}
+```
+
+`data` here can be:
+
+- An array; or
+- An object (dictionary), in this case `index` will be each key and `item` will be the value; or
+- A number _n_, in this case it is treated as _range(n)_, i.e. an array with length equals to _n_.
+  `index` and `item` will be the index, from 0 to _n-1_.
+
+!> The prop `key` must be supplied when using the `@for` command.
+`key` will be used to distinguish different copies of the same component within a loop.
 
 <div class="demo" data-height="150">
 Component {
@@ -251,6 +264,10 @@ let data = [{ id: 1, name: "John" }, { id: 7, name: "Kenneth" }, { id: 19, name:
     }
 }
 ```
+
+?> It's possible to use certain JavaScript expressions for the data, such as `foo.bar` or `foo[bar]`,
+but complicated expressions, such as arbitrary JavaScript object or array literals are not supported.
+If really needed, you can declare it using `@let` first.
 
 ## Layout
 

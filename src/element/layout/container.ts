@@ -33,14 +33,10 @@ export class Container extends Component<ContainerOption> {
     }
 
     public didLayoutSubTree() {
-        this._layoutSubTree();
-    }
-
-    private _layoutSubTree() {
         const [pt, pr, pb, pl] = this._getPadding();
 
         const realChildren = this.children.filter(c => !c.$detached);
-        if (!this.prop.width || (this.parent.isRoot && this._inheritedWidth)) {
+        if (this.widthIsNotDefined) {
             realChildren.forEach(c => {
                 c.$geometry._xOffset.container = pl;
                 let e = c;
@@ -52,7 +48,7 @@ export class Container extends Component<ContainerOption> {
             const maxX = Math.max(...realChildren.map(c => c.maxX));
             this.$geometry.width = maxX + pl + pr;
         }
-        if (!this.prop.height || (this.parent.isRoot && this._inheritedHeight)) {
+        if (this.heightIsNotDefined) {
             realChildren.forEach(c => {
                 if (c.$detached) return;
                 c.$geometry._yOffset.container = pt;

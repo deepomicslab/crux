@@ -1,6 +1,5 @@
 import { ASTNode, ASTNodeElse, ASTNodeElsif, ASTNodeIf } from "../ast-node";
 import { ParserStream } from "../parse-stream";
-import { FOR_EXPR, NAME } from "../tokens";
 import { parseBlockBody } from "./block-body";
 
 export function parseIf(p: ParserStream): ASTNodeIf {

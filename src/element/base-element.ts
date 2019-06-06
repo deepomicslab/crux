@@ -51,9 +51,6 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
         return this._geometryProps;
     }
 
-    public _inheritedWidth: boolean;
-    public _inheritedHeight: boolean;
-
     public $v: Visualizer;
 
     constructor(id: number) {

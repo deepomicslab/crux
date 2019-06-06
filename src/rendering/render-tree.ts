@@ -76,8 +76,8 @@ export function updateTree(parent: Component<ComponentOption>, def?: ElementDef)
             for (const prop of INHERITED_PROPS) {
                 if (!(prop in opt.props) && (prop in p)) {
                     opt.props[prop] = p[prop];
-                    if (prop === "width") elm._inheritedWidth = true;
-                    if (prop === "height") elm._inheritedHeight = true;
+                    if (prop === "width") (elm as any)._inheritedWidth = true;
+                    if (prop === "height") (elm as any)._inheritedHeight = true;
                 }
             }
         }
