@@ -11,6 +11,7 @@ export interface VisualizerOption {
     el: string;
     template?: string;
     props?: Record<string, any>;
+    data?: Record<string, any>;
     root?: Component;
     components?: Record<string, typeof Component>;
     renderer?: "canvas" | "svg";
@@ -21,12 +22,19 @@ export interface VisualizerOption {
 export class Visualizer {
     public container: Element;
     public root: BaseElement;
+    private _data: Record<string, any>;
     public size: { width: number, height: number };
     public components: Record<string, typeof Component>;
 
     public svgDef: Record<string, string> = {};
 
     public renderer: RenderFunc;
+
+    public get data() { return this._data; }
+    public set data(d) {
+        this._data = d;
+        this.run();
+    }
 
     constructor(opt: VisualizerOption) {
         const el = getOpt(opt, "el") as any;
@@ -38,6 +46,7 @@ export class Visualizer {
 
         this.container.innerHTML = "";
 
+        this._data = opt.data;
         this.components = opt.components;
 
         if (opt.template) {
@@ -52,6 +61,7 @@ export class Visualizer {
                 width: GeometryValue.fullSize,
                 height: GeometryValue.fullSize,
             });
+            Object.keys(this._data).forEach(k => root[k] = this._data[k]);
             this.setRootElement(root);
         } else if (opt.root) {
             opt.root.setProp(getOpt(opt, "props", {}));
