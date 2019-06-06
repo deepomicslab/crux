@@ -61,7 +61,8 @@ export class Visualizer {
                 width: GeometryValue.fullSize,
                 height: GeometryValue.fullSize,
             });
-            Object.keys(this._data).forEach(k => root[k] = this._data[k]);
+            if (this._data)
+                Object.keys(this._data).forEach(k => root[k] = this._data[k]);
             this.setRootElement(root);
         } else if (opt.root) {
             opt.root.setProp(getOpt(opt, "props", {}));

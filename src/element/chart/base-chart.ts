@@ -78,8 +78,21 @@ export class BaseChart<Option extends BaseChartOption = BaseChartOption> extends
         return this.prop.columnWidth || this.columnWidth;
     }
 
+    protected flippedOpts(opts: any) {
+        const result = {};
+        Object.keys(FLIP_OPT_MAP).forEach(k => {
+            const key =  this.flipped ? FLIP_OPT_MAP[k] : k;
+            result[key] = opts[k] || 0;
+        });
+        return result;
+    }
+
     protected getHeight(value: number, offset: number) {
         const h = this._scale(value + offset, this.flipped) - this._scale(offset, this.flipped);
         return this.inverted ? h : -h;
     }
 }
+
+const FLIP_OPT_MAP = {
+    x: "y", y: "x", width: "height", height: "width",
+};

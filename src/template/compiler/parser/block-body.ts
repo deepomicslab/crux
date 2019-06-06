@@ -9,6 +9,7 @@ import { parseElse, parseElsif, parseIf } from "./if";
 import { parseBehaviorBlock, parseStageBlock } from "./internal-block";
 import { parseLet } from "./let";
 import { parseProp } from "./prop";
+import { parsePropsCommand } from "./props-command";
 import { parseYield } from "./yield";
 
 function last<T>(array: T[]): T {
@@ -54,6 +55,13 @@ export function parseBlockBody(p: ParserStream, node: ASTNode) {
                     break;
                 case "expr":
                     node.localData.push(parseExpr(p));
+                    break;
+                case "props":
+                    if (isCompNode(node)) {
+                        node.props.push(parsePropsCommand(p));
+                    } else {
+                        p._error(`@options can only appear in component blocks.`);
+                    }
                     break;
                 case "yield":
                     node.children.push(parseYield(p));

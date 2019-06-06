@@ -53,9 +53,12 @@ const exprHelpers: Record<string, (args: string[]) => [string, boolean]> = {
     },
     "geo": (args) => {
         const [val, offset] = args;
-        const [o, lazy] = offset[0] === "@" ? parseHelper(offset) : [offset, false];
+        let o: string, lazy: boolean;
+        if (offset) {
+            [o, lazy] = offset[0] === "@" ? parseHelper(offset) : [offset, false];
+        }
         return [
-            `{ value: ${val}, unit: 1, offset: ${o} }`,
+            `{ value: ${val}, unit: 1, offset: ${o || "0"} }`,
             lazy,
         ];
     },

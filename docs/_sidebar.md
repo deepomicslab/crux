@@ -10,4 +10,5 @@
     - [Advanced Components](advanced-components.md)
 - **PLOTS AND CHARTS**
 - **REFERENCE**
+    - [Visualizer](ref/visualizer.md)
     - [Helpers](ref/helpers.md)

@@ -13,17 +13,9 @@ export class StackedBars extends BaseChart<StackedBarsOption> implements Stacked
             @for key in dataKeys {
                 @let d = group[key]
                 Component {
-                    @let x = getX(d.pos)
-                    @let y = getY(d.minValue)
-                    @let width = getWidth()
-                    @let height = getHeight(d.value, d.minValue)
-
                     key = pos + key
                     anchor = getAnchor()
-                    x = flipped ? y : x
-                    y = flipped ? x : y
-                    width = flipped ? height : width
-                    height = flipped ? width : height
+                    @props barOpts(d)
 
                     @let dd = { data: d, key: key }
                     @yield children with dd
@@ -39,6 +31,15 @@ export class StackedBars extends BaseChart<StackedBarsOption> implements Stacked
 
     private getYPos(offset: number) {
         return this.inverted ? offset : GeometryValue.create(100, GeometryUnit.Percent, -offset);
+    }
+
+    private barOpts(d) {
+        return this.flippedOpts({
+            x: this.getX(d.pos),
+            y: this.getY(d.minValue),
+            width: this.getWidth(),
+            height: this.getHeight(d.value, d.minValue),
+        });
     }
 
     protected inheritData() {

@@ -2,7 +2,7 @@ import { ElementDef, OptDict } from "./render-tree";
 
 export class RenderHelper {
     public _c(tag: string, opt: OptDict, rawChildren: any[]): ElementDef {
-        const children = rawChildren.flat(5).filter(x => x);
+        const children = rawChildren.flat(8).filter(x => x);
         return { tag, opt, children };
     }
 

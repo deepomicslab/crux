@@ -8,47 +8,44 @@ export interface BoxesOption extends BaseChartOption {
 export class Boxes extends BaseChart<BoxesOption> {
     public render = template`
     Component {
-        @let y = getYStartPos()
-
         @for (d, pos) in data.raw.values {
             Component {
-                @let x = getX(pos)
-                @let width = getWidth()
-                @let height = getContainerYSize()
-
                 key = "b" + pos
                 anchor = getAnchor()
-                x = flipped ? y : x
-                y = flipped ? x : y
-                width = flipped ? height : width
-                height = flipped ? width : height
+                @props containerOpts(pos)
 
                 Component {
-                    width = 100%
-                    y = getY(d[0])
-                    height = getHeight(d[4] - d[0], d[0])
                     anchor = getBoxAnchor()
+                    @props whiskleOpts(d)
                     @yield whiskle with d default {
-                        Line { x1 = 0; x2 = 100%; y1 = 0; y2 = 0; stroke = "#000" }
-                        Line { x1 = 0; x2 = 100%; y1 = 100%; y2 = 100%; stroke = "#000" }
-                        Line { x1 = 50%; x2 = 50%; y1 = 0; y2 = 100%; stroke = "#000" }
+                        @if flipped {
+                            Line { y1 = 0; y2 = 100%; x1 = 0; x2 = 0 }
+                            Line { y1 = 0; y2 = 100%; x1 = 100%; x2 = 100% }
+                            Line { y1 = 50%; y2 = 50%; x1 = 0; x2 = 100% }
+                        }
+                        @else {
+                            Line { x1 = 0; x2 = 100%; y1 = 0; y2 = 0 }
+                            Line { x1 = 0; x2 = 100%; y1 = 100%; y2 = 100% }
+                            Line { x1 = 50%; x2 = 50%; y1 = 0; y2 = 100% }
+                        }
                     }
                 }
                 Component {
-                    width = 100%
-                    y = getY(d[1])
-                    height = getHeight(d[3] - d[1], d[1])
                     anchor = getBoxAnchor()
+                    @props boxOpts(d)
                     @yield box with d default {
                         Rect.full { stroke = "#000" }
                     }
                 }
                 Component {
-                    width = 100%
-                    y = getY(d[2])
-                    height = 0
+                    @props medianOpts(d)
                     @yield median with d default {
-                        Line { x1 = 0; x2 = 100%; y1 = 0; y2 = 0; stroke = "#000" }
+                        @if flipped {
+                            Line { y1 = 0; y2 = 100%; x1 = 0; x2 = 0 }
+                        }
+                        @else {
+                            Line { x1 = 0; x2 = 100%; y1 = 0; y2 = 0 }
+                        }
                     }
                 }
             }
@@ -71,12 +68,36 @@ export class Boxes extends BaseChart<BoxesOption> {
     }
     `;
 
-    private getContainerYSize() {
-        return GeometryValue.fullSize;
+    private medianOpts(d) {
+        return this.flippedOpts({
+            width: GeometryValue.fullSize,
+            y: this.getY(d[2]),
+        });
     }
 
-    private getYStartPos() {
-        return this.inverted ? 0 : GeometryValue.fullSize;
+    private whiskleOpts(d) {
+        return this.flippedOpts({
+            width: GeometryValue.fullSize,
+            y: this.getY(d[0]),
+            height: this.getHeight(d[4] - d[0], d[0]),
+        });
+    }
+
+    private boxOpts(d) {
+        return this.flippedOpts({
+            width: GeometryValue.fullSize,
+            y: this.getY(d[1]),
+            height: this.getHeight(d[3] - d[1], d[1]),
+        });
+    }
+
+    private containerOpts(pos) {
+        return this.flippedOpts({
+            x: this.getX(pos),
+            y: this.inverted ? 0 : GeometryValue.fullSize,
+            width: this.getWidth(),
+            height: GeometryValue.fullSize,
+        });
     }
 
     protected getBoxAnchor() {

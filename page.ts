@@ -40,5 +40,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const v = window["$v"] = visualize({
         el: "#canvas",
         template: tdemo,
+        data: {
+            array: [1, 3, 8, 6, 5, 4, 2, 7, 3],
+            array2: [6, 4, 3, 2, 4, 9, 1, 5, 8],
+            array3: [3, 7, 2, 5, 6, 5, 7, 3, 4],
+        },
     });
 });

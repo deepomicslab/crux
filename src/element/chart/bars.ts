@@ -1,5 +1,6 @@
 import { GeometryValue } from "../../defs/geometry";
 import { template } from "../../template/tag";
+import { ParsedData } from "../plot";
 import { BaseChart, BaseChartOption } from "./base-chart";
 
 export interface BarsOption extends BaseChartOption {
@@ -38,6 +39,8 @@ export class Bars extends BaseChart<BarsOption> {
             }
         }
     `;
+
+    public data: ParsedData;
 
     private _cachedSize = [];
     private _cacheSize() {

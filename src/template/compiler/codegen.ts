@@ -1,9 +1,7 @@
 import { oneLineTrim, stripIndent } from "common-tags";
 import { Anchor, GEOMETRY_LITERAL } from "../../defs/geometry";
-import { getComponent } from "../../element/get-component";
 import { UIDGenerator } from "../../utils/uid";
 import { ASTNode, ASTNodeComp, ASTNodeCondition, ASTNodeElse, ASTNodeFor, ASTNodeIf, ASTNodeYield, isRootElement, newNode } from "./ast-node";
-import { Component } from "../../element/component";
 
 function wrappedWithLocalData(node: ASTNode, wrapped: string) {
     return `(function(){
@@ -35,14 +33,19 @@ function genExpr(expr: string, name: string) {
 }
 
 function genAttrs(node: ASTNodeComp) {
-    const attrs = node.props.map(p => {
-        let match: RegExpMatchArray;
+    const attrStrings: string[] = [];
+    for (const p of node.props) {
         const name = p.name;
+        if (name === "__dynamic__") {
+            attrStrings.push(`...${p.expr}`);
+            continue;
+        }
+        let match: RegExpMatchArray;
         const expr = (match = p.expr.match(GEOMETRY_LITERAL)) ?
             genGeoExpr(match) : p.expr;
-        return `'${name}': ${genExpr(expr, name)}`;
-    }).join(", ");
-    return `props: { ${attrs} },`;
+        attrStrings.push(`'${name}': ${genExpr(expr, name)}`);
+    }
+    return `props: { ${attrStrings.join(",")} },`;
 }
 
 function genEventHdl(node: ASTNodeComp) {
@@ -182,9 +185,9 @@ function genNodeCond(node: ASTNodeCondition, uidGen: UIDGenerator) {
         const str = genChildren(n, uidGen);
         const childrenStr = hasLocalData ? wrappedWithLocalData(n, str) : str;
         if (n.condition) {
-            return `${n.condition} ? ${childrenStr} : ${isLast ? "null" : ""}`;
+            return `${n.condition} ? [${childrenStr}] : ${isLast ? "null" : ""}`;
         } else {
-            return childrenStr;
+            return `[${childrenStr}]`;
         }
     }).join("");
 }

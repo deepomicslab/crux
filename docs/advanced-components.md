@@ -427,6 +427,25 @@ Component {
 Wrapper
 </div>
 
+## Dynamic props and @props
+
+Sometimes it might be more clear and expressive if we can customize not only the prop values, but also the names.
+
+The `@props` command provides an easy way to serve a dynamic object as props, so you are free to add any logic before
+actually passing the props to a component.
+
+<div class="demo" data-height="200">
+Rect {
+    @let dynamicProps = {
+        width: 50,
+        height: 50,
+    }
+    @props dynamicProps
+}
+</div>
+
+?> Following `@props` there can be a variable or a simple JavaScript expression, such as a function call.
+
 ## Registering Components
 
 You may need to use some other custom components in your template, but the framework does not know where to find them
