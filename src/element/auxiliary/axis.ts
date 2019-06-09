@@ -73,7 +73,7 @@ export class Axis extends Component<AxisOption> {
         if (this.$parent instanceof XYPlot &&
             this.$parent.flipped !== this.isHorizontal) {
             const domain = this.$parent.categoryScale.domain();
-            this._tickValues = this.$parent.prop.discreteCategory ?
+            this._tickValues = this.$parent.discreteCategory ?
                 domain : _.range(domain[0], domain[1] + 1);
         }
     }

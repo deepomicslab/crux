@@ -9,22 +9,34 @@
     - [Custom Components](custom-components.md)
     - [Advanced Components](advanced-components.md)
 - **PLOTS AND CHARTS**
-    - [Introduction](plot/intro.md)
-    - **XYPlot**
-        - [XYPlot](plot/xyplot.md)
-        - [Bars](plot/bars.md)
-        - [Dots](plot/dots.md)
-        - [Area](plot/area.md)
-    - **Other Charts**
-        - [Pie](plot/pie.md)
+    - [XYPlot](plot/xy-plot.md)
+    - [XYPlot Charts](plot/xy-plot-charts.md)
+    - [Radical Charts](plot/radical.md)
 - **REFERENCE**
-    - **Template**
-        - [Commands](ref/commands.md)
-        - [Helpers](ref/helpers.md)
     - [Visualizer](ref/visualizer.md)
-    - **Components**
-        - [Base Element](ref/base-element.md)
-        - [Component](ref/component.md)
-    - **Primitive Elements**
-        - [Primitive Element](ref/primitive.md)
+    - [Commands](ref/commands.md)
+    - [Helpers](ref/helpers.md)
+    - [Modifiers](ref/modifiers.md)
+    - [Elements and Components](ref/elements.md)
     - [Hooks](ref/hooks.md)
+- **PRIMITIVE ELEMENTS**
+    - [Area](element/area.md)
+    - [Circle](element/circle.md)
+    - [Line](element/line.md)
+    - [Path](element/path.md)
+    - [Rect](element/rect.md)
+    - [Text](element/text.md)
+    - [Arc](element/arc.md)
+    - [ArcLine](element/arc-line.md)
+    - [RadicalLine](element/radical-line.md)
+- **COMPONENTS**
+    - *Auxiliaries*
+        - [Axis]()
+        - [AxisBackground]()
+        - [Legend]()
+    - *Interaction*
+        - [Brush]()
+    - *Layout*
+        - [Container]()
+        - [Columns]()
+        - [Rows]()

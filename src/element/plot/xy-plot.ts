@@ -22,7 +22,7 @@ export interface ParsedData {
 interface DataHandler {
     values: (d: any) => any[];
     min: (d: any, i: number) => number;
-    max: (d: any, i: number) => number;
+    value: (d: any, i: number) => number;
     pos: (d: any, i: number) => any;
 }
 
@@ -70,6 +70,7 @@ export class XYPlot extends Component<XYPlotOption> {
     public data: ParsedData | Record<string, ParsedData>;
     public hasMultipleData = false;
     public columnWidth: number;
+    public discreteCategory: boolean;
 
     private _paddings: [number, number, number, number];
     private _xScale: any;
@@ -81,7 +82,6 @@ export class XYPlot extends Component<XYPlotOption> {
         return {
             ...super.defaultProp(),
             hasPadding: true,
-            discreteCategory: false,
         };
     }
 
@@ -121,8 +121,11 @@ export class XYPlot extends Component<XYPlotOption> {
             } else {
                 throw new Error(`XYPlot: data supplied must be an array or an object.`);
             }
+            this.discreteCategory = "discreteCategory" in this.prop ?
+                this.prop.discreteCategory :
+                typeof allData[0].pos === "string";
             this._cRange = this.prop.categoryRange ||
-                this.prop.discreteCategory ? _.uniq(allData.map(d => d.pos)) : d3.extent(allData, d => d.pos);
+                this.discreteCategory ? _.uniq(allData.map(d => d.pos)) : d3.extent(allData, d => d.pos);
             this._vRange = this.prop.valueRange || [
                 this.prop.capToMinValue ? d3.min(allData, d => d.minValue) : 0,
                 d3.max(allData, d => d.value),
@@ -135,8 +138,8 @@ export class XYPlot extends Component<XYPlotOption> {
 
     public handleChildren(children: ElementDef[]) {
         children.forEach(c => {
-            c.opt.props.width = GeometryValue.fullSize;
-            c.opt.props.height = GeometryValue.fullSize;
+            if (!c.opt.props.width) c.opt.props.width = GeometryValue.fullSize;
+            if (!c.opt.props.height) c.opt.props.height = GeometryValue.fullSize;
         });
         return children;
     }
@@ -169,7 +172,7 @@ export class XYPlot extends Component<XYPlotOption> {
         const padding = this.prop.hasPadding ? (columnSizeWithGap + gap) * 0.5 : 0;
         const domain: [number, number] = [padding, width - padding];
 
-        if (this.prop.discreteCategory) {
+        if (this.discreteCategory) {
             const ticks = Array(n).fill(null).map((_, i) => i * columnSizeWithGap + domain[0]);
             return this._createScaleOrdinal(this._cRange, ticks);
         } else {
@@ -210,20 +213,27 @@ export function getGetter(vf: string | ((d: any, i: number) => any)) {
 }
 
 export function parseData(elm: Component<ComponentOption>, data: any, h: DataHandler) {
-    if (!h) h = createDataHandler(data);
+    h = h ? addDefaultsToDataHandler(h) : createDataHandler(data);
     return {
         values: h.values(data).map((d, i) => ({
-            pos: h.pos(d, i), value: h.max(d, i), minValue: h.min(d, i), data: d,
+            pos: h.pos(d, i), value: h.value(d, i), minValue: h.min(d, i), data: d,
         })),
         raw: data,
     };
 }
 
+function addDefaultsToDataHandler(h: DataHandler) {
+    if (!h.value) h.value = d => d.value;
+    if (!h.min) h.min = d => 0;
+    if (!h.pos) h.pos = (d, i) => i;
+    if (!h.values) h.values = d => d;
+    return h;
+}
+
 function createDataHandler(data: any): DataHandler {
-    let values: (d: any) => number[];
+    let values: (d: any) => number[] = d => d;
     let v: any[];
     if (Array.isArray(data)) {
-        values = d => d;
         v = data;
     } else {
         values = d => d["values"];
@@ -244,7 +254,8 @@ function createDataHandler(data: any): DataHandler {
             max = d => d[d.length - 1]; min = d => d[0];
         }
     } else {
+        pos = d => d.pos;
         max = d => d.value;
     }
-    return { values, min, max, pos };
+    return { values, min, value: max, pos };
 }

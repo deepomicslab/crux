@@ -66,6 +66,7 @@ Valid values for props are **any JavaScript expressions**.
 ```
 Component {
     x = 10 + 20 * 0.5
+    y = myFunc(arg)
     data = [1, 2, 3]
 }
 ```
@@ -363,25 +364,25 @@ A blue dot is added to show the origin point (defined by `x` and `y`) of the rec
 <div class="demo" data-height="220">
 Component {
     Rect {
-        anchor = @anchor(left, top)
+        anchor = @anchor("left", "top")
         x = 100; y = 100
         width = 40; height = 40
         fill = "rgba(255,255,0,.4)"
     }
     Rect {
-        anchor = @anchor(middle, center)
+        anchor = @anchor("middle", "center")
         x = 100; y = 100
         width = 40; height = 40
         fill = "rgba(255,0,0,.2)"
     }
     Rect {
-        anchor = @anchor(right, bottom)
+        anchor = @anchor("right", "bottom")
         x = 100; y = 100
         width = 40; height = 40
         fill = "rgba(0,0,255,.2)"
     }
     Circle {
-        anchor = @anchor(middle, center)
+        anchor = @anchor("middle", "center")
         x = 100; y = 100;
         fill = "blue"; r = 2
     }
