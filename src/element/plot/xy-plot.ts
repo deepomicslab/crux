@@ -170,12 +170,7 @@ export class XYPlot extends Component<XYPlotOption> {
         const domain: [number, number] = [padding, width - padding];
 
         if (this.prop.discreteCategory) {
-            const ticks = [];
-            let v = domain[0];
-            while (v <= domain[1]) {
-                ticks.push(v);
-                v += columnSizeWithGap;
-            }
+            const ticks = Array(n).fill(null).map((_, i) => i * columnSizeWithGap + domain[0]);
             return this._createScaleOrdinal(this._cRange, ticks);
         } else {
             return this._createScaleLinear(true, this._cRange as any, domain);
