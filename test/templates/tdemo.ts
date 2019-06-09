@@ -50,7 +50,7 @@ svg {
                     }
                     :overlay (data) {
                         Container {
-                            anchor = @anchor(center, bottom)
+                            anchor = @anchor("center", "bottom")
                             x = 50%
                             y = -3
                             padding = 4
@@ -60,7 +60,7 @@ svg {
                                 cornerRadius = 3
                             }
                             Text {
-                                anchor = @anchor(left, top)
+                                anchor = @anchor("left", "top")
                                 text = "Value:" + data.value
                                 fill = "#fff"
                             }
@@ -158,7 +158,7 @@ svg {
                     :children (d) {
                         Circle.centered { r = 4; fill = "#3d8eff" }
                         Text {
-                            anchor = @anchor(bottom, center)
+                            anchor = @anchor("bottom", "center")
                             y = -6
                             text = d.value
                         }
@@ -290,7 +290,7 @@ svg {
                     data = array
                     Dots {
                         :children (d) {
-                            Text { text = d.value; anchor = @anchor(bottom, center); y = -2; fill = "#aaa" }
+                            Text { text = d.value; anchor = @anchor("bottom", "center"); y = -2; fill = "#aaa" }
                         }
                         :links(d) {
                             Line {
@@ -309,7 +309,7 @@ svg {
                     data = array3.map(x => x * 10)
                     Dots {
                         :children (d) {
-                            Text { text = d.value; anchor = @anchor(bottom, center); y = -2 }
+                            Text { text = d.value; anchor = @anchor("bottom", "center"); y = -2 }
                         }
                         :links(d) {
                             Line {
@@ -330,17 +330,17 @@ svg {
                 hasPadding = false
                 Rect { fill = "#eee" }
                 Area { fill = "#ccc" }
-                Text("Label") { x = 50%; y = 100%; anchor = @anchor(top, center) }
-                Text("Label") { x = 50%; y = 0; anchor = @anchor(bottom, center) }
+                Text("Label") { x = 50%; y = 100%; anchor = @anchor("top", "center") }
+                Text("Label") { x = 50%; y = 0; anchor = @anchor("bottom", "center") }
                 Component {
                     x = 0; y = 50%
-                    rotation = @rotate(-90deg)
-                    Text("Label") { anchor = @anchor(bottom, center) }
+                    rotation = @rotate(-90)
+                    Text("Label") { anchor = @anchor("bottom", "center") }
                 }
                 Component {
                     x = 100%; y = 50%
-                    rotation = @rotate(90deg)
-                    Text("Label") { anchor = @anchor(bottom, center) }
+                    rotation = @rotate(90)
+                    Text("Label") { anchor = @anchor("bottom", "center") }
                 }
                 Circle.centered {
                     x = 50%; y = 50%; r = 40; fill = "#ffb13d"

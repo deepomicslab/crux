@@ -1,9 +1,9 @@
 # Visualizer
 
-Each visualization graph is managed by a `Visualizer`.
+Each visualization graph is created and managed by a `Visualizer`.
 
-Typically you don't create the `Visualizer` manually. The `visualize` method will do it for you,
-by accepting a set of options and return a `Visualizer` object:
+Typically you do not create the `Visualizer` manually. The `visualize` method will do it for you,
+by accepting a set of options and returning a `Visualizer` object:
 
 ```js
 Crux.visualize({
@@ -19,8 +19,8 @@ It is possible to supply either a **template string** or a **root component** to
 
 > **el**: `string | HTMLElement`
 
-The container element for the visualization. It can either be a selector or a HTML element.
-Content in this element will be cleared and a `<svg>` or `<canvas>` element will be placed inside.
+The container element for the visualization. It can either be a selector or an HTML element.
+Content in this element will be cleared and an `<svg>` or `<canvas>` element will be placed inside.
 
 
 ### Options when using a template string
@@ -71,5 +71,30 @@ rather than the size of the root element, which you can specify in its props.
 
 The renderer type.
 
-## Properties and Methods
+## Properties
 
+> **container**
+
+The container HTML element.
+
+> **root**
+
+The root component.
+
+> **size**
+
+Size of the container element.
+
+## Methods
+
+> **run()**
+
+Run or re-run the visualizer. This will render the root component again.
+
+> **appendDef()**
+
+Append a new element in SVG's `<def>` element. Do not use this method directly.
+
+```js
+appendDef(id: string, tag: string, attrs: Record<string, string> = {}, content: string = "")
+```

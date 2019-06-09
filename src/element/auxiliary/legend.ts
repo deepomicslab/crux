@@ -64,7 +64,7 @@ export class Legend extends Component<LegendOption> {
                         Text {
                             x = 4
                             y = 50%
-                            anchor = @anchor(left, middle)
+                            anchor = @anchor("left", "middle")
                             text = data.label
                         }
                     }

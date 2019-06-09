@@ -1,6 +1,6 @@
 import { ElementDef, OptDict } from "./render-tree";
 
-export class RenderHelper {
+export class RenderMixin {
     public _c(tag: string, opt: OptDict, rawChildren: any[]): ElementDef {
         const children = rawChildren.flat(8).filter(x => x);
         return { tag, opt, children };

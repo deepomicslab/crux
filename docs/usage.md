@@ -27,6 +27,6 @@ svg {
 }
 ```
 
-`svg` specifies the rendering method to be SVG rather than canvas. `width` and `height` defines the size of
+`svg` specifies the rendering method to be SVG rather than canvas. `width` and `height` define the size of
 the visualization. `auto` is a special value, which equals to the container size. By default `width` and
 `height` are all `auto`.

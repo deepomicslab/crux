@@ -46,7 +46,7 @@ export class Reconstructed extends Component<ReconstructedOption> {
                 }
                 Component {
                     height = 100%
-                    clip = @clip(bound)
+                    clip = @clip("bound")
                     Area {
                         height = 100%
                         data = prop.depth
@@ -56,7 +56,7 @@ export class Reconstructed extends Component<ReconstructedOption> {
                 @if state.mousePos >= 0 {
                     Component {
                         height = 100%
-                        x = @scaled(state.mousePos)
+                        x = @scaled-x(state.mousePos)
                         style:pointer-events = "none"
 
                         @let depth = prop.depth[state.mousePos]
@@ -71,7 +71,7 @@ export class Reconstructed extends Component<ReconstructedOption> {
                         Text {
                             fill = "#000"
                             y = @scaled-y(depth)
-                            anchor = @anchor(bottom, center)
+                            anchor = @anchor("bottom", "center")
                             text = depth
                         }
                     }
@@ -119,7 +119,7 @@ export class Reconstructed extends Component<ReconstructedOption> {
             Component {
                 y = 20
                 height = 28
-                clip = @clip(bound, 4, 4)
+                clip = @clip("bound", 4)
                 Rect {
                     width = 100%; height = 100%
                     fill = "#eee"
@@ -190,7 +190,7 @@ class MutPoint extends Component {
         Component {
             @let mut = prop.mut
 
-            x = @scaled(mut.pos)
+            x = @scaled-x(mut.pos)
             width = 0
             height = 100%
             style:cursor = "pointer"
@@ -222,8 +222,8 @@ class MutPoint extends Component {
                 x = mut._offsetX
                 y = 116
                 width = 0
-                anchor = @anchor(left, middle)
-                rotation = @rotate(-60deg)
+                anchor = @anchor("left", "middle")
+                rotation = @rotate(-60)
                 padding-x = 4
                 padding-y = 2
                 Rect {

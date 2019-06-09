@@ -6,7 +6,7 @@ The framework provides several components to achieve complicated dynamic layouts
 
 `Container` is a special component that adjusts its size dynamically based on its children's sizes.
 
-A component can have dynamic size. For example, `GeneArea` needs to draw several layers, but the count of layers is determined by the input data. The `Text` element also has a dynamic size.
+A component can have dynamic sizes. For example, `GeneArea` needs to draw several layers, but the count of layers is determined by the input data. The `Text` element also has a dynamic size.
 
 It is necessary to do extra layouts based on dynamic sizes in lots of common scenarios, such as adding a border or background `Rect` to a `Text`.
 

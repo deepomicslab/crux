@@ -1,11 +1,11 @@
 ## Lifetime and Hooks
 
-It is possible to run some extra logic when the custom component is created or laid out.
+It is possible to run some extra logics when the custom component is created or laid out.
 For example, `Container` has a `didLayoutSubTree` hook to update its own size based on its children's sizes.
 
 The following figure shows the lifetime of a component.
 
-After creating, the component mainly experiences two stages:
+After being created, the component mainly experiences two stages:
 
 - **Updating** creates an element tree that contains all computed styles and positions for the whole component.
     - It first **layouts** itself.
@@ -14,7 +14,7 @@ After creating, the component mainly experiences two stages:
     - Now that all its children are available, it **updates all its children** recursively.
 - **Rendering** renders the element tree onto the page via SVG or canvas.
 
-When re-render is needed, the above two stages will be executed again.
+When re-rendering is needed, the two stages above will be executed again.
 
 ![Lifetime](lifetime.png)
 
@@ -40,11 +40,11 @@ See the [reference](ref/hooks.md) for a list of available hooks.
 
 **Update**
 
-`didLayout`: get called each time when the layout for itself is finished.
+`didLayout`: gets called each time when the layout for itself is finished.
 All geometry values are available now.
 
 `willRender`: gets called each time when the component's render function is called.
-It is recommended to add prepration logic in this hook.
+It is recommended to add prepration logics in this hook.
 
 `didLayoutSubTree`: gets called each time when the layout of all its children has been finished.
 It is possible to get children's sizes here.
@@ -55,25 +55,24 @@ It is possible to get children's sizes here.
 
 `didMount` (SVG only): gets called when the corresponding SVG element is created.
 
-
 `didPatch` (SVG only): gets called each time when the corresponding SVG element has been updated.
 Two arguments `(oldNode: VNode, newNode: VNode)` are available for this hook.
 
 **Destroy**
 
-`didDestroy`: gets called when the component is destroyed.
+`didUnmount` (SVG only): gets called when the component is unmounted.
 
 ## States
 
 The props are readonly in a component. However, components must be mutable in interactive visualizations.
-The component may have different appearance when mouse hovered, clicked or data changed;
-its children may be updated, moved, created or hidden based on user intertaction.
+The component may have different appearances when mouse hovered, clicked or data changed;
+its children may be updated, moved, created or hidden based on the user intertaction.
 The **state** system provides a universal solution to internal mutability of components.
 
-The `state` is simply a object member inside a component; state values can be used during rendering, and the most
+The `state` is simply an object member inside a component; state values can be used during rendering, and the most
 important property of states is:
 
-!>When its state updated, the component **re-renders automatically**.
+!>When its state is updated, the component **re-renders automatically**.
 
 ```js
 class MyComponent extends Component {
@@ -83,10 +82,10 @@ class MyComponent extends Component {
 }
 ```
 
-To add a state, simply add a new entry in `state`. The key is the name of the stage, and the the value it the default value of this state.
+To add a state, simply add a new entry in `state`. The key is the name of the stage, and the the value is the default value of this state.
 
 Suppose that we are going to create a component `MousePos`, which renders a circle that moves with the mouse cursor.
-Therefore now we need two states: the x and y position of the mouse cursor.
+We now therefore need two states: the x and y position of the mouse cursor.
 
 ```js
 class MousePose extends Component {
@@ -108,10 +107,10 @@ class MousePose extends Component {
 
 `state` can also be referenced inside the template.
 
-Now we are going to update the circle's position on mouse movement. Since the circle's position is connected with the `x` and `y` state,
+Now we are going to update the circle's position on mouse movements. Since the circle's position is connected with the `x` and `y` state,
 we only need to update them. Use `setState` to update states.
 
-In the `mousemoved` listener, we use a utility method `mouse` to get the relative mouse position to an element from an event.
+In the `mouseMoved` listener, we use a utility method `mouse` to get the relative mouse position to an element from an event.
 
 ```js
 class MousePose extends Component {
@@ -180,11 +179,11 @@ The stage system is based on states, and `setStage(val)` is actually `setState({
 
 Custom components have predefined children in their templates. However, sometimes we may need to customize some children
 or add some new children to components. For example, a `BarChart` renders a set of bars using `Rect`. We want to control
-how does the bar looks like: its fill color, stroke color, stroke width, stroke line style, etc. It is unfeasible to make
-all of these properties props of this `BarChart`. Moreover, what if we want to draw some other decorations on the bar?
+how does the bar look like: its fill color, stroke color, stroke width, stroke line style, etc. It is unfeasible to make
+all of these properties be(?) props of this `BarChart`. Moreover, what if we want to draw some other decorations on the bar?
 How about drawing some other elements instead of the `Rect`?
 
-**Named children** provides a way to solve these problem, and makes it possible to extend and customize components.
+**Named children** provides a way to solve these problems, and makes it possible to extend and customize components.
 
 Inside the custom component, we use the `@yield` command to yield, or to declare a "slot" for other components to plug in.
 The basic syntax of `@yield` looks like `@yield <name>`, where `<name>` is the name of this "slot".
@@ -211,7 +210,7 @@ class TwoSlots extends Component {
 ```
 
 When using this component, we use the following syntax to supply **named children**, which will be inserted to the position
-of the corresponsing `@yield`:
+of the corresponding `@yield`:
 
 ```
 TwoSlots {
@@ -427,25 +426,6 @@ Component {
 Wrapper
 </div>
 
-## Dynamic props and @props
-
-Sometimes it might be more clear and expressive if we can customize not only the prop values, but also the names.
-
-The `@props` command provides an easy way to serve a dynamic object as props, so you are free to add any logic before
-actually passing the props to a component.
-
-<div class="demo" data-height="200">
-Rect {
-    @let dynamicProps = {
-        width: 50,
-        height: 50,
-    }
-    @props dynamicProps
-}
-</div>
-
-?> Following `@props` there can be a variable or a simple JavaScript expression, such as a function call.
-
 ## Registering Components
 
 You may need to use some other custom components in your template, but the framework does not know where to find them
@@ -480,4 +460,4 @@ The component will then be available for all templates.
 registerGlobalComponent({ MyComponent })
 ```
 
-!> Registering a component globally will overwrite existing component with same name.
+!> Registering a component globally will overwrite the existing component with same name.

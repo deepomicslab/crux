@@ -21,7 +21,7 @@ export class GroupedBars extends BaseChart<GroupedBarsOption> {
                 @let gX = getX(group[fk].pos)
 
                 key = pos
-                anchor = @anchor(center, top)
+                anchor = @anchor("center", "top")
                 x = flipped ? 0 : gX
                 y = flipped ? gX : 0
                 width = flipped ? @geo(100, 0) : gWidth

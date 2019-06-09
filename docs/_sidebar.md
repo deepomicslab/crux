@@ -9,6 +9,22 @@
     - [Custom Components](custom-components.md)
     - [Advanced Components](advanced-components.md)
 - **PLOTS AND CHARTS**
+    - [Introduction](plot/intro.md)
+    - **XYPlot**
+        - [XYPlot](plot/xyplot.md)
+        - [Bars](plot/bars.md)
+        - [Dots](plot/dots.md)
+        - [Area](plot/area.md)
+    - **Other Charts**
+        - [Pie](plot/pie.md)
 - **REFERENCE**
+    - **Template**
+        - [Commands](ref/commands.md)
+        - [Helpers](ref/helpers.md)
     - [Visualizer](ref/visualizer.md)
-    - [Helpers](ref/helpers.md)
+    - **Components**
+        - [Base Element](ref/base-element.md)
+        - [Component](ref/component.md)
+    - **Primitive Elements**
+        - [Primitive Element](ref/primitive.md)
+    - [Hooks](ref/hooks.md)

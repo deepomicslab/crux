@@ -108,6 +108,8 @@ export function updateTree(parent: Component<ComponentOption>, def?: ElementDef)
         (elm as Component).$isCoordRoot = true;
     }
 
+    elm.$callHook("willUpdate");
+
     layoutElement(elm);
 
     if (elm.prop.debug) {
@@ -131,6 +133,7 @@ export function updateTree(parent: Component<ComponentOption>, def?: ElementDef)
 
         elm.$callHook("willRender");
         const tree = elm.render();
+        elm.$callHook("didRender");
         updateTree(elm, tree);
 
         currElements.pop();

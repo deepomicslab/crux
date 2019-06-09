@@ -269,6 +269,25 @@ let data = [{ id: 1, name: "John" }, { id: 7, name: "Kenneth" }, { id: 19, name:
 but complicated expressions, such as arbitrary JavaScript object or array literals are not supported.
 If really needed, you can declare it using `@let` first.
 
+### @props
+
+Sometimes it might be clearer and more expressive if we can customize not only the prop values, but also the names.
+
+The `@props` command provides an easy way to serve a dynamic object as props, so you are free to add any logic before
+actually passing the props to a component.
+
+<div class="demo" data-height="200">
+Rect {
+    @let dynamicProps = {
+        width: 50,
+        height: 50,
+    }
+    @props dynamicProps
+}
+</div>
+
+?> Followed by `@props` there can be a variable or a simple JavaScript expression, such as a function call.
+
 ## Layout
 
 The framework features a layout system.

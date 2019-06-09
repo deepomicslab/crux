@@ -2,7 +2,7 @@ import { ASTNodeComp } from "../ast-node";
 import { parseExpr } from "./prop";
 
 const MODIFIERS = {
-    "centered": { anchor: "@anchor(middle, center)" },
+    "centered": { anchor: `@anchor("middle", "center")` },
     "full": { width: "100%", height: "100%" },
 };
 

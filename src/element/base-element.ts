@@ -245,8 +245,10 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
     }
 
     public didCreate?(): void;
+    public willUpdate?(): void;
     public didUpdate?(): void;
     public willRender?(): void;
+    public didRender?(): void;
     public didLayout?(): void;
     public didLayoutSubTree?(): void;
     public willAdjustAnchor?(): void;
@@ -255,7 +257,9 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
     public didPatch?(oldNode: VNode, newNode: VNode): void;
 }
 
-type HookNames = "didCreate" | "didUpdate" | "willRender" |
+type HookNames = "didCreate" |
+    "willUpdate" | "didUpdate" |
+    "willRender" | "didRender" |
     "didLayout" | "didLayoutSubTree" | "willAdjustAnchor" |
-    "didMount" | "didPatch" |
+    "didMount" | "didPatch" | "didUnmount" |
     "__didLayout";

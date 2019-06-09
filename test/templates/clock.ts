@@ -14,7 +14,7 @@ export class Clock extends Component {
             @let ticks = [12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
             @for number in ticks {
                 Text {
-                    anchor = @anchor(middle, center)
+                    anchor = @anchor("middle", "center")
                     key = number
                     x = number * 30; y = 70
                     text = number

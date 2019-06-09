@@ -1,6 +1,7 @@
 import { GeometryOptions, GeometryValue } from "../defs/geometry";
 import { getFinalPosition } from "../layout/layout";
-import { RenderHelper } from "../rendering/render-helper";
+import helperMixin from "../rendering/helper-mixin";
+import { RenderMixin } from "../rendering/render-mixin";
 import { ElementDef, updateTree } from "../rendering/render-tree";
 import { SVGRenderable } from "../rendering/svg";
 import { svgPropClip } from "../rendering/svg-helper";
@@ -10,7 +11,7 @@ import { BaseElement } from "./base-element";
 import { BaseOption } from "./base-options";
 import { ComponentOption } from "./component-options";
 import { isRenderable } from "./is";
-import { ScaleHelper } from "./scale";
+import { ScaleMixin } from "./scale";
 
 export type ActualElement = BaseElement<BaseOption>;
 
@@ -24,7 +25,7 @@ interface PolarCoordInfo {
 
 export class Component<Option extends ComponentOption = ComponentOption>
     extends BaseElement<Option>
-    implements SVGRenderable, RenderHelper, ScaleHelper {
+    implements SVGRenderable, RenderMixin, ScaleMixin {
 
     public static components: Record<string, typeof Component>;
 
@@ -181,9 +182,10 @@ export class Component<Option extends ComponentOption = ComponentOption>
 
     public _c: () => ElementDef;
     public _l: () => ElementDef[];
+    public _h = helperMixin;
 
     public _createScaleLinear: (horizontal: boolean, domain: [number, number], range?: [number, number]) => d3.ScaleLinear<number, number>;
     public _createScaleOrdinal: (domain: string[], range: number[]) => d3.ScaleOrdinal<string, number>;
 }
 
-applyMixins(Component, [RenderHelper, ScaleHelper]);
+applyMixins(Component, [RenderMixin, ScaleMixin]);

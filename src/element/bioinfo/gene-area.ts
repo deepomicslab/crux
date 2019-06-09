@@ -32,7 +32,7 @@ export class GeneArea extends Component<GeneAreaOption> {
         width = prop.width
         height = prop.height
         xScale = getScale(true) ? undefined : @scale-linear(geneMinPos, geneMaxPos)
-        clip = @clip(bound)
+        clip = @clip("bound")
 
         @let layers = layout()
 
@@ -52,7 +52,7 @@ export class GeneArea extends Component<GeneAreaOption> {
                         }
                     }
                     Rect {
-                        anchor = @anchor(left, middle)
+                        anchor = @anchor("left", "middle")
                         y      = 50%
                         width  = 100%
                         height = prop.intronHeight
@@ -72,7 +72,7 @@ export class GeneArea extends Component<GeneAreaOption> {
                     }
                     Text(gene.trans_name) {
                         y = 50%
-                        anchor = @anchor(left, middle)
+                        anchor = @anchor("left", "middle")
                     }
                 }
             }

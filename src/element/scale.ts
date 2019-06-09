@@ -9,7 +9,7 @@ export interface Scalable {
 
 type Range = [number, number];
 
-export class ScaleHelper {
+export class ScaleMixin {
     public _createScaleLinear(horizontal: boolean, domain: Range, range?: Range) {
         const self = (this as unknown as Component);
         const size = horizontal ?
