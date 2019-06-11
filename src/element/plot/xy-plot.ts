@@ -4,6 +4,7 @@ import _ = require("lodash");
 import { GeometryValue, offset } from "../../defs/geometry";
 import { ElementDef } from "../../rendering/render-tree";
 import { template } from "../../template/tag";
+import { ChartPaddingOptions, getPaddings } from "../chart/utils/option-padding";
 import { Component } from "../component";
 import { ComponentOption } from "../component-options";
 
@@ -26,7 +27,7 @@ interface DataHandler {
     pos: (d: any, i: number) => any;
 }
 
-export interface XYPlotOption extends ComponentOption {
+export interface XYPlotOption extends ComponentOption, ChartPaddingOptions {
     data: any[] | Record<string, any>;
     dataHandler: { [name: string]: DataHandler };
     stackedData: Record<string, string[]>;
@@ -39,14 +40,6 @@ export interface XYPlotOption extends ComponentOption {
     // layout
     flip: boolean;
     invertValueAxis: boolean;
-    // padding
-    padding: number;
-    "padding-x": number;
-    "padding-y": number;
-    "padding-l": number;
-    "padding-r": number;
-    "padding-t": number;
-    "padding-b": number;
 }
 
 export class XYPlot extends Component<XYPlotOption> {
@@ -131,15 +124,16 @@ export class XYPlot extends Component<XYPlotOption> {
                 d3.max(allData, d => d.value),
             ];
         }
-        this._paddings = this.getPadding();
+        this._paddings = getPaddings(this);
         this._xScale = this.createScale(true);
         this._yScale = this.createScale(false);
     }
 
     public handleChildren(children: ElementDef[]) {
         children.forEach(c => {
-            if (!c.opt.props.width) c.opt.props.width = GeometryValue.fullSize;
-            if (!c.opt.props.height) c.opt.props.height = GeometryValue.fullSize;
+            if (c.tag === "Legend") return;
+            if (!("width" in c.opt.props)) c.opt.props.width = GeometryValue.fullSize;
+            if (!("height" in c.opt.props)) c.opt.props.height = GeometryValue.fullSize;
         });
         return children;
     }
@@ -188,21 +182,6 @@ export class XYPlot extends Component<XYPlotOption> {
             this._vRange,
             this.inverted ? [0, width] : [width, 0],
         );
-    }
-
-    private getPadding(): [number, number, number, number] {
-        const result = [0, 0, 0, 0] as [number, number, number, number];
-        let p: number;
-        if (p = this.prop.padding) {
-            result.fill(p);
-        }
-        if (p = this.prop["padding-x"]) result[1] = result[3] = p;
-        if (p = this.prop["padding-y"]) result[0] = result[2] = p;
-        if (p = this.prop["padding-t"]) result[0] = p;
-        if (p = this.prop["padding-r"]) result[1] = p;
-        if (p = this.prop["padding-b"]) result[2] = p;
-        if (p = this.prop["padding-l"]) result[3] = p;
-        return result;
     }
 
     private offset = offset;

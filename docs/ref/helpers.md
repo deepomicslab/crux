@@ -55,15 +55,15 @@ Return the geometry value `percentage`% + `offset`.
 
 `horizontal` controls the X (`true`) or Y (`false`) direction.
 
-## @scaledX()
+## @scaled-x()
 
-> @scaled(`value:number`)
+> @scaled-x(`value:number`)
 
 Equivalent to `@scaled(value, true)`.
 
-## @scaledY()
+## @scaled-y()
 
-> @scaled(`value:number`)
+> @scaled-y(`value:number`)
 
 Equivalent to `@scaled(value, false)`.
 

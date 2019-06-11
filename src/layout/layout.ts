@@ -25,8 +25,14 @@ export function layoutElement(el: BaseElement, skipFixed = false) {
     const isRoot = el instanceof Component && el.isRoot;
     const parent = el.logicalParent && el.logicalParent.parent ?
         el.logicalParent.parent : el.parent;
-    const pWidth = isRoot ? el.$v.size.width : parent.$geometry.width;
-    const pHeight = isRoot ? el.$v.size.height : parent.$geometry.height;
+    let pWidth: number, pHeight: number;
+    if (el.inPolorCoordSystem) {
+        pWidth = 360;
+        pHeight = el.$coord.$polar.r;
+    } else {
+        pWidth = isRoot ? el.$v.size.width : parent.$geometry.width;
+        pHeight = isRoot ? el.$v.size.height : parent.$geometry.height;
+    }
     let [hProps, vProps] = (el.constructor as typeof BaseElement).$geometryProps;
     if (skipFixed) {
         hProps = hProps.filter(p => !isFixed(el.prop[p]));

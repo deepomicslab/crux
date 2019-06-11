@@ -26,7 +26,7 @@ export class Circle extends PrimitiveElement<CircleOption> {
 
     public static geometryProps() {
         const { h, v } = super.geometryProps();
-        return { h: [...h, "r"], v};
+        return { h, v: [...v, "r"]};
     }
 
     public get maxX() {

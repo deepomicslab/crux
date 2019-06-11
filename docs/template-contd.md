@@ -146,8 +146,8 @@ Some props require the value to be helpers, such as:
 <div class="demo" data-height="220">
 Component {
     @let widths = [25, 50, 75, 100]
-    width = 100%; height = 100%
     Rows {
+    width = 100%
         @for (width, index) in widths {
             Component {
                 key = index
@@ -160,4 +160,4 @@ Component {
 }
 </div>
 
-See the [Reference](ref/helpers.md) for a complete list of all helpers.
+See the [reference for helpers](ref/helpers.md) for a complete list of all helpers.

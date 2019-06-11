@@ -109,7 +109,7 @@ export class Component<Option extends ComponentOption = ComponentOption>
             transform = "";
         } else {
             const [x, y] = getFinalPosition(this as any);
-            transform = `translate(${x},${y})`;
+            transform = x === 0 && y === 0 ? "" : `translate(${x},${y})`;
         }
         if (v = this.prop.rotation)
             transform = `rotate(${v[0]},${v[1]},${v[2]}) ${transform}`;
