@@ -49,9 +49,9 @@ Return the geometry value `percentage`% + `offset`.
 
 ## @scaled()
 
-> @scaled(`value:number`, `horizontal:boolean`)
+> @scaled(`value:number|number[[`, `horizontal:boolean`)
 
-`value` is the data to be scaled.
+`value` is the data to be scaled. If `value` is an array, all elements in it will be scaled.
 
 `horizontal` controls the X (`true`) or Y (`false`) direction.
 

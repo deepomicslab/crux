@@ -6,3 +6,5 @@ export * from "./dots";
 export * from "./stacked-bars";
 export * from "./grouped-bars";
 export * from "./pie-chart";
+export * from "./scatters-1d";
+export * from "./radar-chart";

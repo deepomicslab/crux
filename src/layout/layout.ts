@@ -21,7 +21,7 @@ function updateGeometryProps(el: BaseElement, propName: string, parentSize: numb
     }
 }
 
-export function layoutElement(el: BaseElement, skipFixed = false) {
+export function getParentSize(el: BaseElement) {
     const isRoot = el instanceof Component && el.isRoot;
     const parent = el.logicalParent && el.logicalParent.parent ?
         el.logicalParent.parent : el.parent;
@@ -33,6 +33,11 @@ export function layoutElement(el: BaseElement, skipFixed = false) {
         pWidth = isRoot ? el.$v.size.width : parent.$geometry.width;
         pHeight = isRoot ? el.$v.size.height : parent.$geometry.height;
     }
+    return [pWidth, pHeight];
+}
+
+export function layoutElement(el: BaseElement, skipFixed = false) {
+    const [pWidth, pHeight] = getParentSize(el);
     let [hProps, vProps] = (el.constructor as typeof BaseElement).$geometryProps;
     if (skipFixed) {
         hProps = hProps.filter(p => !isFixed(el.prop[p]));

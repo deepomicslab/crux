@@ -103,6 +103,7 @@ export class Component<Option extends ComponentOption = ComponentOption>
     public svgTagName() { return "g"; }
     public svgTextContent() { return null; }
     public svgAttrs(): Record<string, string|number|boolean> {
+        const attrs = svgPropClip(this as any);
         let v: any;
         let transform: string;
         if (this.$coord && this.$coord.$polar && !this.$isCoordRoot) {
@@ -113,10 +114,10 @@ export class Component<Option extends ComponentOption = ComponentOption>
         }
         if (v = this.prop.rotation)
             transform = `rotate(${v[0]},${v[1]},${v[2]}) ${transform}`;
-        return {
-            ...svgPropClip(this as any),
-            transform,
-        };
+        if (transform) {
+            attrs.transform = transform;
+        }
+        return attrs;
     }
 
     // geometry

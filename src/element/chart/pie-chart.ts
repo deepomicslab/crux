@@ -35,13 +35,12 @@ export class PieChart extends Component<PieChartOption> {
                 height = 100%
                 coord = "polar"
                 xScale = _xScale
-                debug = true
                 @yield background
 
                 @for (data, index) in _data {
                     @let start = _xScale(data._minValue)
                     @let end = _xScale(data.value + data._minValue)
-                    @let color = colorScheme.getColor(data.name)
+                    @let color = _colorScheme.getColor(data.name)
                     @let d = { start, end, data, index }
                     Component {
                         key = index
@@ -71,7 +70,7 @@ export class PieChart extends Component<PieChartOption> {
 
     private _xScale: any;
     private _data: any[];
-    private colorScheme: ColorScheme<any>;
+    private _colorScheme: ColorScheme<any>;
 
     public defaultProp() {
         return { ...super.defaultProp(), innerRadius: 0 };
@@ -92,7 +91,7 @@ export class PieChart extends Component<PieChartOption> {
             [this.prop.startAngle || 0, this.prop.endAngle || 360]);
         // color scheme
         const categories = this.prop.data.map((d, i) => "name" in d ? d.name : i) as string[];
-        this.colorScheme = ColorScheme.create(categories);
+        this._colorScheme = ColorScheme.create(categories);
     }
 
     private get paddings() {
@@ -100,6 +99,6 @@ export class PieChart extends Component<PieChartOption> {
     }
 
     private get legendData() {
-        return this.colorScheme.legendData();
+        return this._colorScheme.legendData();
     }
 }

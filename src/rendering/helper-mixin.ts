@@ -37,14 +37,29 @@ export default {
         if (unit === "rad") value = toDeg(value);
         return self._rotate(value);
     },
-    scaledX(self, value: number) {
-        return self._scale(value, true);
+    scaledX(self, value: number | number[]) {
+        if (Array.isArray(value)) {
+            return value.map(v => self._scale(v, true));
+        } else {
+            return self._scale(value, true);
+        }
     },
-    scaledY(self, value: number) {
-        return self._scale(value, false);
+    scaledY(self, value: number | number[]) {
+        if (Array.isArray(value)) {
+            return value.map(v => self._scale(v, false));
+        } else {
+            return self._scale(value, false);
+        }
     },
-    scaled(self, value: number, direction: boolean) {
-        return self._scale(value, direction);
+    scaled(self, value: number | [number, number][], direction: boolean) {
+        if (Array.isArray(value)) {
+            return value.map(([x, y]) => [
+                self._scale(x, true),
+                self._scale(y, false),
+            ]);
+        } else {
+            return self._scale(value, direction);
+        }
     },
     scaleLinear(d1?: number, d2?: number, r1?: number, r2?: number) {
         const domain = (d1 !== undefined && d2 !== undefined) ? [d1, d2] : null;

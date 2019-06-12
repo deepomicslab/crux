@@ -1,0 +1,80 @@
+import { Anchor, GeometryValue } from "../../defs/geometry";
+import { template } from "../../template/tag";
+import { getGetter } from "../plot";
+import { BaseChart, BaseChartOption } from "./base-chart";
+
+export interface Scatters1DOption extends BaseChartOption {
+    r: number;
+    fill: string;
+    stroke: string;
+    dotOptions: any;
+}
+
+export class Scatters1D extends BaseChart<Scatters1DOption> {
+    private _coordinates = [];
+
+    public render = template`
+    Component {
+        @for (d1, pos) in data.values {
+            @let x = getX(pos)
+            @for (d2, index) in d1.data {
+                @let y = getY(d2)
+                Component {
+                    key = "s" + pos + "p" + index
+                    @props dotOpts(x,y)
+                    @yield children default {
+                        Circle.centered {
+                            r = prop.r
+                            fill = prop.fill
+                            stroke = prop.stroke
+                            @props prop.dotOptions
+                        }
+                    }
+                }
+            }
+        }
+    }
+    `;
+
+    private _layer = 0;
+    private _layers: Set<number>[] = [new Set()];
+
+    public getDistance(c1: number[], c2: number[]): number {
+        return Math.sqrt((c1[0] - c2[0]) ** 2 + (c1[1] - c2[1]) ** 2);
+    }
+
+    private dotOpts(x: number, y: number) {
+        const r = this.prop.r;
+        const fy = Math.round(y);
+        // layout
+        let placedLayer: number = null;
+        for (let l = 0; l <= this._layer; l++) {
+            let occupied = false;
+            for (let i = Math.max(fy - r, 0); i <= fy + r; i++) {
+                if (this._layers[l].has(i)) {
+                    occupied = true; break;
+                }
+            }
+            if (!occupied) {
+                this._layers[l].add(fy);
+                placedLayer = l;
+                break;
+            }
+        }
+        if (placedLayer === null) {
+            this._layer++;
+            placedLayer = this._layer;
+            this._layers[placedLayer] = new Set([fy]);
+        }
+        const offset = ((Math.floor((placedLayer - 1) / 2) + 1) * 2 * r) * (placedLayer % 2 ? 1 : -1);
+        return this.flippedOpts({ x: x + offset, y });
+    }
+
+    public defaultProp() {
+        return {
+            ...super.defaultProp(),
+            r: 2,
+            fill: "#aaa",
+        };
+    }
+}

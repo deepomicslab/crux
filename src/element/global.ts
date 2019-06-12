@@ -1,12 +1,12 @@
 import { componentList } from "./get-component";
 
-import { Axis, AxisBackground, Legend } from "./auxiliary";
-import { Area, Bars, Boxes, Dots, GroupedBars, PieChart, StackedArea, StackedBars } from "./chart";
+import { Axis, AxisBackground, AxisRadical, Legend } from "./auxiliary";
+import { Area, Bars, Boxes, Dots, GroupedBars, PieChart, RadarChart, Scatters1D, StackedArea, StackedBars } from "./chart";
 import { Component } from "./component";
 import { Brush } from "./interaction";
 import { Columns, Container, Rows } from "./layout";
 import { XYPlot } from "./plot";
-import { Arc, ArcLine, Circle, Line, Path, RadicalLine, Rect, Text } from "./primitive";
+import { Arc, ArcLine, Circle, Line, Path, Polygon, Polyline, RadicalLine, Rect, Text } from "./primitive";
 
 import { GeneArea } from "./bioinfo";
 
@@ -21,6 +21,8 @@ export function registerDefaultGlobalComponents() {
         Arc,
         ArcLine,
         RadicalLine,
+        Polyline,
+        Polygon,
         // plot
         XYPlot,
         // chart
@@ -31,7 +33,9 @@ export function registerDefaultGlobalComponents() {
         Dots,
         StackedBars,
         GroupedBars,
+        Scatters1D,
         PieChart,
+        RadarChart,
         // layout
         Container,
         Rows,
@@ -40,6 +44,7 @@ export function registerDefaultGlobalComponents() {
         // other
         Axis,
         AxisBackground,
+        AxisRadical,
         Legend,
     });
 }
