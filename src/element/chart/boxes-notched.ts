@@ -2,13 +2,15 @@ import { Anchor, GeometryValue } from "../../defs/geometry";
 import { template } from "../../template/tag";
 import { BaseChart, BaseChartOption } from "./base-chart";
 
-export interface BoxesOption extends BaseChartOption {
+export interface BoxesNotchedOption extends BaseChartOption {
+    fill: string;
+    notch_width: number;
 }
 
-export class Boxes extends BaseChart<BoxesOption> {
+export class BoxesNotched extends BaseChart<BoxesNotchedOption> {
     public render = template`
+
     Component {
-        @expr console.log(data)
         @for (d, pos) in data.raw.values {
             Component {
                 @let means = data.raw.means[pos]
@@ -17,7 +19,6 @@ export class Boxes extends BaseChart<BoxesOption> {
                 key = "b" + pos
                 anchor = getAnchor()
                 @props containerOpts(pos)
-
                 Component {
                     anchor = getBoxAnchor()
                     @props whiskleOpts(d)
@@ -35,13 +36,15 @@ export class Boxes extends BaseChart<BoxesOption> {
                     }
                 }
                 Component {
+                    @let boxProps = boxOpts(d)
+                    @let medianProps = medianOpts(d)
+                    @let notchProps = {width: columnWidth, height: boxProps.height, mheight: boxProps.y - medianProps.y, count: d.length + countOutliers(data.raw.outliers, pos)}
+                    @let notchData = {path: getPath(notchProps, d), pos}
+
                     anchor = getBoxAnchor()
-                    @props boxOpts(d)
-                    @yield box with _d default {
-                        Rect.full {
-                            stroke = "#000"
-                            fill = prop.fill || "none"
-                        }
+                    @props boxProps
+                    @yield box with notchData default {
+                        Path {d = notchData.path; fill = prop.fill || "#00000000"; stroke = "#aaa" }
                     }
                 }
                 Component {
@@ -51,21 +54,11 @@ export class Boxes extends BaseChart<BoxesOption> {
                             Line { y1 = 0; y2 = 100%; x1 = 0; x2 = 0 }
                         }
                         @else {
-                            Line { x1 = 0; x2 = 100%; y1 = 0; y2 = 0 }
+                            Line { x1 = @geo(0, columnWidth * (1-prop.notch_width)/2); x2 = @geo(0, columnWidth * (1+prop.notch_width)/2); y1 = 0; y2 = 0;}
                         }
                     }
                 }
-                Component {
-                    @props meanOpts(means)
-                    @yield mean with means default {
-                        @if flipped {
-                            Line { y1 = 0; y2 = 100%; x1 = 0; x2 = 0; stroke = "#000" }
-                        }
-                        @else {
-                            Line { x1 = 0; x2 = 100%; y1 = 0; y2 = 0; stroke = "#000" }
-                        }
-                    }
-                }
+
             }
         }
         @for (o, index) in data.raw.outliers {
@@ -85,6 +78,14 @@ export class Boxes extends BaseChart<BoxesOption> {
         }
     }
     `;
+
+    public defaultProp() {
+        return {
+            ...super.defaultProp(),
+            fill: "#00000000",
+            notch_width: 0.5,
+        };
+    }
 
     private medianOpts(d) {
         return this.flippedOpts({
@@ -114,6 +115,35 @@ export class Boxes extends BaseChart<BoxesOption> {
             y: this.getY(d[1]),
             height: this.getHeight(d[3] - d[1], d[1]),
         });
+    }
+
+    private getPath(notchProps, d) {
+        const h1 = notchProps.width * (1 - this.prop.notch_width) / 2;
+        const h2 = h1 + notchProps.width * this.prop.notch_width;
+        let notch_height = 3.14 * notchProps.height / Math.sqrt(notchProps.count);
+        let v1 = notchProps.mheight - notch_height / 2;
+        let v2 = v1 + notch_height;
+        let s_mheight = notchProps.height - notchProps.mheight;
+        v1 = notchProps.height - v1;
+        v2 = notchProps.height - v2;
+
+        let path = `M0 ${notchProps.height} L${notchProps.width} ${notchProps.height} L${notchProps.width} ${v1} `;
+        path += `L${h2} ${s_mheight} L${notchProps.width} ${v2} `;
+        path += `L${notchProps.width} 0 L0 0 `;
+        path += `L0 ${v2} L${h1} ${s_mheight} L0 ${v1} Z`;
+        return path;
+    }
+
+    private countOutliers(outliers, pos) {
+        let count = 0;
+        for (const o of outliers) {
+            if (o[0] < pos)
+                continue;
+            if (o[0] !== pos)
+                break;
+            count += 1;
+        }
+        return count;
     }
 
     private containerOpts(pos) {

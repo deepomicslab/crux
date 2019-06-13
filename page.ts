@@ -19,6 +19,7 @@ import polyline from "./demo/line/demo_polyline";
 import pie from "./demo/pie/pie";
 import radar from "./demo/radar/demo_radar-chart";
 import scatterData from "./demo/scatter-data";
+import box from "./demo/box/box";
 
 registerDefaultBioInfoComponents();
 
@@ -48,7 +49,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const regressionData = simpleLinearRegression(scatterData);
     const v = window["$v"] = visualize({
         el: "#canvas",
-        template: tdemo,
+        template: box,
         data: {
             array: [1, 3, 8, 6, 5, 4, 2, 7, 3],
             array2: [6, 4, 3, 2, 4, 9, 1, 5, 8],

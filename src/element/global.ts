@@ -1,7 +1,7 @@
 import { componentList } from "./get-component";
 
 import { Axis, AxisBackground, AxisRadical, Legend } from "./auxiliary";
-import { Area, Bars, Boxes, Dots, GroupedBars, PieChart, RadarChart, Scatters1D, StackedArea, StackedBars } from "./chart";
+import { Area, Bars, Boxes, BoxesNotched, Dots, GroupedBars, PieChart, RadarChart, Scatters1D, StackedArea, StackedBars } from "./chart";
 import { Component } from "./component";
 import { Brush } from "./interaction";
 import { Columns, Container, Rows } from "./layout";
@@ -30,6 +30,7 @@ export function registerDefaultGlobalComponents() {
         StackedArea,
         Bars,
         Boxes,
+        BoxesNotched,
         Dots,
         StackedBars,
         GroupedBars,

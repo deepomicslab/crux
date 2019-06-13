@@ -13,6 +13,9 @@ export interface AxisBackgroundOption extends ComponentOption {
     showLabels: boolean;
     labelAnchor: Anchor;
     labelPosition: GeometryOptValue;
+    stroke: string;
+    dashArray: string;
+    lineOptions: any;
 }
 
 export class AxisBackground extends Component<AxisBackgroundOption> {
@@ -32,8 +35,10 @@ export class AxisBackground extends Component<AxisBackgroundOption> {
                     x2 = isHorizontal ? 0 : @geo(100, 0)
                     y1 = 0
                     y2 = isHorizontal ? @geo(100, 0) : 0
-                    stroke = "#aaa"
+                    stroke = prop.stroke
+                    dashArray = prop.dashArray
                     shapeRendering = "crispEdges"
+                    @props prop.lineOptions
                 }
                 @if prop.showLabels {
                     Text {
@@ -55,6 +60,7 @@ export class AxisBackground extends Component<AxisBackgroundOption> {
             orientation: "hotizontal",
             tickCount: 5,
             includeEndTicks: false,
+            stroke: "#aaa",
         };
     }
 
