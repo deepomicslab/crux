@@ -9,3 +9,4 @@ export * from "./grouped-bars";
 export * from "./pie-chart";
 export * from "./scatters-1d";
 export * from "./radar-chart";
+export * from "./heatmap";

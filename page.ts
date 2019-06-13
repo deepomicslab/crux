@@ -13,13 +13,14 @@ import tcircos from "./test/templates/tcircos";
 import tdemo from "./test/templates/tdemo";
 import tdemo2 from "./test/templates/tdemo2";
 
+import bar from "./demo/bar/bar";
+import box from "./demo/box/box";
 import scatters from "./demo/box/demo_scatters";
 import regression from "./demo/line/demo_linear_regression";
 import polyline from "./demo/line/demo_polyline";
 import pie from "./demo/pie/pie";
 import radar from "./demo/radar/demo_radar-chart";
 import scatterData from "./demo/scatter-data";
-import box from "./demo/box/box";
 
 registerDefaultBioInfoComponents();
 
@@ -49,7 +50,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const regressionData = simpleLinearRegression(scatterData);
     const v = window["$v"] = visualize({
         el: "#canvas",
-        template: box,
+        template: bar,
         data: {
             array: [1, 3, 8, 6, 5, 4, 2, 7, 3],
             array2: [6, 4, 3, 2, 4, 9, 1, 5, 8],

@@ -1,9 +1,10 @@
-import { GeometryValue } from "../../defs/geometry";
+import { Anchor, GeometryValue } from "../../defs/geometry";
 import { template } from "../../template/tag";
 import { ParsedData } from "../plot";
 import { BaseChart, BaseChartOption } from "./base-chart";
 
 export interface BarsOption extends BaseChartOption {
+    pivot: number;
 }
 
 export class Bars extends BaseChart<BarsOption> {
@@ -17,7 +18,7 @@ export class Bars extends BaseChart<BarsOption> {
                     @let z = _cachedSize[index]
 
                     key = index
-                    anchor = getAnchor()
+                    anchor = getRectAnchor(d, prop.pivot)
                     x = z.x; y = z.y; width = z.width; height = z.height;
 
                     @yield children with d default {
@@ -31,7 +32,7 @@ export class Bars extends BaseChart<BarsOption> {
                     @let z = _cachedSize[index]
 
                     key = "o" + index
-                    anchor = getAnchor()
+                    anchor = getRectAnchor(d, prop.pivot)
                     x = z.x; y = z.y; width = z.width; height = z.height;
 
                     @yield overlay with d
@@ -48,7 +49,7 @@ export class Bars extends BaseChart<BarsOption> {
             const x = this.getX(d.pos);
             const y = this.getY(d.minValue);
             const width = this.getWidth();
-            const height = this.getHeight(d.value - d.minValue, d.minValue);
+            const height = Math.abs(this.getHeight(d.value - d.minValue, d.minValue));
             this._cachedSize[index] = {
                 x: this.flipped ? y : x,
                 y: this.flipped ? x : y,
@@ -61,6 +62,13 @@ export class Bars extends BaseChart<BarsOption> {
     public willRender() {
         super.willRender();
         this._cacheSize();
+    }
+
+    private getRectAnchor(d: any, pivot: number) {
+        const belowPivot = typeof pivot === "number" && d.value < d.minValue && d.value < pivot;
+        return this.flipped ?
+            (this.inverted !== belowPivot ? Anchor.Left : Anchor.Right) | Anchor.Middle :
+            (this.inverted !== belowPivot ? Anchor.Top : Anchor.Bottom) | Anchor.Center;
     }
 
     private getYStartPos() {
