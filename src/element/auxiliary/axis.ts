@@ -136,7 +136,7 @@ export function getTicks(scale: any, providedTicks: any, interval: number, count
         const start = Math.ceil(domain[0] / interval) * interval;
         let counter = start;
         while (counter < domain[1]) {
-            ticks.push(counter);
+            ticks.push(pretty(counter));
             counter += interval;
         }
 
@@ -168,6 +168,10 @@ export function getTicks(scale: any, providedTicks: any, interval: number, count
     }
 
     return tickValues;
+}
+
+function pretty(n: number): number {
+    return parseFloat(n.toPrecision(12));
 }
 
 function baseDigitOf(n: number): number {

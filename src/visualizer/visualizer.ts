@@ -13,7 +13,7 @@ export interface VisualizerOption {
     props?: Record<string, any>;
     data?: Record<string, any>;
     root?: Component;
-    components?: Record<string, typeof Component>;
+    components?: Record<string, any /*typeof Component*/>;
     renderer?: "canvas" | "svg";
     width?: number | "auto";
     height?: number | "auto";

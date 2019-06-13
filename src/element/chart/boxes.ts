@@ -8,7 +8,6 @@ export interface BoxesOption extends BaseChartOption {
 export class Boxes extends BaseChart<BoxesOption> {
     public render = template`
     Component {
-        @expr console.log(data)
         @for (d, pos) in data.raw.values {
             Component {
                 @let means = data.raw.means[pos]

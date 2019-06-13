@@ -21,7 +21,7 @@ export class Scatters1D extends BaseChart<Scatters1DOption> {
                 @let y = getY(d2)
                 Component {
                     key = "s" + pos + "p" + index
-                    @props dotOpts(x,y)
+                    @props dotOpts(x, y)
                     @yield children default {
                         Circle.centered {
                             r = prop.r

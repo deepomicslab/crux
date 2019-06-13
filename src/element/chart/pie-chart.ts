@@ -1,5 +1,5 @@
 import { template } from "../../template/tag";
-import { ColorScheme } from "../../utils/color-scheme";
+import { ColorSchemeCategory } from "../../utils/color";
 import { Component } from "../component";
 import { ComponentOption } from "../component-options";
 import { ChartPaddingOptions, getPaddings } from "./utils/option-padding";
@@ -70,7 +70,7 @@ export class PieChart extends Component<PieChartOption> {
 
     private _xScale: any;
     private _data: any[];
-    private _colorScheme: ColorScheme<any>;
+    private _colorScheme: ColorSchemeCategory<any>;
 
     public defaultProp() {
         return { ...super.defaultProp(), innerRadius: 0 };
@@ -91,7 +91,7 @@ export class PieChart extends Component<PieChartOption> {
             [this.prop.startAngle || 0, this.prop.endAngle || 360]);
         // color scheme
         const categories = this.prop.data.map((d, i) => "name" in d ? d.name : i) as string[];
-        this._colorScheme = ColorScheme.create(categories);
+        this._colorScheme = ColorSchemeCategory.create(categories);
     }
 
     private get paddings() {

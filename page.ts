@@ -16,11 +16,13 @@ import tdemo2 from "./test/templates/tdemo2";
 import bar from "./demo/bar/bar";
 import box from "./demo/box/box";
 import scatters from "./demo/box/demo_scatters";
+import demo from "./demo/demo";
 import regression from "./demo/line/demo_linear_regression";
 import polyline from "./demo/line/demo_polyline";
 import pie from "./demo/pie/pie";
 import radar from "./demo/radar/demo_radar-chart";
 import scatterData from "./demo/scatter-data";
+import { Clock } from "./test/templates/clock";
 
 registerDefaultBioInfoComponents();
 
@@ -50,7 +52,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const regressionData = simpleLinearRegression(scatterData);
     const v = window["$v"] = visualize({
         el: "#canvas",
-        template: bar,
+        template: demo,
         data: {
             array: [1, 3, 8, 6, 5, 4, 2, 7, 3],
             array2: [6, 4, 3, 2, 4, 9, 1, 5, 8],
@@ -58,5 +60,6 @@ document.addEventListener("DOMContentLoaded", () => {
             scatter_data: scatterData,
             regression_data: regressionData,
         },
+        components: { Clock },
     });
 });

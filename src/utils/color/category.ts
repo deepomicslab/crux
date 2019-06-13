@@ -1,4 +1,6 @@
-export class ColorScheme<T extends number|string> {
+import { ColorScheme } from "./color-scheme";
+
+export class ColorSchemeCategory<T extends number|string> implements ColorScheme {
     public colors: Record<T, string>;
 
     constructor(public categories: T[]) {
@@ -27,13 +29,13 @@ export class ColorScheme<T extends number|string> {
         return this.categories.map(c => ({ label: c.toString(), fill: this.getColor(c)}));
     }
 
-    public static create(c: number | number[]): ColorScheme<number>;
-    public static create(c: string[]): ColorScheme<string>;
-    public static create(c: number | (number|string)[]): ColorScheme<string> | ColorScheme<number> {
+    public static create(c: number | number[]): ColorSchemeCategory<number>;
+    public static create(c: string[]): ColorSchemeCategory<string>;
+    public static create(c: number | (number|string)[]): ColorSchemeCategory<string> | ColorSchemeCategory<number> {
         if (typeof c === "number") {
-            return new ColorScheme<number>(Array.from(Array(c)).map((_, i) => i));
+            return new ColorSchemeCategory<number>(Array.from(Array(c)).map((_, i) => i));
         } else {
-            return new ColorScheme(c) as any;
+            return new ColorSchemeCategory(c) as any;
         }
     }
 }

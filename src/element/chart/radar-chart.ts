@@ -1,5 +1,5 @@
 import { template } from "../../template/tag";
-import { ColorScheme } from "../../utils/color-scheme";
+import { ColorSchemeCategory } from "../../utils/color";
 import { Component } from "../component";
 import { ComponentOption } from "../component-options";
 import { getPaddings } from "./utils/option-padding";
@@ -36,7 +36,6 @@ export class RadarChart extends Component<RadarsOption> {
                 yScale = @scale-linear(0, _maxValue)
                 @let numOfItem = prop.data.length
                 Circle.centered {
-                    debug = true
                     r = 100%
                     fill = prop.background || "#fff"
                     stroke = prop.stroke || "#aaa"
@@ -78,7 +77,7 @@ export class RadarChart extends Component<RadarsOption> {
 
     private _categoryCount: number;
     private _maxValue: number;
-    private _colorScheme: ColorScheme<any>;
+    private _colorScheme: ColorSchemeCategory<any>;
 
     public willRender() {
         this._categoryCount = this.prop.data[0].values.length;
@@ -87,7 +86,7 @@ export class RadarChart extends Component<RadarsOption> {
             for (const d of entry.values)
                 if (this._maxValue < d) this._maxValue = d;
         const categories = this.prop.data.map(d => d.key);
-        this._colorScheme = ColorScheme.create(categories);
+        this._colorScheme = ColorSchemeCategory.create(categories);
     }
 
     public defaultProp() {

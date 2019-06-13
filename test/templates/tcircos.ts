@@ -15,7 +15,6 @@ svg {
         Circle.centered {
             x = 135; y = 60; r = 2
             fill = "red"
-            debug = true
         }
         ArcLine {
             x1 = 45; x2 = 135; r = 60

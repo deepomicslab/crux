@@ -184,8 +184,6 @@ svg {
                 height = 300; width = 400; padding = 20
                 @expr narray2 = array2.map((x, i) => x / (array2[i] + array3[i]))
                 @expr narray3 = array3.map((x, i) => x / (array2[i] + array3[i]))
-                @expr console.log(narray2)
-                @expr console.log(narray3)
                 data = { narray2, narray3 }
                 stackedData = { stacked: ["narray2", "narray3"] }
                 AxisBackground {}
