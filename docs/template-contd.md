@@ -45,8 +45,8 @@ Component {
 ## Stage
 
 **Stage** is another set of props for a component, which is somehow similar to a css class.
-It is extremely useful when the component needs to change among different states. For example, highlight the component
-when the mouse hovered.
+It is extremely useful when the component needs to change among different states.
+For example, the component needs to be highlighted when the mouse hovered it.
 
 To define a stage, use the `stage:` syntax:
 
@@ -68,7 +68,7 @@ When the component enters a stage, props defined in the stage will override defa
 Setting and unsetting stages involve JavaScript. Suppose we have a reference to a component called `component`:
 
 - `component.stage` returns the current stage name, as a string;
-- `component.setStage("active")` sets the stage ("active" in this example). Use `null` to unset the stage.
+- `component.stage = "active"` or `component.setStage("active")` sets the stage ("active" in this example). Use `null` to unset the stage.
 
 We will see demos in the next section.
 
@@ -107,8 +107,8 @@ Rect {
     stage:active {
         fill = "red"
     }
-    on:mouseenter = $el.setStage("active")
-    on:mouseleave = $el.setStage(null)
+    on:mouseenter = $el.stage = "active"
+    on:mouseleave = $el.stage = null
 }
 </div>
 

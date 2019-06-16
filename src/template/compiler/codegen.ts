@@ -34,7 +34,19 @@ function genExpr(expr: string, name: string) {
 
 function genAttrs(node: ASTNodeComp) {
     const attrStrings: string[] = [];
+    const normalProps = [];
+    const delegates: Record<string, any> = {};
+    let hasDelegate = false;
     for (const p of node.props) {
+        if (p.delegate) {
+            if (!delegates[p.delegate]) delegates[p.delegate] = {};
+            delegates[p.delegate][p.name] = p.expr;
+            hasDelegate = true;
+        } else {
+            normalProps.push(p);
+        }
+    }
+    for (const p of normalProps) {
         const name = p.name;
         if (name === "__dynamic__") {
             attrStrings.push(`...${p.expr}`);
@@ -44,6 +56,14 @@ function genAttrs(node: ASTNodeComp) {
         const expr = (match = p.expr.match(GEOMETRY_LITERAL)) ?
             genGeoExpr(match) : p.expr;
         attrStrings.push(`'${name}': ${genExpr(expr, name)}`);
+    }
+    if (hasDelegate) {
+        const delegateStr = Object.keys(delegates).map(k =>
+            `'${k}': {${Object.keys(delegates[k]).map(j =>
+                `'${j}': ${delegates[k][j]}`,
+            ).join(",")}}`,
+        ).join(",");
+        attrStrings.push(`opt: { ${delegateStr} }`);
     }
     return `props: { ${attrStrings.join(",")} },`;
 }

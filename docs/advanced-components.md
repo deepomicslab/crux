@@ -175,6 +175,123 @@ MousePos
 ?>You might think that the **stage** concept mentioned above sounds quite similar to an internal state; that is correct.
 The stage system is based on states, and `setStage(val)` is actually `setState({ stage: val })`.
 
+## Delegates and @props
+
+We have learned [@props](ref/commands#props) in previous chapters,
+but it seems that there are too little use cases for this command when using it alone in templates.
+
+The **delegate** system makes full use of dynamic props and the `@props` command:
+A custom component can be a delegate of its children and pass props directly to them.
+
+- When using this custom component, user can supply the prop for a delegated component
+  in the following syntax: `delagateName.prop = value`
+- Delegate options can be accessed inside the component from `prop.opt.delegateName`,
+  and insert them to the delegated children using `@props`.
+
+Say you have a component that would draw two rects with same width and height.
+
+```js
+class TwoRects extends Component {
+    public render = template`
+        Component {
+            Rect {
+                width = prop.rectWidth
+                height = prop.rectHeight
+            }
+            Rect {
+                x = prop.rectWidth +2
+                width = prop.rectWidth
+                height = prop.rectHeight
+            }
+        }
+    }`
+}
+```
+
+<div class="demo" data-height="200">
+TwoRects {
+    rectWidth = 100
+    rectHeight = 100
+}
+</div>
+<div class="bvd-code">
+class TwoRects extends Crux.Component {
+}
+TwoRects.prototype.render = Crux.template`
+Component {
+    Rect {
+        width = prop.rectWidth
+        height = prop.rectHeight
+    }
+    Rect {
+        x = prop.rectWidth +2
+        width = prop.rectWidth
+        height = prop.rectHeight
+    }
+}
+`
+TwoRects
+</div>
+
+It works well, and you may try changing `rectWidth` or `rectHeight` in the demo and see if both rects would be updated.
+However, what if we want to add custom fill, stroke or other options to different rects?
+
+It is certainly possible to define more props for `TwoRects`, such as `rect1Fill` and `rect2Stroke`;
+but it would be  to add all possible `Rect` options exaustively.
+Instead, we use `prop.opt`:
+
+```js
+class TwoRects extends Component {
+    public render = template`
+        Component {
+            Rect {
+                @props prop.opt.rect1
+                width = prop.rectWidth
+                height = prop.rectHeight
+            }
+            Rect {
+                @props prop.opt.rect2
+                x = prop.rectWidth +2
+                width = prop.rectWidth
+                height = prop.rectHeight
+            }
+        }
+    }`
+}
+```
+<div class="demo" data-height="200">
+TwoRects {
+    rectWidth = 100
+    rectHeight = 100
+    rect1.fill = "red"
+    rect2.fill = "yellow"
+    rect2.stroke = "blue"
+    rect2.strokeWidth = 2
+}
+</div>
+<div class="bvd-code">
+class TwoRects extends Crux.Component {
+}
+TwoRects.prototype.render = Crux.template`
+Component {
+    Rect {
+        @props prop.opt.rect1
+        width = prop.rectWidth
+        height = prop.rectHeight
+    }
+    Rect {
+        @props prop.opt.rect2
+        x = prop.rectWidth +2
+        width = prop.rectWidth
+        height = prop.rectHeight
+    }
+}
+`
+TwoRects
+</div>
+
+Now when using the component, user can customize each rect freely as all props are exposed.
+
 ## Named Children and @yield
 
 Custom components have predefined children in their templates. However, sometimes we may need to customize some children

@@ -78,6 +78,9 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
         this.prop = new Proxy(this._prop, {
             get: (target, p) => {
                 let s: any;
+                if (p === "opt") {
+                    return target["opt"] || {};
+                }
                 if (this.state.stage && (s = this.$stages[this.state.stage]) && (p in s)) {
                     return s[p];
                 }
@@ -163,7 +166,7 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
 
     /* state */
 
-    protected setState(s: any) {
+    protected setState(s: Record<string, any>) {
         Object.keys(s).forEach(k => {
             this.state[k] = s[k];
         });
@@ -176,6 +179,10 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
 
     public get stage() {
         return this.state.stage;
+    }
+
+    public set stage(s: string) {
+        this.setState({ stage: s });
     }
 
     /* drawing */

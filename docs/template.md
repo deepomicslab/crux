@@ -277,6 +277,8 @@ Sometimes it might be clearer and more expressive if we can customize not only t
 The `@props` command provides an easy way to serve a dynamic object as props, so you are free to add any logic before
 actually passing the props to a component.
 
+Another important usage of `@props` will be introduced later in [Adcanved Components](advanced-components).
+
 <div class="demo" data-height="200">
 Rect {
     @let dynamicProps = {

@@ -5,7 +5,6 @@ import { BaseChart, BaseChartOption } from "./base-chart";
 
 export interface BarsOption extends BaseChartOption {
     pivot: number;
-    barsOption: any;
 }
 
 export class Bars extends BaseChart<BarsOption> {
@@ -24,7 +23,7 @@ export class Bars extends BaseChart<BarsOption> {
 
                     @yield children with d default {
                         Rect.full {
-                            @props prop.barsOption
+                            @props prop.opt.bar
                         }
                     }
                 }

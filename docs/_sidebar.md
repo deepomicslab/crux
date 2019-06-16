@@ -19,17 +19,8 @@
     - [Modifiers](ref/modifiers.md)
     - [Elements and Components](ref/elements.md)
     - [Hooks](ref/hooks.md)
-- **PRIMITIVE ELEMENTS**
-    - [Area](element/area.md)
-    - [Circle](element/circle.md)
-    - [Line](element/line.md)
-    - [Path](element/path.md)
-    - [Rect](element/rect.md)
-    - [Text](element/text.md)
-    - [Arc](element/arc.md)
-    - [ArcLine](element/arc-line.md)
-    - [RadicalLine](element/radical-line.md)
-- **COMPONENTS**
+- **COMPONENT REFERENCE**
+    - [Primitive Elements](component/primitive.md)
     - *Auxiliaries*
         - [Axis]()
         - [AxisBackground]()

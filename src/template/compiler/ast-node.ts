@@ -15,7 +15,7 @@ export interface ASTNodeFor extends ASTNode {
 export interface ASTNodeComp extends ASTNode {
     type: "comp";
     name: string;
-    props: { name: string, expr: string }[];
+    props: { delegate?: string, name: string, expr: string }[];
     styles: { name: string, expr: string }[];
     on: { name: string, handler: string }[];
     behavior: { name: string, args: Record<string, any> }[];

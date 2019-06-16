@@ -14,7 +14,7 @@
 
 ## didLayoutSubTree
 
-## willAsjustAnchor
+## willAdjustAnchor
 
 ## didMount
 

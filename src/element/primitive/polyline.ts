@@ -4,9 +4,7 @@ import { BaseElementOption } from "./base-elm-options";
 import { PrimitiveElement } from "./primitive";
 
 export interface PolylineOption extends BaseElementOption {
-    points: number[];
-    shapeRendering: string;
-    dashArray: string;
+    points: [number, number][];
 }
 
 export class Polyline extends PrimitiveElement<PolylineOption> {

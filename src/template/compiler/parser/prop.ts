@@ -52,7 +52,15 @@ export function parseExpr(node: ASTNodeComp, name: string, expr: string) {
         const styleName = name.slice(6);
         node.styles.push({ name: styleName, expr });
     } else {
-        node.props.push({ name, expr: expr.indexOf("@") >= 0 ? replaceHelpers(expr) : expr });
+        if (expr.indexOf("@") >= 0) {
+            expr = replaceHelpers(expr);
+        }
+        if (name.indexOf(".") > 0) {
+            const [delegateName, propName] = name.split(".");
+            node.props.push({ delegate: delegateName, name: propName, expr });
+        } else {
+            node.props.push({ name, expr });
+        }
     }
 }
 

@@ -91,7 +91,7 @@ svg {
                 invertValueAxis = true
                 AxisBackground { orientation = "vertical" }
                 Bars {
-                    barsOption = { fill: "#f96" }
+                    bar.fill = "#f96"
                 }
                 Axis("bottom") { y = 100% }
                 Axis("left");

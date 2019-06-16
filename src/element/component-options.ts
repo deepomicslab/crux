@@ -12,4 +12,5 @@ export interface ComponentOption extends BaseOption {
     html?: string;
 
     clip?: string;
+    opt?: Record<string, any>;
 }
