@@ -32,7 +32,10 @@ export class Dots extends BaseChart<DotsOption> {
                     width = 0; height = 0
 
                     @yield children with d default {
-                        Circle.centered { r = 2; fill ="#aaa" }
+                        Circle.centered {
+                            r = 2; fill ="#aaa"
+                            @props prop.opt.dots
+                        }
                     }
                 }
             }

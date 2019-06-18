@@ -844,9 +844,7 @@ svg {
                 padding = 20
                 data = radarData
                 categories = ["First", "Second", "Third", "Fourth", "Fifth"]
-                areaOptions = {
-                    fill: "none"
-                }
+                area.fill = "none"
                 :legend (d) {
                     Legend {
                         data = d

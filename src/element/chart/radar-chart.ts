@@ -9,7 +9,6 @@ export interface RadarsOption extends ComponentOption {
     categories: string[];
     stroke: string;
     opacity: number;
-    areaOptions: any;
 }
 
 export interface RadarChartPoint {
@@ -66,7 +65,7 @@ export class RadarChart extends Component<RadarsOption> {
                         fill = color
                         stroke = color
                         fillOpacity = prop.opacity
-                        @props prop.areaOptions
+                        @props prop.opt.area
                     }
                 }
             }

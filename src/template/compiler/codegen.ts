@@ -159,6 +159,7 @@ function gatherCondBlocks(node: ASTNode) {
 }
 
 function genChildren(node: ASTNode, uidGen: UIDGenerator): string {
+    gatherCondBlocks(node);
     return node.children.map(n => node2code(n, uidGen)).join(",");
 }
 
