@@ -1,4 +1,5 @@
 import { Component } from "./element/component";
+import loadData from "./load-data";
 import { template } from "./template/tag";
 import * as utils from "./utils";
 import { visualize } from "./visualizer";
@@ -9,6 +10,7 @@ export const Crux = {
     Component,
     template,
     utils,
+    loadData,
 };
 
 window["Crux"] = Crux;

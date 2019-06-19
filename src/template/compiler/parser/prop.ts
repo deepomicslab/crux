@@ -5,7 +5,7 @@ import { NAME } from "../tokens";
 import { transformHelper } from "./helper";
 
 export function parseProp(p: ParserStream, node: ASTNodeComp) {
-    const name = p.expect(NAME)[0];
+    const name = p.expect(NAME, "prop name")[0];
     p.skipSpaces();
     p.expect("=");
     p.skipSpaces();

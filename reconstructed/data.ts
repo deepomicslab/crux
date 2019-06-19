@@ -1,5 +1,5 @@
+import { GeneData, toGeneData } from "../src/utils/bioinfo/gene";
 import { DataLoader, DataSourceType } from "../src/utils/data-loader";
-import { toGeneData, GeneData } from "../src/utils/bioinfo/gene";
 
 const variantAPIRoot = "http://localhost:3038";
 

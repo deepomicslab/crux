@@ -9,7 +9,7 @@ declare global {
     interface Window {
         gon: {
             urls: any;
-        }
+        };
     }
 }
 
@@ -29,7 +29,10 @@ export type DataSourceLoader<T> = (this: DataLoader<T>, load: (options?: any) =>
 export type DataSourceCallback<T, U> = (this: DataLoader<T>, data: any, def: DataSource<T, U>) => U;
 
 export enum DataSourceType {
-    CSV = 1, TSV, JSON, TEXT,
+    CSV = "csv",
+    TSV = "tsv",
+    JSON = "json",
+    TEXT = "text",
 }
 
 export type DSVRowType = "string" | "int" | "float" | "skip";
@@ -39,7 +42,8 @@ export interface DataSource<T extends {}, U> {
     _type?: U;
     url?: string | ((dl: DataLoader<T>) => string);
     fileKey?: string;
-    type?: DataSourceType;
+    content?: string;
+    type?: DataSourceType | string;
     dataPath?: string | ((data: any) => U);
     dsvRowDef?: { [name: string]: DSVRowDef };
     dsvRowParser?: (rawRow: d3.DSVRowString, index: number, columns: string[]) => any;
@@ -127,11 +131,11 @@ export class DataLoader<T extends { [key: string]: any } = { [key: string]: any 
                 } else if (typeof def.dataPath === "function") {
                     data = def.dataPath.call(this, rawData);
                 }
-                this.data[key] = data;
+                (this.data as any)[key] = data;
                 if (typeof def.loaded === "function") {
                     const result = def.loaded.call(this, data, def);
                     if (typeof result !== "undefined") {
-                        this.data[key] = result;
+                        (this.data as any)[key] = result;
                     }
                 }
                 if (this.debugMode) {
@@ -152,11 +156,12 @@ export class DataLoader<T extends { [key: string]: any } = { [key: string]: any 
 
     public async loadDataFor(key: string): Promise<any> {
         const def = this.dataSources[key];
+        const isRawData = typeof def.content === "string";
 
         const createPromise = (path: string, loader) => {
             return new Promise<any>((fullfill, reject) => {
                 // If file key is optional
-                if (path === null) {
+                if (path === null && !isRawData) {
                     fullfill(null);
                     return;
                 }
@@ -179,12 +184,17 @@ export class DataLoader<T extends { [key: string]: any } = { [key: string]: any 
                         return result;
                     } : undefined;
 
-                const init: RequestInit = {};
-                if (def.includeCredentials) {
-                    init.credentials = "include";
+                let load: Promise<any>;
+                if (isRawData) {
+                    load = Promise.resolve(def.content);
+                } else {
+                    const init: RequestInit = {};
+                    if (def.includeCredentials) {
+                        init.credentials = "include";
+                    }
+                    load = loader.call(this, path, init);
                 }
-
-                loader.call(this, path, init).then((rawData) => {
+                load.then((rawData) => {
                     let data: any;
                     if ((def.type === DataSourceType.CSV || def.type === DataSourceType.TSV) && (rawData as string).charAt(0) === "#") {
                         data = rawData.substr(1);
@@ -196,6 +206,10 @@ export class DataLoader<T extends { [key: string]: any } = { [key: string]: any 
                             data = dsvHasHeader ? d3.csvParse(data, dsvRowParser) : d3.csvParseRows(data, dsvRowParser as any); break;
                         case DataSourceType.TSV:
                             data = dsvHasHeader ? d3.tsvParse(data, dsvRowParser) : d3.tsvParseRows(data, dsvRowParser as any); break;
+                        case DataSourceType.JSON:
+                            if (isRawData)
+                                data = JSON.parse(data);
+                            break;
                     }
                     fullfill(data);
                 }).catch((error) => {
@@ -218,6 +232,8 @@ export class DataLoader<T extends { [key: string]: any } = { [key: string]: any 
             return Promise.all(tasks);
         } else if (def.multiple) {
             return Promise.all(this.apiPathMultiple(key).map(x => createPromise(x, d3Loader)));
+        } else if (isRawData) {
+            return createPromise(null, null);
         } else {
             return createPromise(this.apiPath(key), d3Loader);
         }

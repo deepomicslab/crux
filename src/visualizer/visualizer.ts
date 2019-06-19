@@ -30,10 +30,13 @@ export class Visualizer {
 
     public renderer: RenderFunc;
 
+    private firstRun = true;
+
     public get data() { return this._data; }
     public set data(d) {
         this._data = d;
-        this.run();
+        Object.keys(this._data).forEach(k => this.root[k] = this._data[k]);
+        if (!this.firstRun) this.run();
     }
 
     constructor(opt: VisualizerOption) {
@@ -85,6 +88,7 @@ export class Visualizer {
 
     public run() {
         this.root.draw();
+        this.firstRun = false;
     }
 
     public appendDef(id: string, tag: string, attrs: Record<string, string> = {}, content: string = "") {
