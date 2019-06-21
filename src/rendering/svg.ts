@@ -22,8 +22,8 @@ const patch = init([
 export interface SVGRenderable {
     svgTagName(): string;
     svgAttrs(): Record<string, string | number | boolean>;
-    svgTextContent(): string;
-    vnode: VNode;
+    svgTextContent(): string | null;
+    vnode?: VNode;
 }
 
 const HOOKS_MAP = {
@@ -51,7 +51,7 @@ function _genView(element: BaseElement<any>): VNode {
     const tag = element.svgTagName();
     const text = element.svgTextContent();
 
-    let children: VNode[];
+    let children: VNode[] | undefined;
     if (element instanceof Component) {
         children = element.children
             .filter(c => c.isActive)
@@ -89,7 +89,7 @@ function _genView(element: BaseElement<any>): VNode {
     // hooks
     Object.keys(HOOKS_MAP).forEach((k) => {
         if (k in element) {
-            opt.hook[HOOKS_MAP[k]] = element[k].bind(element);
+            opt.hook![HOOKS_MAP[k]] = element[k].bind(element);
         }
     });
     return h(tag, opt, children || text);

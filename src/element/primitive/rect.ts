@@ -1,6 +1,6 @@
 import { GeometryOptValue } from "../../defs/geometry";
 import { getFinalPosition } from "../../layout/layout";
-import { svgPropFillAndStroke, svgPropPassthrough, svgPropXAndY } from "../../rendering/svg-helper";
+import { svgPropFillAndStroke, svgPropPassthrough } from "../../rendering/svg-helper";
 import { BaseElementOption } from "./base-elm-options";
 import { PrimitiveElement } from "./primitive";
 
@@ -14,8 +14,8 @@ interface RectOption extends BaseElementOption {
 
 export class Rect extends PrimitiveElement<RectOption> {
 
-    public svgAttrs() {
-        const [x, y] = getFinalPosition(this);
+    public svgAttrs(): any {
+        const [x, y] = getFinalPosition(this as any);
         return {
             ...svgPropFillAndStroke(this),
             ...svgPropPassthrough({

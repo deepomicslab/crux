@@ -45,11 +45,16 @@ export class HeatMap extends Component<HeatMapOption> {
     }
     `;
 
-    private _xSize: number;
-    private _ySize: number;
-    private _paddings: number[];
-    private _vScale: any;
-    private _colorScheme: ColorSchemeGradient;
+    // @ts-ignore
+    private _xSize!: number;
+    // @ts-ignore
+    private _ySize!: number;
+    // @ts-ignore
+    private _paddings!: number[];
+    // @ts-ignore
+    private _vScale!: any;
+    // @ts-ignore
+    private _colorScheme!: ColorSchemeGradient;
 
     public willRender() {
         const p = this._paddings = getPaddings(this);

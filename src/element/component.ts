@@ -31,18 +31,18 @@ export class Component<Option extends ComponentOption = ComponentOption>
 
     public $ref: Record<string, ActualElement> = {};
     public children: ActualElement[] = [];
-    public tree: ElementDef;
+    public tree?: ElementDef;
 
-    public $scaleX: Scale;
-    public $scaleY: Scale;
+    public $scaleX?: Scale;
+    public $scaleY?: Scale;
 
-    public $isCoordRoot: boolean;
-    public $polar: PolarCoordInfo;
+    public $isCoordRoot: boolean = false;
+    public $polar?: PolarCoordInfo;
 
-    public _inheritedWidth: boolean;
-    public _inheritedHeight: boolean;
-    public _defaultedWidth: boolean;
-    public _defaultedHeight: boolean;
+    public _inheritedWidth?: boolean;
+    public _inheritedHeight?: boolean;
+    public _defaultedWidth?: boolean;
+    public _defaultedHeight?: boolean;
 
     constructor(id: number, renderer?: Renderer) {
         super(id);
@@ -94,7 +94,7 @@ export class Component<Option extends ComponentOption = ComponentOption>
         node.parent = this as any;
     }
 
-    public render: () => ElementDef;
+    public render?: () => ElementDef;
 
     public renderTree() {
         updateTree(this as any);
@@ -181,12 +181,12 @@ export class Component<Option extends ComponentOption = ComponentOption>
         return typeof scale === "function" ? scale(val) : val;
     }
 
-    public _c: () => ElementDef;
-    public _l: () => ElementDef[];
+    public _c!: () => ElementDef;
+    public _l!: () => ElementDef[];
     public _h = helperMixin;
 
-    public _createScaleLinear: (horizontal: boolean, domain: [number, number], range?: [number, number]) => d3.ScaleLinear<number, number>;
-    public _createScaleOrdinal: (domain: string[], range: number[]) => d3.ScaleOrdinal<string, number>;
+    public _createScaleLinear!: (horizontal: boolean, domain: [number, number], range?: [number, number]) => d3.ScaleLinear<number, number>;
+    public _createScaleOrdinal!: (domain: string[], range: number[]) => d3.ScaleOrdinal<string, number>;
 }
 
 applyMixins(Component, [RenderMixin, ScaleMixin]);

@@ -2,9 +2,9 @@ import { template } from "../../template/tag";
 import { ColorSchemeCategory } from "../../utils/color";
 import { Component } from "../component";
 import { ComponentOption } from "../component-options";
-import { getPaddings } from "./utils/option-padding";
+import { ChartPaddingOptions, getPaddings } from "./utils/option-padding";
 
-export interface RadarsOption extends ComponentOption {
+export interface RadarsOption extends ComponentOption, ChartPaddingOptions {
     data: RadarChartData;
     categories: string[];
     stroke: string;
@@ -74,9 +74,10 @@ export class RadarChart extends Component<RadarsOption> {
     }
     `;
 
-    private _categoryCount: number;
-    private _maxValue: number;
-    private _colorScheme: ColorSchemeCategory<any>;
+    // @ts-ignore
+    private _categoryCount!: number;
+    private _maxValue!: number;
+    private _colorScheme!: ColorSchemeCategory<any>;
 
     public willRender() {
         this._categoryCount = this.prop.data[0].values.length;
@@ -97,10 +98,12 @@ export class RadarChart extends Component<RadarsOption> {
         };
     }
 
+    // @ts-ignore
     private get paddings() {
         return getPaddings(this);
     }
 
+    // @ts-ignore
     private get legendData() {
         return this._colorScheme.legendData();
     }

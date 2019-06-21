@@ -151,7 +151,7 @@ class MousePos extends Crux.Component {
         this.state = { x: 0, y: 0 }
     }
     mouseMoved(ev, el) {
-        const [x, y] = Crux.utils.mouse(el.vnode.elm, ev);
+        const [x, y] = Crux.utils.mouse(el, ev);
         this.setState({ x, y });
     }
 }

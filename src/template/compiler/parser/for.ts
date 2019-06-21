@@ -12,7 +12,7 @@ export function parseFor(p: ParserStream): ASTNodeFor {
         p.advance(1);
     }
 
-    let forIndex: string;
+    let forIndex: string = "";
     const forName = p.expect(NAME, `entry name`)[0];
     p.skipSpaces();
 

@@ -157,12 +157,14 @@ export class Reconstructed extends Component<ReconstructedOption> {
         this.state.scaledR = this.prop.virus.orig_len;
     }
 
+    // @ts-ignore
     private depthAreaMouseMove(e) {
-        const x = mouse(this.vnode.elm as any, e)[0];
+        const x = mouse(this, e)[0];
         const scale = (this.$ref.depth as Component).getScale(true);
         this.setState({ mousePos: scale.invert(x).toFixed() });
     }
 
+    // @ts-ignore
     private layoutMut(mutations: any[]) {
         const width = this.$geometry.width - 120;
         const scale = d3.scaleLinear()
@@ -176,6 +178,7 @@ export class Reconstructed extends Component<ReconstructedOption> {
             .run();
     }
 
+    // @ts-ignore
     private updateRange(range: [number, number]) {
         (this.$ref.brush as unknown as Brush).$setCurrentRange(range[0], range[1]);
         this.setState({
@@ -247,15 +250,18 @@ class MutPoint extends Component {
         active: false,
     };
 
+    // @ts-ignore
     private mouseover(active: boolean) {
         this.setState({ active });
     }
 
+    // @ts-ignore
     private get lineBottom() {
-        const h = (this.$parent.$ref.geneAreaContainer as Component).$geometry.height;
+        const h = (this.$parent!.$ref.geneAreaContainer as Component).$geometry.height;
         return GeometryValue.create(100, GeometryUnit.Percent, h);
     }
 
+    // @ts-ignore
     private mutLabel(mut: any) {
         let s: string;
         switch (mut.type) {
@@ -265,6 +271,8 @@ class MutPoint extends Component {
                 s = `+ ${mut.allele}`; break;
             case "del":
                 s = `× ${mut.allele}`; break;
+            default:
+                throw new Error(`Unknown mutation type "${mut.type}"`);
         }
         return `<tspan class="pos">${mut.pos}: </tspan><tspan class="desc ${mut.type}">${s}</tspan>`;
     }

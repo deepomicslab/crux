@@ -1,6 +1,6 @@
 type _ValueFunc<Datum, Result> =
     (this: SVGElement,
-        args: {
+     args: {
             datum: Datum,
             index: number,
             groups: SVGElement[] | ArrayLike<SVGElement>,

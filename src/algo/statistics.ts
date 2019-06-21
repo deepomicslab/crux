@@ -30,6 +30,8 @@ export class Statistics {
             this._min = min;
             this._max = max;
             this._sum = sum;
+        } else {
+            throw new Error(`Data is empty`);
         }
     }
 

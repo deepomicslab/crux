@@ -70,8 +70,8 @@ export class Brush extends Component<BrushOption> {
 
     private _inited = false;
     private _isMoving = false;
-    private _moveType: number; // 0: left, 1: right, 2: brush
-    private _brushScale: d3.ScaleContinuousNumeric<number, number>;
+    private _moveType!: number; // 0: left, 1: right, 2: brush
+    private _brushScale!: d3.ScaleContinuousNumeric<number, number>;
     private _lastX = 0;
 
     private _bodyUpListener: any;
@@ -102,22 +102,27 @@ export class Brush extends Component<BrushOption> {
         this.state.brushR = i(r);
     }
 
+    // @ts-ignore
     private brushX(): number {
         return this.state.brushL;
     }
 
+    // @ts-ignore
     private brushY(): number {
         return 0;
     }
 
+    // @ts-ignore
     private brushWidth(): number {
         return this.state.brushR - this.state.brushL;
     }
 
+    // @ts-ignore
     private brushHeight(): number {
         return this.$geometry.height;
     }
 
+    // @ts-ignore
     private handleDown(e: MouseEvent, type: number) {
         this._isMoving = true;
         this._moveType = type;
@@ -164,6 +169,6 @@ export class Brush extends Component<BrushOption> {
 
     private _callListener(name: "onBrushStart" | "onBrushEnd" | "onBrushUpdate") {
         if (this.prop[name])
-            this.prop[name].call(null, this.dataRange);
+            (this.prop[name] as any).call(null, this.dataRange);
     }
 }

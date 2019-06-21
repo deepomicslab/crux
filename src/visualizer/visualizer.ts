@@ -21,9 +21,9 @@ export interface VisualizerOption {
 
 export class Visualizer {
     public container: Element;
-    public root: BaseElement;
+    public root!: BaseElement;
     private _data: Record<string, any>;
-    public size: { width: number, height: number };
+    public size!: { width: number, height: number };
     public components: Record<string, typeof Component>;
 
     public svgDef: Record<string, string> = {};
@@ -41,19 +41,24 @@ export class Visualizer {
 
     constructor(opt: VisualizerOption) {
         const el = getOpt(opt, "el") as any;
-        this.container = typeof el === "string" ? document.querySelector(el) :
+        const c = typeof el === "string" ? document.querySelector(el) :
             (el instanceof HTMLElement) ? el : null;
-        if (this.container === null) {
+        if (c === null) {
             throw new Error(`Cannot find the container element.`);
+        } else {
+            this.container = c;
         }
 
         this.container.innerHTML = "";
 
-        this._data = opt.data;
-        this.components = opt.components;
+        this._data = opt.data || {};
+        this.components = opt.components || {};
 
         if (opt.template) {
             const [renderer, metadata] = compile(getOpt(opt, "template"));
+            if (!metadata) {
+                throw new Error(`The template must be wrapped with an svg or canvas block.`);
+            }
             this.size = {
                 width: this._parseSize(metadata.width || "auto", true),
                 height: this._parseSize(metadata.height || "auto", false),
@@ -101,8 +106,8 @@ export class Visualizer {
             const computedStyle = getComputedStyle(this.container);
 
             return isWidth ?
-                this.container.clientWidth - parseFloat(computedStyle.paddingTop) - parseFloat(computedStyle.paddingBottom) :
-                this.container.clientHeight - parseFloat(computedStyle.paddingLeft) - parseFloat(computedStyle.paddingRight);
+                this.container.clientWidth - parseFloat(computedStyle.paddingTop!) - parseFloat(computedStyle.paddingBottom!) :
+                this.container.clientHeight - parseFloat(computedStyle.paddingLeft!) - parseFloat(computedStyle.paddingRight!);
         } else {
             return parseFloat(size);
         }
@@ -110,9 +115,9 @@ export class Visualizer {
 }
 
 function getOpt<T extends keyof VisualizerOption>(
-    opt: VisualizerOption, key: T, defaultValue?: VisualizerOption[T]): VisualizerOption[T] {
+    opt: VisualizerOption, key: T, defaultValue?: NonNullable<VisualizerOption[T]>): NonNullable<VisualizerOption[T]> {
     if (key in opt) {
-        return opt[key];
+        return opt[key]!;
     } else {
         if (typeof defaultValue !== "undefined") { return defaultValue; }
         throw new Error(`Key "${key}" must present in visualizer options.`);

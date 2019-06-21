@@ -5,9 +5,9 @@ export enum GeometryUnit {
 }
 
 export class GeometryValue {
-    public value: number;
-    public unit: GeometryUnit;
-    public offset: number;
+    public value: number = 0;
+    public unit: GeometryUnit = GeometryUnit.Pixel;
+    public offset: number = 0;
     public _auto?: boolean;
 
     static get auto(): GeometryValue {
@@ -73,8 +73,7 @@ export type GeometryOptValue = number | GeometryValue;
 
 type GeometryPropKeys<T> = { [K in keyof T]:
     any extends T[K] ? never :
-    GeometryOptValue extends T[K] ?
-    T[K] extends GeometryOptValue ? K : never : never
+    GeometryOptValue extends T[K] ? K : never
 }[keyof T];
 
 export type GeometryOptions<T> = {

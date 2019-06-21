@@ -1,5 +1,4 @@
 import { ParserStream } from "../parse-stream";
-import { FOR_EXPR, NAME } from "../tokens";
 
 export function parsePropsCommand(p: ParserStream): { name: string, expr: string } {
     p.expect("@props");

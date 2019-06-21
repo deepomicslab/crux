@@ -1,36 +1,60 @@
 import { registerDefaultBioInfoComponents } from "./src/element/global";
 import { visualize } from "./src/visualizer";
 
+// @ts-ignore
 import { dataLoader } from "./reconstructed/data";
+// @ts-ignore
 import { Reconstructed } from "./reconstructed/reconstructed";
 
 import { simpleLinearRegression } from "./src/algo";
 
+// @ts-ignore
 import t1 from "./test/templates/t1";
+// @ts-ignore
 import tarea from "./test/templates/tarea";
+// @ts-ignore
 import tbox from "./test/templates/tbox";
+// @ts-ignore
 import tcircos from "./test/templates/tcircos";
+// @ts-ignore
 import tdemo from "./test/templates/tdemo";
+// @ts-ignore
 import tdemo2 from "./test/templates/tdemo2";
 
+// @ts-ignore
 import bar from "./demo/bar/bar";
+// @ts-ignore
 import box from "./demo/box/box";
+// @ts-ignore
 import scatters from "./demo/box/demo_scatters";
+// @ts-ignore
 import demo from "./demo/demo";
+// @ts-ignore
 import regression from "./demo/line/demo_linear_regression";
+// @ts-ignore
 import polyline from "./demo/line/demo_polyline";
+// @ts-ignore
 import pie from "./demo/pie/pie";
+// @ts-ignore
 import radar from "./demo/radar/demo_radar-chart";
+// @ts-ignore
 import scatterData from "./demo/scatter-data";
+// @ts-ignore
 import loadData from "./src/load-data";
+// @ts-ignore
 import { DataSourceType } from "./src/utils/data-loader";
+import { Visualizer } from "./src/visualizer/visualizer";
 import { Clock } from "./test/templates/clock";
+
+declare global {
+    interface Window {
+        $v: Visualizer;
+    }
+}
 
 registerDefaultBioInfoComponents();
 
 document.addEventListener("DOMContentLoaded", () => {
-    const data = [];
-
     /*
     dataLoader.load().then((data) => {
         // console.log(data);
@@ -52,7 +76,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // demo regression plot
     const regressionData = simpleLinearRegression(scatterData);
-    const v = window["$v"] = visualize({
+    window.$v = visualize({
         el: "#canvas",
         template: demo,
         loadData: { data4: { content: "1" }},

@@ -33,25 +33,25 @@ export default {
         }
         return a1 | a2;
     },
-    rotate(self, value: number, unit: string) {
+    rotate(self: any, value: number, unit: string) {
         if (unit === "rad") value = toDeg(value);
         return self._rotate(value);
     },
-    scaledX(self, value: number | number[]) {
+    scaledX(self: any, value: number | number[]) {
         if (Array.isArray(value)) {
             return value.map(v => self._scale(v, true));
         } else {
             return self._scale(value, true);
         }
     },
-    scaledY(self, value: number | number[]) {
+    scaledY(self: any, value: number | number[]) {
         if (Array.isArray(value)) {
             return value.map(v => self._scale(v, false));
         } else {
             return self._scale(value, false);
         }
     },
-    scaled(self, value: number | [number, number][], direction: boolean) {
+    scaled(self: any, value: number | [number, number][], direction: boolean) {
         if (Array.isArray(value)) {
             return value.map(([x, y]) => [
                 self._scale(x, true),

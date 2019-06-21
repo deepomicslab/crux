@@ -67,7 +67,7 @@ export class Axis extends Component<AxisOption> {
 
     public static propNameForInitializer() { return "orientation"; }
 
-    private _tickValues: any[];
+    private _tickValues?: any[];
 
     public willRender() {
         if (this.$parent instanceof XYPlot &&
@@ -86,19 +86,23 @@ export class Axis extends Component<AxisOption> {
         return this.prop.orientation === "top" || this.prop.orientation === "left";
     }
 
+    // @ts-ignore
     private getX(): any {
         return this.isHorizontal ? GeometryValue.fullSize : 0;
     }
 
+    // @ts-ignore
     private getY(): any {
         return this.isHorizontal ? 0 : GeometryValue.fullSize;
     }
 
+    // @ts-ignore
     private get getLabelAnchor() {
         return (this.isHorizontal ? Anchor.Center : this.isInner ? Anchor.Right : Anchor.Left) |
             (this.isHorizontal ? this.isInner ? Anchor.Bottom : Anchor.Top : Anchor.Middle);
     }
 
+    // @ts-ignore
     private get ticks(): any[] {
         return getTicks(
             this.getScale(this.isHorizontal),
@@ -112,7 +116,9 @@ export class Axis extends Component<AxisOption> {
 
 export type TickValue = { value: string, pos: number, show: boolean };
 
-export function getTicks(scale: any, providedTicks: any, interval: number, count: number, includeEndTicks: boolean): TickValue[] {
+export function getTicks(
+    scale: any, providedTicks: any,
+    interval: number | undefined, count: number | undefined, includeEndTicks: boolean | undefined): TickValue[] {
     if (!scale) {
         throw new Error(`Axis: you must supply a scale.`);
     }
@@ -124,20 +130,26 @@ export function getTicks(scale: any, providedTicks: any, interval: number, count
     } else {
         ticks = [];
         const domain = scale.domain();
-        if (!interval) {
+        let i: number;
+        if (interval) {
+            i = interval;
+        } else {
+            if (!count) {
+                throw new Error(`Axis: "ticks", "tickInterval" or "tickCount" must be provided.`);
+            }
             const rawInterval = (domain[1] - domain[0]) / count;
             const digits = baseDigitOf(rawInterval);
-            interval = _.minBy([0.1, 0.2, 0.5, 1, 2, 5].map(x => x * digits), x => {
+            i = _.minBy([0.1, 0.2, 0.5, 1, 2, 5].map(x => x * digits), x => {
                 if (x > domain[1]) { return Number.MAX_SAFE_INTEGER; }
                 return Math.abs(x - rawInterval);
-            });
+            })!;
         }
         // check whether domain[0] can be divided by interval
-        const start = Math.ceil(domain[0] / interval) * interval;
+        const start = Math.ceil(domain[0] / i) * i;
         let counter = start;
         while (counter < domain[1]) {
             ticks.push(pretty(counter));
-            counter += interval;
+            counter += i;
         }
 
         // add start and end ticks

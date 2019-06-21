@@ -23,6 +23,7 @@ export class Area extends BaseChart<AreaOption> {
     private _cachedPath = "";
     private _cachedData: [number, number, number][] = [];
 
+    // @ts-ignore
     private getPath(): string {
         let hasMinValue = false;
         const value = this.data.values as any[];

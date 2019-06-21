@@ -5,14 +5,14 @@ import { ComponentOption } from "../component-options";
 import { parseData, ParsedData, XYPlot } from "../plot";
 
 export interface BaseChartOption extends ComponentOption {
-    data: any[];
+    data: any[] | string;
     dataHandler: any;
     columnWidth: number;
 }
 
 export class BaseChart<Option extends BaseChartOption = BaseChartOption> extends Component<Option> {
-    protected data: ParsedData | Record<string, ParsedData>;
-    protected columnWidth: number;
+    protected data!: ParsedData | Record<string, ParsedData>;
+    protected columnWidth!: number;
 
     protected flipped = false;
     protected inverted = false;
@@ -35,7 +35,7 @@ export class BaseChart<Option extends BaseChartOption = BaseChartOption> extends
         const dataProp = this.prop.data;
         const $p = this.$parent as XYPlot;
         if ($p.hasMultipleData) {
-            const getData = k => {
+            const getData = (k: string) => {
                 if (!(k in (this.$parent as any).data)) {
                     throw new Error(`${k} doesn't exist in the plot.`);
                 }

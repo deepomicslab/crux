@@ -45,6 +45,8 @@ export function svgPropClip(elm: Component<ComponentOption>) {
                 width="${elm.$geometry.width}"
                 height="${elm.$geometry.height}"
                 rx="${v.rx}" ry="${v.ry}">`;
+        } else {
+            throw new Error(`Clip: unknown type "${v.type}"`);
         }
         const id = `clip-${elm.uid}`;
         elm.$v.appendDef(id, "clipPath", {}, clipPath);

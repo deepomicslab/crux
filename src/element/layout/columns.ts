@@ -19,7 +19,7 @@ export class Columns extends Component {
                     c = c.children[0] as Component<ComponentOption>;
                     c.$geometry._xOffset.column = counter;
                 }
-                counter += c.$geometry.width;
+                counter += (c as Component).$geometry.width;
             } else {
                 throw Error(`Columns can only contain Components as direct child`);
             }

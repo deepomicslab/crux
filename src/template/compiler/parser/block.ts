@@ -5,7 +5,7 @@ import { BLOCK_NAME } from "../tokens";
 import { parseModifiers } from "./modifier";
 
 export function parseBlock(p: ParserStream): ASTNode {
-    const [_, name, modifiers, initArg] = p.expect(BLOCK_NAME);
+    const [, name, modifiers, initArg] = p.expect(BLOCK_NAME);
 
     const node = newCompNode(name);
 

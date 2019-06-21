@@ -7,10 +7,10 @@ export function parseChildren(p: ParserStream): ASTNodeChildren {
     p.expect(":");
     const name = p.expect(NAME)[0];
     p.skipSpaces();
-    let dataName = null;
+    let dataName: string | null = null;
     if (p.peek() === "(") {
         p.expect("\\(");
-        dataName = p.expect(NAME, "attached data");
+        dataName = p.expect(NAME, "attached data")[0];
         p.expect("\\)");
     }
     p.skipSpaces();

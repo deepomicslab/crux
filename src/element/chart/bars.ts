@@ -3,6 +3,8 @@ import { template } from "../../template/tag";
 import { ParsedData } from "../plot";
 import { BaseChart, BaseChartOption } from "./base-chart";
 
+interface SizeDef { x: number; y: number; width: number; height: number; }
+
 export interface BarsOption extends BaseChartOption {
     pivot: number;
 }
@@ -43,9 +45,9 @@ export class Bars extends BaseChart<BarsOption> {
         }
     `;
 
-    public data: ParsedData;
+    public data!: ParsedData;
 
-    private _cachedSize = [];
+    private _cachedSize: SizeDef[] = [];
     private _cacheSize() {
         this.data.values.forEach((d, index) => {
             const x = this.getX(d.pos);
@@ -66,6 +68,7 @@ export class Bars extends BaseChart<BarsOption> {
         this._cacheSize();
     }
 
+    // @ts-ignore
     private getRectAnchor(d: any, pivot: number) {
         const belowPivot = typeof pivot === "number" && d.value < d.minValue && d.value < pivot;
         return this.flipped ?
@@ -73,6 +76,7 @@ export class Bars extends BaseChart<BarsOption> {
             (this.inverted !== belowPivot ? Anchor.Top : Anchor.Bottom) | Anchor.Center;
     }
 
+    // @ts-ignore
     private getYStartPos() {
         return this.inverted ? 0 : GeometryValue.fullSize;
     }

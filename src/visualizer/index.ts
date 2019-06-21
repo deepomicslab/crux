@@ -9,7 +9,7 @@ type VisualizeOption = VisualizerOption & {
 export function visualize(opt: VisualizeOption): Visualizer {
     const v = new Visualizer(opt);
     if (opt.loadData) {
-        loadData(opt.loadData).then((d) => {
+        loadData(opt.loadData).then((d: any) => {
             v.data = { ...v.data, ...d };
             v.run();
         });

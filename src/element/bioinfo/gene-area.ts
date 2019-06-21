@@ -81,7 +81,7 @@ export class GeneArea extends Component<GeneAreaOption> {
     `;
 
     public layout(): GeneData[][] {
-        const data =  stackedLayout(this.prop.genes)
+        const data =  stackedLayout(this.prop.genes!)
             .value(x => x.most_left_pos)
             .extent(x => [x.most_left_pos, x.most_right_pos])
             .run();
@@ -91,12 +91,12 @@ export class GeneArea extends Component<GeneAreaOption> {
 
     public get geneMinPos(): number {
         if (this.prop.genes.length === 0) return 0;
-        return d3.min(this.prop.genes, g => g.most_left_pos);
+        return d3.min(this.prop.genes, g => g.most_left_pos as number)!;
     }
 
     public get geneMaxPos(): number {
         if (this.prop.genes.length === 0) return 0;
-        return d3.max(this.prop.genes, g => g.most_right_pos);
+        return d3.max(this.prop.genes, g => g.most_right_pos as number)!;
     }
 
     public didLayoutSubTree() {

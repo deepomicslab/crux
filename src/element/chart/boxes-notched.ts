@@ -87,6 +87,7 @@ export class BoxesNotched extends BaseChart<BoxesNotchedOption> {
         };
     }
 
+    // @ts-ignore
     private medianOpts(d) {
         return this.flippedOpts({
             width: GeometryValue.fullSize,
@@ -94,6 +95,7 @@ export class BoxesNotched extends BaseChart<BoxesNotchedOption> {
         });
     }
 
+    // @ts-ignore
     private meanOpts(mean) {
         return this.flippedOpts({
             width: GeometryValue.fullSize,
@@ -101,6 +103,7 @@ export class BoxesNotched extends BaseChart<BoxesNotchedOption> {
         });
     }
 
+    // @ts-ignore
     private whiskleOpts(d) {
         return this.flippedOpts({
             width: GeometryValue.fullSize,
@@ -109,6 +112,7 @@ export class BoxesNotched extends BaseChart<BoxesNotchedOption> {
         });
     }
 
+    // @ts-ignore
     private boxOpts(d) {
         return this.flippedOpts({
             width: GeometryValue.fullSize,
@@ -117,13 +121,14 @@ export class BoxesNotched extends BaseChart<BoxesNotchedOption> {
         });
     }
 
+    // @ts-ignore
     private getPath(notchProps, d) {
         const h1 = notchProps.width * (1 - this.prop.notch_width) / 2;
         const h2 = h1 + notchProps.width * this.prop.notch_width;
-        let notch_height = 3.14 * notchProps.height / Math.sqrt(notchProps.count);
+        const notch_height = 3.14 * notchProps.height / Math.sqrt(notchProps.count);
         let v1 = notchProps.mheight - notch_height / 2;
         let v2 = v1 + notch_height;
-        let s_mheight = notchProps.height - notchProps.mheight;
+        const s_mheight = notchProps.height - notchProps.mheight;
         v1 = notchProps.height - v1;
         v2 = notchProps.height - v2;
 
@@ -134,6 +139,7 @@ export class BoxesNotched extends BaseChart<BoxesNotchedOption> {
         return path;
     }
 
+    // @ts-ignore
     private countOutliers(outliers, pos) {
         let count = 0;
         for (const o of outliers) {
@@ -146,6 +152,7 @@ export class BoxesNotched extends BaseChart<BoxesNotchedOption> {
         return count;
     }
 
+    // @ts-ignore
     private containerOpts(pos) {
         return this.flippedOpts({
             x: this.getX(pos),
@@ -155,6 +162,7 @@ export class BoxesNotched extends BaseChart<BoxesNotchedOption> {
         });
     }
 
+    // @ts-ignore
     protected getBoxAnchor() {
         return this.flipped ?
             (this.inverted ? Anchor.Left : Anchor.Right) | Anchor.Top :

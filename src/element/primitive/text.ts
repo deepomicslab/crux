@@ -11,11 +11,8 @@ interface TextOption extends BaseElementOption {
 }
 
 export class Text extends PrimitiveElement<TextOption> {
-    public $cachedWidth: number;
-    public $cachedHeight: number;
-
-    private fx: number;
-    private fy: number;
+    public $cachedWidth!: number;
+    public $cachedHeight!: number;
 
     public static propNameForInitializer(): string { return "text"; }
 
@@ -36,7 +33,7 @@ export class Text extends PrimitiveElement<TextOption> {
         this.$cachedWidth = box.width;
     }
 
-    public svgAttrs() {
+    public svgAttrs(): any {
         const [x, y] = getFinalPosition(this);
         return {
             ...svgPropFillAndStroke(this),

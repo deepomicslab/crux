@@ -19,4 +19,5 @@ export function posWithAnchor(
             return orig - size;
         }
     }
+    return 0;
 }

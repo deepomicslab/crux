@@ -1,8 +1,8 @@
-import { VNode } from "snabbdom/vnode";
 import { Behavior } from "../behavior/behavior";
-import { Zoom } from "../behavior/zoom";
+import { Zoom, ZoomOption } from "../behavior/zoom";
 import { GeometryOptions, GeometryUnit, GeometryValue } from "../defs/geometry";
 import { SVGRenderable } from "../rendering/svg";
+import { VNode } from "../rendering/vdom/vnode";
 import { toCartesian } from "../utils/math";
 import { defaultUIDGenerator } from "../utils/uid";
 import { Visualizer } from "../visualizer/visualizer";
@@ -10,7 +10,7 @@ import { BaseOption } from "./base-options";
 import { Component } from "./component";
 
 interface State {
-    stage?: string;
+    stage?: string | null | undefined;
     [name: string]: any;
 }
 
@@ -22,12 +22,12 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
 
     public isRoot = false;
     public isActive = true;
-    public parent: Component; // the direct parent
+    public parent!: Component; // the direct parent
     public logicalParent?: Component; // parent when rendering
-    public vnode: VNode;
+    public vnode?: VNode;
 
-    private _prop: Partial<Option>;
-    public prop: Partial<Option>;
+    private _prop: Option;
+    public prop!: Option;
     protected state: State = { stage: null } ;
 
     public $parent?: Component; // the containing renderable component
@@ -36,7 +36,7 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
     public $on: Record<string, any> = {};
     public $styles: Record<string, string> = {};
     public $behavior: Record<string, Behavior> = {};
-    public $stages: Record<string, Record<string, any>>;
+    public $stages: Record<string, Record<string, any>> = {};
     public $geometry: GeometryOptions<Option>;
     public $defaultProp: Partial<Option>;
 
@@ -51,7 +51,7 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
         return this._geometryProps;
     }
 
-    public $v: Visualizer;
+    public $v!: Visualizer;
 
     constructor(id: number) {
         this.id = id;
@@ -61,14 +61,14 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
             _yOffset: {},
         } as any;
         this.$defaultProp = this.defaultProp();
-        this._prop = {};
+        this._prop = {} as Option;
         this.setupPropProxy();
         this.init();
     }
 
     public init() { /* empty */ }
 
-    public static propNameForInitializer(): string { return null; }
+    public static propNameForInitializer(): string | null { return null; }
 
     /* properties */
 
@@ -148,9 +148,9 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
 
     public setBehaviors(s: Record<string, Record<string, any>>) {
         if (s.zoom) {
-            const zoomDef = s.zoom;
+            const zoomDef = s.zoom as ZoomOption;
             if (!this.$behavior.zoom) {
-                const zoom = this.$behavior.zoom = new Zoom(this as any, zoomDef);
+                this.$behavior.zoom = new Zoom(this as any, zoomDef);
             } else {
                 (this.$behavior.zoom as Zoom).updateProps(zoomDef);
             }
@@ -177,11 +177,11 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
         this.setState({ stage: s });
     }
 
-    public get stage() {
+    public get stage(): string | null | undefined {
         return this.state.stage;
     }
 
-    public set stage(s: string) {
+    public set stage(s: string | null | undefined) {
         this.setState({ stage: s });
     }
 
@@ -193,7 +193,7 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
 
     public draw() {
         this.renderTree();
-        this.$v.renderer.call(null, this);
+        this.$v.renderer.call(null, this as any);
     }
 
     /* geometry */
@@ -230,7 +230,7 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
 
     public abstract svgTagName(): string;
     public abstract svgAttrs(): Record<string, string | number | boolean>;
-    public abstract svgTextContent(): string;
+    public abstract svgTextContent(): string | null;
 
     public static geometryProps(): { h: string[], v: string[] } {
         return {

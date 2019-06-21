@@ -1,5 +1,5 @@
 import { BaseElement } from "../../base-element";
-import { BaseElementOption } from "../../primitive/base-elm-options";
+import { BaseOption } from "../../base-options";
 
 export interface ChartPaddingOptions {
     "padding": number;
@@ -11,7 +11,7 @@ export interface ChartPaddingOptions {
     "padding-b": number;
 }
 
-export function getPaddings(el: BaseElement<BaseElementOption & ChartPaddingOptions>) {
+export function getPaddings(el: BaseElement<BaseOption & ChartPaddingOptions>) {
     const result = [0, 0, 0, 0] as [number, number, number, number];
     let p: number;
     if (p = el.prop.padding) {

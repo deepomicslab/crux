@@ -29,9 +29,9 @@ export class ParserStream {
             this._error(`${this.pos}: Expect ${desc}`);
         }
         if (!testOnly) {
-            this.advance(match[0].length);
+            this.advance(match![0].length);
         }
-        return match;
+        return match!;
     }
 
     public expectEnd() {
@@ -61,7 +61,7 @@ export class ParserStream {
         return result;
     }
 
-    public consume(predicate: (ch) => [boolean, boolean], desc: string): string {
+    public consume(predicate: (ch: string) => [boolean, boolean], desc: string): string {
         let i = 0;
         while (i < this.str.length) {
             const [end, consume] = predicate(this.str[i]);
@@ -73,9 +73,11 @@ export class ParserStream {
             i++;
         }
         this._error(`Error: Expect ${desc}`);
+        // TS: to supress warning
+        return "";
     }
 
-    public consumeSync(predicate: (ch) => [boolean, boolean], desc: string): string {
+    public consumeSync(predicate: (ch: string) => [boolean, boolean], desc: string) {
         while (!this.eof()) {
             const [end, consume] = predicate(this.str[0]);
             this.advance(consume ? 1 : 0);
@@ -88,30 +90,26 @@ export class ParserStream {
     }
 
     public test(token: string): RegExpMatchArray {
-        return this.expect(token, null, true);
-    }
-
-    public tryApply<T>(token: string, predicate: (p: ParserStream) => T): T {
-        if (this.expect(token, null, true)) {
-            return ParserStream.call(null, this);
-        }
+        return this.expect(token, "", true);
     }
 
     public tryApplyAny<T>(parserList: Array<[string, (p: ParserStream) => T]>, desc: string): T {
         for (const p of parserList) {
             const [token, parser] = p;
-            if (this.expect(token, null, true)) {
+            if (this.expect(token, "", true)) {
                 return parser.call(null, this);
             }
         }
         this._error(`${this.pos}: ${desc}. None of the predicates applies.`);
+        // TS: to supress warning
+        return {} as T;
     }
 
     public _logPos() {
         console.error(this.str.substring(0, 50));
     }
 
-    public _error(msg: string) {
+    public _error(msg: string): never {
         this._logPos();
         throw new Error(msg);
     }

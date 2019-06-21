@@ -3,7 +3,7 @@ import { ASTNode, ASTNodeComp } from "../ast-node";
 import { ParserStream } from "../parse-stream";
 import { parseBlock } from "./block";
 
-export function parse(template: string): [ASTNode, TemplateMetaData] {
+export function parse(template: string): [ASTNode, TemplateMetaData | null] {
     const parser = new ParserStream(template.trim());
 
     const isRoot = !!parser.expect("svg|canvas|component", "svg/canvas/component block", true);

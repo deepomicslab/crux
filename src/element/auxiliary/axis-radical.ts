@@ -5,14 +5,14 @@ import { ComponentOption } from "../component-options";
 import { getTicks } from "./axis";
 
 export interface AxisRadicalOption extends ComponentOption {
-    orientation: "horizontal" | "vertical";
-    tickCount: number;
-    tickInterval: number;
-    ticks: number[];
-    includeEndTicks: boolean;
-    showLabels: boolean;
-    labelAnchor: Anchor;
-    labelPosition: GeometryOptValue;
+    orientation?: "horizontal" | "vertical";
+    tickCount?: number;
+    tickInterval?: number;
+    ticks?: number[];
+    includeEndTicks?: boolean;
+    showLabels?: boolean;
+    labelAnchor?: Anchor;
+    labelPosition?: GeometryOptValue;
 }
 
 export class AxisRadical extends Component<AxisRadicalOption> {
@@ -51,6 +51,7 @@ export class AxisRadical extends Component<AxisRadicalOption> {
         };
     }
 
+    // @ts-ignore
     private get ticks(): any[] {
         return getTicks(
             this.getScale(false),

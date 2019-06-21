@@ -8,7 +8,11 @@
     "moduleResolution": "node",
     "sourceMap": true,
     "outDir": "./dist",
-    "target": "es6"
+    "target": "es6",
+    "strict": true,
+    "noImplicitReturns": true,
+    "noUnusedLocals": true,
+    "suppressImplicitAnyIndexErrors": true,
   },
   "exclude": [
     "**/*.spec.ts",

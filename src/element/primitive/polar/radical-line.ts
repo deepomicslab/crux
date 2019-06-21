@@ -10,7 +10,7 @@ export interface RadicalLineOption extends BaseElementOption {
 }
 
 export class RadicalLine extends BaseElement<RadicalLineOption> {
-    public svgAttrs() {
+    public svgAttrs(): any {
         const { x, r1, r2 } = this.$geometry;
         const [x1, y1] = toCartesian(x, r1);
         const [x2, y2] = toCartesian(x, r2);

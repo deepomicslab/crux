@@ -18,8 +18,8 @@ export interface ASTNodeComp extends ASTNode {
     props: { delegate?: string, name: string, expr: string }[];
     styles: { name: string, expr: string }[];
     on: { name: string, handler: string }[];
-    behavior: { name: string, args: Record<string, any> }[];
-    stage: { name: string, args: Record<string, any> }[];
+    behavior: { name: string, args: { name: string, expr: string}[] }[];
+    stage: { name: string, args: { name: string, expr: string}[] }[];
 }
 
 export interface ASTNodeIf extends ASTNode {
@@ -51,7 +51,7 @@ export interface ASTNodeYield extends ASTNode {
 export interface ASTNodeChildren extends ASTNode {
     type: "children";
     name: string;
-    dataName: string;
+    dataName: string | null;
 }
 
 export function newNode<T extends ASTNode>(type: string): T {
@@ -60,7 +60,7 @@ export function newNode<T extends ASTNode>(type: string): T {
         localData: [],
         children: [],
         namedChildren: {},
-    } as T;
+    } as unknown as  T;
 }
 
 export function newCompNode(name: string): ASTNodeComp {

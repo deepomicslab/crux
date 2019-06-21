@@ -1,4 +1,4 @@
-import { XYPlot } from "../../plot/xy-plot";
+import { ParsedData, XYPlot } from "../../plot/xy-plot";
 import { BaseChart } from "../base-chart";
 
 export interface StackedChart {
@@ -12,12 +12,13 @@ export function inheritData(this: BaseChart & StackedChart) {
         throw new Error(`StackedBars: it must be placed in an XYPlot with multiple data groups.`);
     if (typeof this.prop.data !== "string")
         throw new Error(`StackedBars: the data prop must be a stacked data key.`);
-    const $p = this.$parent;
-    const data = {};
-    this.dataKeys = $p.stackedDataKeys(this.prop.data);
-    this.dataPos = $p.data[this.dataKeys[0]].values.map(d => d.pos);
+
+    const $data = this.$parent.data as Record<string, ParsedData>;
+    const data: typeof this.data = {};
+    this.dataKeys = this.$parent.stackedDataKeys(this.prop.data);
+    this.dataPos = $data[this.dataKeys[0]].values.map(d => d.pos);
     this.dataKeys.forEach(key => {
-        $p.data[key].values.forEach(d => {
+        $data[key].values.forEach(d => {
             const pos = d.pos;
             if (!data[pos]) data[pos] = {};
             data[pos][key] = d;

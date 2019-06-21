@@ -1,7 +1,7 @@
 import { componentList } from "./get-component";
 
 import { Axis, AxisBackground, AxisRadical, Legend } from "./auxiliary";
-import { Area, Bars, Boxes, BoxesNotched, Dots, HeatMap, GroupedBars, PieChart, RadarChart, Scatters1D, StackedArea, StackedBars } from "./chart";
+import { Area, Bars, Boxes, BoxesNotched, Dots, GroupedBars, HeatMap, PieChart, RadarChart, Scatters1D, StackedArea, StackedBars } from "./chart";
 import { Component } from "./component";
 import { Brush } from "./interaction";
 import { Columns, Container, Rows } from "./layout";

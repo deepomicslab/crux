@@ -55,10 +55,10 @@ export function attachTo(target: Element, vnode: VNode): VNode {
   const data = vnode.data;
   const hook = vnode.data.hook;
   data.attachData = {target, placeholder: undefined, real: undefined};
-  hook.create = create;
-  hook.prepatch = pre;
-  hook.postpatch = post;
-  hook.destroy = destroy;
+  hook.create = create as any;
+  hook.prepatch = pre as any;
+  hook.postpatch = post as any;
+  hook.destroy = destroy as any;
   return vnode;
 }
 export default attachTo;

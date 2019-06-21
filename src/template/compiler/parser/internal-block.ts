@@ -1,10 +1,10 @@
-import { ASTNodeComp, newCompNode } from "../ast-node";
+import { newCompNode } from "../ast-node";
 import { ParserStream } from "../parse-stream";
 import { BEHAVIOR_BLOCK_NAME, STAGE_BLOCK_NAME } from "../tokens";
 import { parseProp } from "./prop";
 
-export function parseBehaviorBlock(p: ParserStream): { name: string, args: Record<string, any>} {
-    const [_, name] = p.expect(BEHAVIOR_BLOCK_NAME);
+export function parseBehaviorBlock(p: ParserStream): { name: string, args: { name: string, expr: string }[]} {
+    const [, name] = p.expect(BEHAVIOR_BLOCK_NAME);
 
     const node = newCompNode(name);
 
@@ -24,8 +24,8 @@ export function parseBehaviorBlock(p: ParserStream): { name: string, args: Recor
     return { name, args: node.props };
 }
 
-export function parseStageBlock(p: ParserStream): { name: string, args: Record<string, any>} {
-    const [_, name] = p.expect(STAGE_BLOCK_NAME);
+export function parseStageBlock(p: ParserStream): { name: string, args: { name: string, expr: string }[]} {
+    const [, name] = p.expect(STAGE_BLOCK_NAME);
 
     const node = newCompNode(name);
 

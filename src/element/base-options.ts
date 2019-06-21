@@ -1,4 +1,4 @@
-import { Anchor, GeometryOptValue, GeometryValue } from "../defs/geometry";
+import { Anchor, GeometryOptValue } from "../defs/geometry";
 
 export interface BaseOption {
     // presentation

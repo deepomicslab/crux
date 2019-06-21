@@ -1,5 +1,5 @@
-import {VNode, VNodeData} from '../vnode';
-import {Module} from './module';
+import {VNode, VNodeData} from "../vnode";
+import {Module} from "./module";
 
 // because those in TypeScript are too restrictive: https://github.com/Microsoft/TSJS-lib-generator/pull/237
 declare global {
@@ -9,15 +9,16 @@ declare global {
   }
 }
 
-export type Attrs = Record<string, string | number | boolean>
+export type Attrs = Record<string, string | number | boolean>;
 
-const xlinkNS = 'http://www.w3.org/1999/xlink';
-const xmlNS = 'http://www.w3.org/XML/1998/namespace';
+const xlinkNS = "http://www.w3.org/1999/xlink";
+const xmlNS = "http://www.w3.org/XML/1998/namespace";
 const colonChar = 58;
 const xChar = 120;
 
 function updateAttrs(oldVnode: VNode, vnode: VNode): void {
-  var key: string, elm: Element = vnode.elm as Element,
+  const elm: Element = vnode.elm as Element;
+  let key: string,
       oldAttrs = (oldVnode.data as VNodeData).attrs,
       attrs = (vnode.data as VNodeData).attrs;
 
@@ -27,6 +28,7 @@ function updateAttrs(oldVnode: VNode, vnode: VNode): void {
   attrs = attrs || {};
 
   // update modified attributes, add new attributes
+  // tslint:disable-next-line:forin
   for (key in attrs) {
     const cur = attrs[key];
     const old = oldAttrs[key];

@@ -8,14 +8,14 @@ export function parseYield(p: ParserStream): ASTNodeYield {
     p.skipSpaces();
     const name = p.expect(NAME, "child name")[0];
     p.skipSpaces();
-    let expr: string = null;
+    let expr = "";
     if (p.peek(4) === "with") {
         p.expect("with");
         p.skipSpaces();
         expr = p.expect(FOR_EXPR, "data name")[0];
     }
     p.skipSpaces();
-    let processor = null;
+    let processor = "";
     if (p.peek(4) === "then") {
         p.expect("then");
         p.skipSpaces();

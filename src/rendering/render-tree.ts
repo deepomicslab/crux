@@ -2,7 +2,7 @@ import { BaseElement } from "../element/base-element";
 import { ActualElement, Component } from "../element/component";
 import { ComponentOption } from "../element/component-options";
 import { getComponent } from "../element/get-component";
-import { isPrimitive, isRenderable } from "../element/is";
+import { isRenderable } from "../element/is";
 import { adjustByAnchor, layoutElement } from "../layout/layout";
 
 const INHERITED_PROPS = [
@@ -76,14 +76,17 @@ export function updateTree(parent: Component<ComponentOption>, def?: ElementDef)
             for (const prop of INHERITED_PROPS) {
                 if (!(prop in opt.props) && (prop in p)) {
                     opt.props[prop] = p[prop];
-                    if (prop === "width") (elm as any)._inheritedWidth = true;
-                    if (prop === "height") (elm as any)._inheritedHeight = true;
+                    if (prop === "width") (elm as Component)._inheritedWidth = true;
+                    if (prop === "height") (elm as Component)._inheritedHeight = true;
                 }
             }
         }
 
         if ("_initArg" in opt.props) {
             const initArgPropName = (elm.constructor as typeof BaseElement).propNameForInitializer();
+            if (initArgPropName === null) {
+                throw new Error(`An initializer ${opt.props._initArg} is provided, but the component doesn't accept one.`);
+            }
             opt.props[initArgPropName] = opt.props._initArg;
         }
         opt.props.children = def.children;
@@ -101,10 +104,10 @@ export function updateTree(parent: Component<ComponentOption>, def?: ElementDef)
 
     const newCoordSystem = elm instanceof Component &&
         elm.prop.coord && elm.prop.coord !== currCoordSystem();
-    elm.$coord = currCoordRoot();
+    elm.$coord = currCoordRoot()!;
     if (newCoordSystem) {
         currCoordRoots.push(elm as Component);
-        currCoordSystems.push((elm as Component).prop.coord);
+        currCoordSystems.push((elm as Component).prop!.coord!);
         (elm as Component).$isCoordRoot = true;
     }
 
@@ -132,7 +135,7 @@ export function updateTree(parent: Component<ComponentOption>, def?: ElementDef)
         currElementInheriting = true;
 
         elm.$callHook("willRender");
-        const tree = elm.render();
+        const tree = elm.render!();
         elm.$callHook("didRender");
         updateTree(elm, tree);
 
@@ -140,7 +143,7 @@ export function updateTree(parent: Component<ComponentOption>, def?: ElementDef)
     } else if (elm instanceof Component) {
         currElementInheriting = false;
         elm.children.forEach(c => c.isActive = false);
-        for (const child of def.children) {
+        for (const child of def!.children) {
             updateTree(elm, child);
         }
     }

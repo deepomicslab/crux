@@ -28,7 +28,7 @@ export function getParentSize(el: BaseElement) {
     let pWidth: number, pHeight: number;
     if (el.inPolorCoordSystem) {
         pWidth = 360;
-        pHeight = el.$coord.$polar.r;
+        pHeight = el.$coord!.$polar!.r;
     } else {
         pWidth = isRoot ? el.$v.size.width : parent.$geometry.width;
         pHeight = isRoot ? el.$v.size.height : parent.$geometry.height;
@@ -58,7 +58,7 @@ export function adjustByAnchor(el: BaseElement<BaseOption>) {
         g._x = g.x; g._y = g.y;
         return;
     }
-    let anchor: Anchor;
+    let anchor: Anchor | undefined;
     const [x, y] = el.translatePoint(g.x, g.y);
     if (anchor = el.prop.anchor) {
         g._x = posWithAnchor(true, x, el.layoutWidth, anchor);

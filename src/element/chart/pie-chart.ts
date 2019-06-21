@@ -68,9 +68,10 @@ export class PieChart extends Component<PieChartOption> {
     }
     `;
 
-    private _xScale: any;
-    private _data: any[];
-    private _colorScheme: ColorSchemeCategory<any>;
+    // @ts-ignore
+    private _xScale!: any;
+    private _data!: any[];
+    private _colorScheme!: ColorSchemeCategory<any>;
 
     public defaultProp() {
         return { ...super.defaultProp(), innerRadius: 0 };
@@ -94,10 +95,12 @@ export class PieChart extends Component<PieChartOption> {
         this._colorScheme = ColorSchemeCategory.create(categories);
     }
 
+    // @ts-ignore
     private get paddings() {
         return getPaddings(this);
     }
 
+    // @ts-ignore
     private get legendData() {
         return this._colorScheme.legendData();
     }

@@ -1,10 +1,11 @@
-import {VNode, VNodeData} from '../vnode';
-import {Module} from './module';
+import {VNode, VNodeData} from "../vnode";
+import {Module} from "./module";
 
 export type Props = Record<string, any>;
 
 function updateProps(oldVnode: VNode, vnode: VNode): void {
-  var key: string, cur: any, old: any, elm = vnode.elm,
+  const elm = vnode.elm;
+  let key: string, cur: any, old: any,
       oldProps = (oldVnode.data as VNodeData).props,
       props = (vnode.data as VNodeData).props;
 
@@ -18,10 +19,12 @@ function updateProps(oldVnode: VNode, vnode: VNode): void {
       delete (elm as any)[key];
     }
   }
+
+  // tslint:disable-next-line:forin
   for (key in props) {
     cur = props[key];
     old = oldProps[key];
-    if (old !== cur && (key !== 'value' || (elm as any)[key] !== cur)) {
+    if (old !== cur && (key !== "value" || (elm as any)[key] !== cur)) {
       (elm as any)[key] = cur;
     }
   }

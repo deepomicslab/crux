@@ -25,7 +25,7 @@ export const dataLoader = new DataLoader({
             type: DataSourceType.JSON,
             dataPath: "data",
             loaded(d) {
-                const genes = d.filter(x => x.trans_name.endsWith("001")).map(toGeneData);
+                const genes = d.filter((x: any) => x.trans_name.endsWith("001")).map(toGeneData);
                 genes.forEach((gene: GeneData) => {
                     gene.trans_name = gene.trans_name.substr(6);
                 });
@@ -48,6 +48,7 @@ export const dataLoader = new DataLoader({
             },
         },
         ref: {
+            _type: undefined as unknown as number[],
             url: `${variantAPIRoot}/vseq.json`,
             type: DataSourceType.JSON,
             dataPath: "data.seq",

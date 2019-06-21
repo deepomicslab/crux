@@ -9,7 +9,7 @@ export interface PathOption extends BaseElementOption {
 export class Path extends PrimitiveElement<PathOption> {
     public static propNameForInitializer(): string { return "d"; }
 
-    public svgAttrs() {
+    public svgAttrs(): any {
         return {
             ...svgPropFillAndStroke(this),
             d: this.prop.d,

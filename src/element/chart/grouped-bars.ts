@@ -1,4 +1,4 @@
-import { Anchor, GeometryUnit, GeometryValue } from "../../defs/geometry";
+import { Anchor } from "../../defs/geometry";
 import { template } from "../../template/tag";
 import { XYPlot } from "../plot";
 import { BaseChart, BaseChartOption } from "./base-chart";
@@ -67,7 +67,7 @@ export class GroupedBars extends BaseChart<GroupedBarsOption> {
         const $p = this.$parent;
         const data = {};
         this.prop.data.forEach(key => {
-            $p.data[key].values.forEach(d => {
+            $p.data[key].values.forEach((d: any) => {
                 const pos = d.pos;
                 if (!data[pos]) data[pos] = {};
                 data[pos][key] = d;

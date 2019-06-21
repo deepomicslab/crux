@@ -10,17 +10,17 @@ export type On = {
 function invokeHandler(handler: any, vnode?: VNode, event?: Event): void {
     if (typeof handler === "function") {
         // call function handler
-        handler.call(null, event, vnode.data._elm, vnode);
+        handler.call(null, event, vnode!.data!._elm, vnode);
     } else if (typeof handler === "object") {
         // call handler with arguments
         if (typeof handler[0] === "function") {
             // special case for single argument for performance
             if (handler.length === 2) {
-                handler[0].call(null, handler[1], event, vnode.data._elm, vnode);
+                handler[0].call(null, handler[1], event, vnode!.data!._elm, vnode);
             } else {
                 const args = handler.slice(1);
                 args.push(event);
-                args.push(vnode.data._elm);
+                args.push(vnode!.data!._elm);
                 args.push(vnode);
                 handler[0].apply(null, args);
             }

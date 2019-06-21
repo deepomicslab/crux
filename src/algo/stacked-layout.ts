@@ -3,8 +3,8 @@ export function stackedLayout<T>(data: T[]): StackedLayout<T> {
 }
 
 export class StackedLayout<T> {
-    private _value: (data: T) => number;
-    private _extentOf: (data: T, layer?: number) => [number, number];
+    private _value!: (data: T) => number;
+    private _extentOf!: (data: T, layer?: number) => [number, number];
 
     private _data: T[];
 
@@ -23,6 +23,9 @@ export class StackedLayout<T> {
     }
 
     public run(): T[][] {
+        if (!this._value || !this._extentOf) {
+            throw new Error(`StackedLayout: value and extent must be supplied.`);
+        }
         // sort
         this._data.sort((a, b) => this._value(a) - this._value(b));
         // stack
@@ -42,16 +45,16 @@ export class StackedLayout<T> {
                 if (layerExtent) {
                     extent = this._extentOf(d, layer);
                 }
-                if (layerMaxValue[layer] < extent[0]) {
+                if (layerMaxValue[layer] < extent![0]) {
                     // place
-                    layerMaxValue[layer] = extent[1];
+                    layerMaxValue[layer] = extent![1];
                     placedLayer = layer;
                     break;
                 }
             }
             if (placedLayer < 0) {
                 currentLayer += 1;
-                layerMaxValue[currentLayer] = extent[1];
+                layerMaxValue[currentLayer] = extent![1];
                 placedLayer = currentLayer;
                 layers[placedLayer] = [];
             }

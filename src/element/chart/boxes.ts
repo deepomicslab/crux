@@ -85,6 +85,7 @@ export class Boxes extends BaseChart<BoxesOption> {
     }
     `;
 
+    // @ts-ignore
     private medianOpts(d) {
         return this.flippedOpts({
             width: GeometryValue.fullSize,
@@ -92,6 +93,7 @@ export class Boxes extends BaseChart<BoxesOption> {
         });
     }
 
+    // @ts-ignore
     private meanOpts(mean) {
         return this.flippedOpts({
             width: GeometryValue.fullSize,
@@ -99,6 +101,7 @@ export class Boxes extends BaseChart<BoxesOption> {
         });
     }
 
+    // @ts-ignore
     private whiskleOpts(d) {
         return this.flippedOpts({
             width: GeometryValue.fullSize,
@@ -107,6 +110,7 @@ export class Boxes extends BaseChart<BoxesOption> {
         });
     }
 
+    // @ts-ignore
     private boxOpts(d) {
         return this.flippedOpts({
             width: GeometryValue.fullSize,
@@ -115,6 +119,7 @@ export class Boxes extends BaseChart<BoxesOption> {
         });
     }
 
+    // @ts-ignore
     private containerOpts(pos) {
         return this.flippedOpts({
             x: this.getX(pos),

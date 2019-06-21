@@ -1,6 +1,4 @@
-import { Anchor } from "../../defs/geometry";
 import { template } from "../../template/tag";
-import { getGetter } from "../plot";
 import { BaseChart, BaseChartOption } from "./base-chart";
 
 export interface DotsOption extends BaseChartOption {

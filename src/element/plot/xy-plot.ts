@@ -1,7 +1,7 @@
 import d3 = require("d3-array");
 import _ = require("lodash");
 
-import { GeometryValue, offset } from "../../defs/geometry";
+import { GeometryValue } from "../../defs/geometry";
 import { ElementDef } from "../../rendering/render-tree";
 import { template } from "../../template/tag";
 import { ChartPaddingOptions, getPaddings } from "../chart/utils/option-padding";
@@ -60,16 +60,16 @@ export class XYPlot extends Component<XYPlotOption> {
     }
     `;
 
-    public data: ParsedData | Record<string, ParsedData>;
+    public data!: ParsedData | Record<string, ParsedData>;
     public hasMultipleData = false;
-    public columnWidth: number;
-    public discreteCategory: boolean;
+    public columnWidth!: number;
+    public discreteCategory!: boolean;
 
-    private _paddings: [number, number, number, number];
+    private _paddings!: [number, number, number, number];
     private _xScale: any;
     private _yScale: any;
-    private _cRange: any[];
-    private _vRange: [number, number];
+    private _cRange!: any[];
+    private _vRange!: [number, number];
 
     public defaultProp() {
         return {
@@ -104,7 +104,7 @@ export class XYPlot extends Component<XYPlotOption> {
                             return this.data[sd].values;
                         }).flat();
                         const grouped = _.groupBy(flatten, "pos");
-                        const gather = pos => grouped[pos].reduce((p, c) => ({ pos: p.pos, value: p.value + c.value, minValue: 0 }));
+                        const gather = (pos: any) => grouped[pos].reduce((p, c) => ({ pos: p.pos, value: p.value + c.value, minValue: 0 }));
                         allData.push(...Object.keys(grouped).map(gather));
                     });
                 }
@@ -119,7 +119,7 @@ export class XYPlot extends Component<XYPlotOption> {
                 typeof allData[0].pos === "string";
             this._cRange = this.prop.categoryRange ||
                 this.discreteCategory ? _.uniq(allData.map(d => d.pos)) : d3.extent(allData, d => d.pos);
-            const minValue = d3.min(allData, d => d.minValue);
+            const minValue = d3.min(allData, d => d.minValue)!;
             this._vRange = this.prop.valueRange || [
                 minValue < 0 || this.prop.capToMinValue ? minValue : 0,
                 d3.max(allData, d => d.value),
@@ -157,7 +157,7 @@ export class XYPlot extends Component<XYPlotOption> {
     }
 
     private createCategoryScale(size: number) {
-        const [pt, pr, pb, pl] = this._paddings;
+        const [, pr, , pl] = this._paddings;
         const width = size - pl - pr;
         let n = (this.hasMultipleData ? this.data[Object.keys(this.data)[0]] : this.data).values.length;
         if (!this.prop.hasPadding) n -= 1;
@@ -176,7 +176,7 @@ export class XYPlot extends Component<XYPlotOption> {
     }
 
     private createValueScale(size: number) {
-        const [pt, pr, pb, pl] = this._paddings;
+        const [pt, , pb] = this._paddings;
         const width = size - pt - pb;
         return this._createScaleLinear(
             false,
@@ -184,8 +184,6 @@ export class XYPlot extends Component<XYPlotOption> {
             this.inverted ? [0, width] : [width, 0],
         );
     }
-
-    private offset = offset;
 }
 
 export function getGetter(vf: string | ((d: any, i: number) => any)) {

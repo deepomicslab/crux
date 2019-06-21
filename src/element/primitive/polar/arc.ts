@@ -15,7 +15,7 @@ export interface ArcOption extends BaseElementOption {
 }
 
 export class Arc extends BaseElement<ArcOption> {
-    public svgAttrs() {
+    public svgAttrs(): any {
         return {
             ...svgPropFillAndStroke(this),
             d: this.getPath(),

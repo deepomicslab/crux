@@ -22,12 +22,12 @@ export class StackedArea extends BaseChart<StackedAreaOption> implements Stacked
     }
     `;
 
-    public data: Record<string, any>;
-    public dataKeys: string[];
-    public dataPos: any[];
+    public data!: Record<string, any>;
+    public dataKeys!: string[];
+    public dataPos!: any[];
 
+    // @ts-ignore
     private getPath(key: string) {
-        const maxY = this.$geometry.height;
         const data = this.dataPos.map((p, i) => {
             const d = this.data[p][key];
             return [

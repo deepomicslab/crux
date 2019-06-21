@@ -46,7 +46,7 @@ export interface DataSource<T extends {}, U> {
     type?: DataSourceType | string;
     dataPath?: string | ((data: any) => U);
     dsvRowDef?: { [name: string]: DSVRowDef };
-    dsvRowParser?: (rawRow: d3.DSVRowString, index: number, columns: string[]) => any;
+    dsvRowParser?: (rawRow: d3.DSVRowString | string[], index: number, columns: string[]) => any;
     dsvHasHeader?: boolean;
     loader?: DataSourceLoader<T>;
     loaded?: DataSourceCallback<T, U>;
@@ -57,19 +57,19 @@ export interface DataSource<T extends {}, U> {
 }
 
 export interface DataLoaderOption<T> {
-    sources?: { [key in keyof T]: DataSource<T, T[key]> };
+    sources: { [key in keyof T]: DataSource<T, T[key]> };
     calbacks?: Array<{ after: string[], do: () => void }>;
     debug?: boolean;
 }
 
 export class DataLoader<T extends { [key: string]: any } = { [key: string]: any }> {
     public data: T & { [otherData: string]: any };
-    public metadata: { [key: string]: any };
+    public metadata?: { [key: string]: any };
     public fileMissing = false;
 
     protected dataTypes: string[];
     protected dataSources: { [key in keyof T]: DataSource<T, T[key]> };
-    protected selectedFiles: { [key: string]: { url: string, metadata: any } | Array<{ url: string, metadata: any }> };
+    protected selectedFiles: { [key: string]: { url: string, metadata: any } | Array<{ url: string, metadata: any }> } = {};
 
     private debugMode: boolean;
 
@@ -158,7 +158,7 @@ export class DataLoader<T extends { [key: string]: any } = { [key: string]: any 
         const def = this.dataSources[key];
         const isRawData = typeof def.content === "string";
 
-        const createPromise = (path: string, loader) => {
+        const createPromise = (path: string | null, loader: any) => {
             return new Promise<any>((fullfill, reject) => {
                 // If file key is optional
                 if (path === null && !isRawData) {
@@ -169,10 +169,10 @@ export class DataLoader<T extends { [key: string]: any } = { [key: string]: any 
                 const dsvHasHeader = def.dsvHasHeader !== false;
                 const dsvRowParser = def.type === DataSourceType.CSV || def.type === DataSourceType.TSV ?
                     def.dsvRowDef === undefined ?
-                    def.dsvRowParser : (data) => {
-                        const result = {};
+                    def.dsvRowParser : (data: any) => {
+                        const result: any = {};
                         _.forOwn(data, (value, key) => {
-                            const rowDef = def.dsvRowDef[key] || ["string"];
+                            const rowDef = def.dsvRowDef![key] || ["string"];
                             const k = rowDef[1] || key;
                             switch (rowDef[0]) {
                                 case "int": result[k] = parseInt(value); break;
@@ -202,10 +202,17 @@ export class DataLoader<T extends { [key: string]: any } = { [key: string]: any 
                         data = rawData;
                     }
                     switch (def.type) {
+                        // cast to any because the definition doesn't support passing undefined as the second arg
                         case DataSourceType.CSV:
-                            data = dsvHasHeader ? d3.csvParse(data, dsvRowParser) : d3.csvParseRows(data, dsvRowParser as any); break;
+                            data = dsvHasHeader ?
+                                d3.csvParse(data, dsvRowParser as any) :
+                                d3.csvParseRows(data, dsvRowParser as any);
+                            break;
                         case DataSourceType.TSV:
-                            data = dsvHasHeader ? d3.tsvParse(data, dsvRowParser) : d3.tsvParseRows(data, dsvRowParser as any); break;
+                            data = dsvHasHeader ?
+                                d3.tsvParse(data, dsvRowParser as any) :
+                                d3.tsvParseRows(data, dsvRowParser as any);
+                            break;
                         case DataSourceType.JSON:
                             if (isRawData)
                                 data = JSON.parse(data);
@@ -225,7 +232,7 @@ export class DataLoader<T extends { [key: string]: any } = { [key: string]: any 
         if (typeof def.loader === "function") {
             const tasks: Array<Promise<any>> = [];
             // Load data for a key manually, using given options.
-            const origLoader = (options) => {
+            const origLoader = (options: any) => {
                 tasks.push(createPromise(this.apiPath(key, options), d3Loader));
             };
             def.loader.call(this, origLoader);
@@ -239,15 +246,17 @@ export class DataLoader<T extends { [key: string]: any } = { [key: string]: any 
         }
     }
 
-    protected apiPathMultiple(type: string): string[] | null {
-        return this._apiPath(type, null, true) as string[];
+    protected apiPathMultiple(type: string): string[] {
+        return this._apiPath(type, null, true);
     }
 
-    protected apiPath(type: string, options= null): string | null {
-        return this._apiPath(type, options) as string;
+    protected apiPath(type: string, options= null): string {
+        return this._apiPath(type, options);
     }
 
-    protected _apiPath(type: string, options= null, multiple= false): string | string[] | null {
+    protected _apiPath(type: string, options: any, multiple?: false): string;
+    protected _apiPath(type: string, options: any, multiple?: true): string[];
+    protected _apiPath(type: string, options: any = null, multiple = false): string | string[] {
         const def = this.dataSources[type];
         if (typeof def.url === "string") {
             return Mustache.render(def.url, options ? options : this);
@@ -258,24 +267,22 @@ export class DataLoader<T extends { [key: string]: any } = { [key: string]: any 
             }
             const info = this.selectedFiles[def.fileKey];
             if (!info) {
-                throw new Error("File key misconfigured. The visualization module required a key that is not available in this analysis.");
+                throw new Error("DataLoader: File key misconfigured. The visualization module required a key that is not available in this analysis.");
             }
             if (multiple) {
                 if (info instanceof Array) {
                     return info.map(x => x.url);
                 } else {
-                    console.error(`multiple = true for file key "${type}", but this key doesn't accept multiple files.`);
+                    console.error(`DataLoader: multiple = true for file key "${type}", but this key doesn't accept multiple files.`);
                 }
             } else {
                 if (info instanceof Array) {
-                    console.error(`multiple = false for file key "${type}", but this key accepts multiple files.`);
+                    throw new Error(`DataLoader: multiple = false for file key "${type}", but this key accepts multiple files.`);
                 } else {
                     return info.url;
                 }
             }
-            return null;
         }
-        console.error(`Data source is invalid for type ${type}`);
-        return null;
+        throw new Error(`DataLoader: Data source is invalid for type ${type}.`);
     }
 }

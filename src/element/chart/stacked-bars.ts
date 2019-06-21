@@ -1,4 +1,4 @@
-import { Anchor, GeometryUnit, GeometryValue } from "../../defs/geometry";
+import { GeometryUnit, GeometryValue } from "../../defs/geometry";
 import { template } from "../../template/tag";
 import { BaseChart, BaseChartOption } from "./base-chart";
 import { inheritData, StackedChart } from "./utils/stacked";
@@ -25,14 +25,16 @@ export class StackedBars extends BaseChart<StackedBarsOption> implements Stacked
     }
     `;
 
-    public data: Record<string, any>;
-    public dataKeys: string[];
-    public dataPos: any[];
+    public data!: Record<string, any>;
+    public dataKeys!: string[];
+    public dataPos!: any[];
 
+    // @ts-ignore
     private getYPos(offset: number) {
         return this.inverted ? offset : GeometryValue.create(100, GeometryUnit.Percent, -offset);
     }
 
+    // @ts-ignore
     private barOpts(d) {
         return this.flippedOpts({
             x: this.getX(d.pos),

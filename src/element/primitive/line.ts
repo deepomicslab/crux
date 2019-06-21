@@ -14,7 +14,7 @@ export interface LineOption extends BaseElementOption {
 
 export class Line extends PrimitiveElement<LineOption> {
 
-    public svgAttrs() {
+    public svgAttrs(): any {
         return {
             ...svgPropFillAndStroke(this),
             ...svgPropPassthrough({

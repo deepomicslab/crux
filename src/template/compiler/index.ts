@@ -14,7 +14,7 @@ export interface TemplateMetaData {
     rootComponent: string;
 }
 
-export function compile(template: string): [Renderer, TemplateMetaData] {
+export function compile(template: string): [Renderer, TemplateMetaData | null] {
     const [ast, metadata] = parse(template);
     const code = gencode(ast);
     return [

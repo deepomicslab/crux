@@ -44,6 +44,7 @@ export class Clock extends Component {
         s: 0,
     };
 
+    // @ts-ignore
     private interval: any;
 
     public didCreate() {

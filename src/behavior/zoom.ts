@@ -3,13 +3,13 @@ import mouse from "../utils/mouse";
 import { Behavior } from "./behavior";
 
 export interface ZoomOption {
-    direction: "x" | "y" | "xy";
+    direction?: "x" | "y" | "xy";
     rangeX: [number, number];
     rangeY: [number, number];
-    currentRangeX: [number, number];
-    currentRangeY: [number, number];
+    currentRangeX?: [number, number];
+    currentRangeY?: [number, number];
     minResolution: number;
-    onZoom: (range: [number, number]) => void;
+    onZoom?: (range: [number, number]) => void;
 }
 
 export class Zoom extends Behavior {
@@ -17,23 +17,23 @@ export class Zoom extends Behavior {
     public rangeY: [number, number];
     public currRangeX: [number, number];
     public currRangeY: [number, number];
-    public sizeX: [number, number];
-    public sizeY: [number, number];
+    public sizeX?: [number, number];
+    public sizeY?: [number, number];
     public minResolution: number;
 
-    public handler: (range: [number, number]) => void;
+    public handler?: (range: [number, number]) => void;
 
     private isMoving = false;
-    private mousePos: [number, number];
+    private mousePos: [number, number] = [0, 0];
 
-    constructor(public el: BaseElement, op: Partial<ZoomOption>) {
+    constructor(public el: BaseElement, op: ZoomOption) {
         super();
         if (typeof op !== "object")
             throw new Error(`Zoom: option must be an object`);
 
         this.rangeX = this.currRangeX = op.rangeX;
         this.rangeY = this.currRangeY = op.rangeY;
-        this.minResolution = op.minResolution;
+        this.minResolution = op.minResolution || 1;
         this.handler = op.onZoom;
     }
 
@@ -41,7 +41,7 @@ export class Zoom extends Behavior {
 
     public updateProps(op: Partial<ZoomOption>) {
         if (op.currentRangeX) this.currRangeX = op.currentRangeX;
-        if (op.currentRangeY) this.currRangeY = op.currentRangeX;
+        if (op.currentRangeY) this.currRangeY = op.currentRangeY;
         if (op.minResolution) this.minResolution = op.minResolution;
     }
 
@@ -59,7 +59,7 @@ export class Zoom extends Behavior {
         if (k > maxK) k = maxK;
         if (currK === k) return;
 
-        const mousePos = mouse(this.el.vnode.elm as any, ev);
+        const mousePos = mouse(this.el, ev);
         const kx = (mousePos[0] - gSize[0]) / gWidth;
         const anchor = this.currRangeX[0] + currWidth * kx;
         const len = (this.rangeX[1] - this.rangeX[0]) / k;
@@ -69,12 +69,12 @@ export class Zoom extends Behavior {
 
     public mousedown = (ev: MouseEvent) => {
         this.isMoving = true;
-        this.mousePos = mouse(this.el.vnode.elm as any, ev);
+        this.mousePos = mouse(this.el, ev);
     }
 
     public mousemove = (ev: MouseEvent) => {
         if (!this.isMoving) return;
-        const m = mouse(this.el.vnode.elm as any, ev);
+        const m = mouse(this.el, ev);
         const gSize = this.sizeX || [0, (this.el.$geometry as any).width];
         const gWidth = gSize[1] - gSize[0];
         const currWidth = this.currRangeX[1] - this.currRangeX[0];

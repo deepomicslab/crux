@@ -1,6 +1,4 @@
-import { Anchor, GeometryValue } from "../../defs/geometry";
 import { template } from "../../template/tag";
-import { getGetter } from "../plot";
 import { BaseChart, BaseChartOption } from "./base-chart";
 
 export interface Scatters1DOption extends BaseChartOption {
@@ -11,8 +9,6 @@ export interface Scatters1DOption extends BaseChartOption {
 }
 
 export class Scatters1D extends BaseChart<Scatters1DOption> {
-    private _coordinates = [];
-
     public render = template`
     Component {
         @for (d1, pos) in data.values {
@@ -43,11 +39,12 @@ export class Scatters1D extends BaseChart<Scatters1DOption> {
         return Math.sqrt((c1[0] - c2[0]) ** 2 + (c1[1] - c2[1]) ** 2);
     }
 
+    // @ts-ignore
     private dotOpts(x: number, y: number) {
         const r = this.prop.r;
         const fy = Math.round(y);
         // layout
-        let placedLayer: number = null;
+        let placedLayer: number | null = null;
         for (let l = 0; l <= this._layer; l++) {
             let occupied = false;
             for (let i = Math.max(fy - r, 0); i <= fy + r; i++) {

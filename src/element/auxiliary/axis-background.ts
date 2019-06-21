@@ -5,17 +5,17 @@ import { ComponentOption } from "../component-options";
 import { getTicks } from "./axis";
 
 export interface AxisBackgroundOption extends ComponentOption {
-    orientation: "horizontal" | "vertical";
-    tickCount: number;
-    tickInterval: number;
-    ticks: number[];
-    includeEndTicks: boolean;
-    showLabels: boolean;
-    labelAnchor: Anchor;
-    labelPosition: GeometryOptValue;
-    stroke: string;
-    dashArray: string;
-    lineOptions: any;
+    orientation?: "horizontal" | "vertical";
+    tickCount?: number;
+    tickInterval?: number;
+    ticks?: number[];
+    includeEndTicks?: boolean;
+    showLabels?: boolean;
+    labelAnchor?: Anchor;
+    labelPosition?: GeometryOptValue;
+    stroke?: string;
+    dashArray?: string;
+    lineOptions?: any;
 }
 
 export class AxisBackground extends Component<AxisBackgroundOption> {
@@ -64,6 +64,7 @@ export class AxisBackground extends Component<AxisBackgroundOption> {
         };
     }
 
+    // @ts-ignore
     private getLabelAnchor() {
         return this.isHorizontal ? Anchor.Top | Anchor.Right : Anchor.Left | Anchor.Bottom;
     }
@@ -73,6 +74,7 @@ export class AxisBackground extends Component<AxisBackgroundOption> {
         return this.prop.orientation === "vertical";
     }
 
+    // @ts-ignore
     private get ticks(): any[] {
         return getTicks(
             this.getScale(this.isHorizontal),

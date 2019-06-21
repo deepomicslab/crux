@@ -10,7 +10,7 @@ interface CircleOption extends BaseElementOption {
 
 export class Circle extends PrimitiveElement<CircleOption> {
 
-    public svgAttrs() {
+    public svgAttrs(): any {
         const [x, y] = getFinalPosition(this);
         const r = this.$geometry.r;
         return {

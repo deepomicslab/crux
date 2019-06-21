@@ -11,7 +11,7 @@ export interface ArcLineOption extends BaseElementOption {
 }
 
 export class ArcLine extends BaseElement<ArcLineOption> {
-    public svgAttrs() {
+    public svgAttrs(): any {
         return {
             ...svgPropFillAndStroke(this),
             d: this.getPath(),

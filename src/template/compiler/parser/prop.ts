@@ -13,11 +13,11 @@ export function parseProp(p: ParserStream, node: ASTNodeComp) {
     parseExpr(node, name, consumeExpr(p));
 }
 
-export function consumeExpr(p): string {
+export function consumeExpr(p: ParserStream): string {
     let leftBracketCount = 0;
     let leftBracketCount2 = 0;
     let leftBracketCount3 = 0;
-    const expr = p.consume(ch => {
+    const expr = p.consume((ch: string) => {
         switch (ch) {
             case ";":
                 if (leftBracketCount > 0) p._error(`Unbalanced brackets: "}" expected.`);
@@ -68,7 +68,7 @@ function replaceHelpers(expr: string) {
     let lazy = false;
     const replaced = expr.replace(/@([\w\d_\-]*)\(/g, (str, name) => {
         const [t, lazy_] = transformHelper(name);
-        lazy = lazy || lazy_;
+        if (lazy_) lazy = true;
         return t;
     });
     return lazy ?

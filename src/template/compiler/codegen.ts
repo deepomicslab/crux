@@ -1,5 +1,5 @@
 import { oneLineTrim, stripIndent } from "common-tags";
-import { Anchor, GEOMETRY_LITERAL } from "../../defs/geometry";
+import { GEOMETRY_LITERAL } from "../../defs/geometry";
 import { UIDGenerator } from "../../utils/uid";
 import { ASTNode, ASTNodeComp, ASTNodeCondition, ASTNodeElse, ASTNodeFor, ASTNodeIf, ASTNodeYield, isRootElement, newNode } from "./ast-node";
 
@@ -52,7 +52,7 @@ function genAttrs(node: ASTNodeComp) {
             attrStrings.push(`...${p.expr}`);
             continue;
         }
-        let match: RegExpMatchArray;
+        let match: RegExpMatchArray | null;
         const expr = (match = p.expr.match(GEOMETRY_LITERAL)) ?
             genGeoExpr(match) : p.expr;
         attrStrings.push(`'${name}': ${genExpr(expr, name)}`);
@@ -200,12 +200,12 @@ function genNodeFor(node: ASTNodeFor, uidGen: UIDGenerator) {
 
 function genNodeCond(node: ASTNodeCondition, uidGen: UIDGenerator) {
     const nodes = node.children;
-    return nodes.map((n: ASTNodeIf, i) => {
+    return nodes.map((n, i) => {
         const isLast = i === nodes.length - 1;
         const hasLocalData = n.localData.length > 0;
         const str = genChildren(n, uidGen);
         const childrenStr = hasLocalData ? wrappedWithLocalData(n, str) : str;
-        if (n.condition) {
+        if ("condition" in n) {
             return `${n.condition} ? [${childrenStr}] : ${isLast ? "null" : ""}`;
         } else {
             return `[${childrenStr}]`;
@@ -235,6 +235,8 @@ function node2code(node: ASTNode, uidGen: UIDGenerator): string {
             return genNodeCond(node as ASTNodeCondition, uidGen);
         case "yield":
             return genNodeYield(node as ASTNodeYield, uidGen);
+        default:
+            throw Error(`Internal error: Unknown node type when generating code: ${node.type}`);
     }
 }
 

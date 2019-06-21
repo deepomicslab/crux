@@ -1,4 +1,6 @@
+// @ts-ignore
 import shallowEqArrays from "shallow-equal/arrays";
+// @ts-ignore
 import shallowEqObjects from "shallow-equal/objects";
 
 export function eq(oa: any, ob: any): boolean {

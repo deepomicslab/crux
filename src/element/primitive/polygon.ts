@@ -8,7 +8,7 @@ export interface PolygonOption extends BaseElementOption {
 
 export class Polygon extends PrimitiveElement<PolygonOption> {
 
-    public svgAttrs() {
+    public svgAttrs(): any {
         let pointsStr = ``;
         for (const p of this.prop.points) {
             const [x, y] = this.translatePoint(p[0], p[1]);

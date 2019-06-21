@@ -85,7 +85,7 @@ function createTestText(): SVGTextElement {
 function createTestCanvasContext(): CanvasRenderingContext2D {
     const canvas = document.createElement("canvas");
     canvas.setAttribute("style", "display: none");
-    const ctx = canvas.getContext("2d");
+    const ctx = canvas.getContext("2d")!;
     ctx.font = `${textSize}px ${textFont}`;
     document.body.append(canvas);
     return ctx;
