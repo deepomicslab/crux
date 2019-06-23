@@ -17,6 +17,7 @@ interface State {
 export abstract class BaseElement<Option extends BaseOption = BaseOption>
     implements SVGRenderable {
 
+    public _name!: string;
     public id: number;
     public uid: number;
 

@@ -42,6 +42,7 @@ function findComponent(component: Component, name: string, id: number): [ActualE
         return [comp, false];
     }
     const newElm = new ctor(id);
+    newElm._name = name;
     component.append(newElm);
     let c: Component<ComponentOption>;
     if (c = currElement()) {
