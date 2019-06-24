@@ -22,7 +22,8 @@
     "randomstring": "^1.1.5",
     "shallow-equal": "^1.1.0",
     "snabbdom": "^0.7.3",
-    "typescript": "^3.4.3"
+    "typescript": "^3.4.3",
+    "venn.js": "^0.2.20"
   },
   "devDependencies": {
     "@types/assert": "^1.4.2",

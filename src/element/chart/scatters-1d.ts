@@ -12,18 +12,21 @@ export class Scatters1D extends BaseChart<Scatters1DOption> {
     public render = template`
     Component {
         @for (d1, pos) in data.values {
-            @let x = getX(pos)
-            @for (d2, index) in d1.data {
-                @let y = getY(d2)
-                Component {
-                    key = "s" + pos + "p" + index
-                    @props dotOpts(x, y)
-                    @yield children default {
-                        Circle.centered {
-                            r = prop.r
-                            fill = prop.fill
-                            stroke = prop.stroke
-                            @props prop.dotOptions
+            @let x = getX(d1.pos)
+            Component {
+                key = "s" + pos
+                @for (d2, index) in d1.data.values {
+                    @let y = getY(d2)
+                    Component {
+                        key = "s" + pos + "p" + index
+                        @props dotOpts(x, y)
+                        @yield children default {
+                            Circle.centered {
+                                r = prop.r
+                                fill = prop.fill
+                                stroke = prop.stroke
+                                // @props prop.dotOptions
+                            }
                         }
                     }
                 }

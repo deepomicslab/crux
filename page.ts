@@ -40,6 +40,8 @@ import radar from "./demo/radar/demo_radar-chart";
 // @ts-ignore
 import scatterData from "./demo/scatter-data";
 // @ts-ignore
+import demo_vennDiagram from "./demo/venn/demo_venn-diagram";
+// @ts-ignore
 import loadData from "./src/load-data";
 // @ts-ignore
 import { DataSourceType } from "./src/utils/data-loader";

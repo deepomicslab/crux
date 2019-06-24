@@ -2,9 +2,8 @@ export default `//bvt
 svg{
     width = auto
     height = 1280
-    @let residual_data = [[0, -10, 6], [30, 21.4, 41.2], [50, 42.3, 51], [80, 76, 84], [100, 90, 102]]
     XYPlot {
-        height = 200; width = 100%; padding = 20
+        height = 600; width = 100%; padding = 20
         data = {scatter_data, residual_data, regression_data}
         hasPadding = false
         discreteCategory = false
@@ -30,27 +29,19 @@ svg{
         AxisBackground {}
         Area {
             data = "residual_data"
-            fill = "#bbb"
+            fill = "red"
             pathOptions = {
                 fillOpacity: 0.5
             }
         }
-        Dots {
+        Scatter {
             data = "scatter_data"
-            r = 2
+            r = 1
             fill = "blue"
         }
-        Dots {
-            data = "regression_data"
-            :links(d) {
-                Line {
-                    x1 = d.from.x; y1 = d.from.y
-                    x2 = d.to.x; y2 = d.to.y
-                    stroke = "red"
-                    strokeWidth = 2
-                }
-            }
-            :children(d) {}
+        Polyline {
+            points = @scaled(regression_data)
+            color = "red"
         }
     }
 }

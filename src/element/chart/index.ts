@@ -10,3 +10,4 @@ export * from "./pie-chart";
 export * from "./scatters-1d";
 export * from "./radar-chart";
 export * from "./heatmap";
+export * from "./venn-diagram";

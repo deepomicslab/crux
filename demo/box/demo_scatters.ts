@@ -3,26 +3,45 @@ svg {
     width = auto
     height = 1200
 
-    @let scatter_data = [
-        [655, 850, 940, 985, 985, 985, 986, 1070],
-        [760, 800, 845, 885, 960],
-        [780, 840, 855, 880, 940],
-        [720, 767.5, 815, 865, 920],
-        [740, 807.5, 810, 870, 950]
-    ]
-
-    XYPlot {
-        height = 300
-        padding-x = 40
-        padding-y = 20
-        data = { scatter_data }
-        Rect { fill = "#f4f4f4" }
-        AxisBackground {}
-        Scatters1D {
-            data = "scatter_data"
+    Component {
+        Text {
+            text = "Categorial Scatterplot"
+            anchor = @anchor("top", "center")
+            x = 50%
         }
-        Axis("bottom") { y = 100% }
-        Axis("left") {}
+        XYPlot {
+            height = 300
+            padding-x = 40
+            padding-y = 20
+            data = { scatter_data }
+            dataHandler = {
+                scatter_data: {
+                    pos: d => d.key,
+                    min: d => 0,
+                    value: d => Math.max(...d.values),
+                },
+            }
+            Rect { fill = "#f4f4f4" }
+            AxisBackground {}
+            Scatters1D {
+                data = "scatter_data"
+            }
+            Axis("bottom") { y = 100% }
+            Text {
+                text = "x_axis_label"
+                x = 50%; y = 100%+15
+                anchor = @anchor("top", "center")
+            }
+            Axis("left") {}
+            Component {
+                x = -25; y = 50%
+                rotation = @rotate(-90)
+                Text {
+                    text = "y_axis_label"
+                    anchor = @anchor("bottom", "center")
+                }
+            }
+        }
     }
 }
 `;

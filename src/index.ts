@@ -1,3 +1,4 @@
+import * as algo from "./algo";
 import { Component } from "./element/component";
 import loadData from "./load-data";
 import { template } from "./template/tag";
@@ -10,6 +11,7 @@ export const Crux = {
     Component,
     template,
     utils,
+    algo,
     loadData,
 };
 
