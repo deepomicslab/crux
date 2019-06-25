@@ -105,7 +105,7 @@ export function tDistribution<Number>(df: number, confidence: number = 0.8): num
             }
         }
     }
-    return tValue;
+    return tValue!;
 }
 
 export function simpleLinearRegression<T>(data: T[] = []): {
@@ -155,7 +155,7 @@ export function confidenceBand<T>(data: T[] = [], method: string = "simple_linea
     const yList: number[] = data.map((d) => d[0]);
     const xStat = statistics(xList);
     const yStat = statistics(yList);
-    let eList;
+    let eList: any;
     if (method === "simple_linear") {
         eList = simpleLinearRegression(data);
     } else {

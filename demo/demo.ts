@@ -684,7 +684,7 @@ svg {
                 Axis("bottom") { y = 100% }
                 Axis("left") {}
             }
-            @let residual_data = [[0, -10, 6], [30, 21.4, 41.2], [50, 42.3, 51], [80, 76, 84], [100, 90, 102]]
+            // @let residual_data = [[0, -10, 6], [30, 21.4, 41.2], [50, 42.3, 51], [80, 76, 84], [100, 90, 102]]
             XYPlot {
                 height = 300; width = 600; padding = 20
                 data = {scatter_data, residual_data, regression_data}
@@ -712,7 +712,7 @@ svg {
                 AxisBackground {}
                 Area {
                     data = "residual_data"
-                    fill = "#bbb"
+                    fill = "red"
                     pathOptions = {
                         fillOpacity: 0.5
                     }
@@ -721,19 +721,23 @@ svg {
                     data = "scatter_data"
                     Circle.centered { r = 1; fill ="#3d83ff" }
                 }
-                Dots {
-                    data = "regression_data"
-                    :links(d) {
-                        Line {
-                            x1 = d.from.x; y1 = d.from.y
-                            x2 = d.to.x; y2 = d.to.y
-                            stroke = "#ff3d8b"
-                            strokeOpacity = 0.7
-                            strokeWidth = 2
-                        }
-                    }
-                    :children(d) {}
+                Polyline {
+                    points = @scaled(regression_data)
+                    color = "red"
                 }
+                // Dots {
+                //     data = "regression_data"
+                //     :links(d) {
+                //         Line {
+                //             x1 = d.from.x; y1 = d.from.y
+                //             x2 = d.to.x; y2 = d.to.y
+                //             stroke = "#ff3d8b"
+                //             strokeOpacity = 0.7
+                //             strokeWidth = 2
+                //         }
+                //     }
+                //     :children(d) {}
+                // }
             }
         }
         Container { padding-y = 20; Text("Heatmap") { fontSize = 24 } }

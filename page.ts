@@ -6,7 +6,7 @@ import { dataLoader } from "./reconstructed/data";
 // @ts-ignore
 import { Reconstructed } from "./reconstructed/reconstructed";
 
-import { simpleLinearRegression } from "./src/algo";
+import { combine, confidenceBand, simpleLinearRegression } from "./src/algo";
 
 // @ts-ignore
 import t1 from "./test/templates/t1";
@@ -48,6 +48,11 @@ import { DataSourceType } from "./src/utils/data-loader";
 import { Visualizer } from "./src/visualizer/visualizer";
 import { Clock } from "./test/templates/clock";
 
+// @ts-ignore
+import demo_vennDiagram from "./demo/venn/demo_venn-diagram";
+
+import demo_linear_regression from "./demo/line/demo_linear_regression";
+
 declare global {
     interface Window {
         $v: Visualizer;
@@ -77,7 +82,8 @@ document.addEventListener("DOMContentLoaded", () => {
     */
 
     // demo regression plot
-    const regressionData = simpleLinearRegression(scatterData);
+    const regressionData = simpleLinearRegression(scatterData).data;
+    const residualData = confidenceBand(scatterData);
     window.$v = visualize({
         el: "#canvas",
         template: demo,
@@ -88,7 +94,95 @@ document.addEventListener("DOMContentLoaded", () => {
             array3: [3, 7, 2, 5, 6, 5, 7, 3, 4],
             scatter_data: scatterData,
             regression_data: regressionData,
+            residual_data: residualData,
         },
         components: { Clock },
     });
+
+    // // demo linear regression
+    // const regressionData = simpleLinearRegression(scatterData).data;
+    // const residualData = confidenceBand(scatterData);
+    // window.$v = visualize({
+    //     el: "#canvas",
+    //     template: demo_linear_regression,
+    //     data: {
+    //         scatter_data: scatterData,
+    //         regression_data: regressionData,
+    //         residual_data: residualData,
+    //     },
+    // });
+
+    // // demo scatters1d
+    // const xAxisIndex = 4;
+    // const yAxisIndex = 0;
+    // const v = window["$v"] = visualize({
+    //     el: "#canvas",
+    //     template: scatters,
+    //     loadData: {
+    //         scatter_data: {
+    //             url: "http://localhost:8080/scatter/scatter1.csv",
+    //             type: "csv",
+    //             loaded(data) {
+    //                 // console.log("data", data);
+    //                 const xLabels = [...new Set(data.map((d) => Object.values(d)[xAxisIndex]))].sort();
+    //                 // console.log("xLabels", xLabels);
+    //                 const scatterData = xLabels.map((l) => {
+    //                     return { key: l, values: [] };
+    //                 });
+    //                 data.forEach((d) => {
+    //                     const values = Object.values(d);
+    //                     scatterData.forEach((s, sindex) => {
+    //                         if (s.key === values[xAxisIndex]) {
+    //                             scatterData[sindex].values.push(values[yAxisIndex]);
+    //                         }
+    //                     });
+    //                 });
+    //                 // console.log("scatterData", scatterData);
+    //                 return scatterData;
+    //             },
+    //         },
+    //     },
+    // });
+
+    // // demo polyline
+    // const v = window["$v"] = visualize({
+    //     el: "#canvas",
+    //     template: polyline,
+    //     data: {
+    //     },
+    // });
+
+    // // demo venn diagram
+    // const v = window["$v"] = visualize({
+    //     el: "#canvas",
+    //     template: demo_vennDiagram,
+    //     loadData: {
+    //         vennData: {
+    //             url: "http://localhost:8080/venn/venn_sample_4.csv",
+    //             type: "csv",
+    //             loaded(data) {
+    //                 const combinations = combine(data.columns.slice(1));
+    //                 const vennData = combinations.map((l) => {
+    //                     return { sets: l, size: 0 };
+    //                 });
+    //                 data.forEach((d: any) => {
+    //                     vennData.forEach((v: any, index: number) => {
+    //                         let found = true;
+    //                         for (const k of v.sets) {
+    //                             if (parseInt(d[k]) === 0) {
+    //                                 found = false;
+    //                                 break;
+    //                             }
+    //                         }
+    //                         if (found) {
+    //                             vennData[index].size++;
+    //                         }
+    //                     });
+    //                 });
+    //                 return vennData;
+    //             },
+    //         },
+    //     },
+    // });
+
 });
