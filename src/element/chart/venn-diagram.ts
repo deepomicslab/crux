@@ -4,17 +4,15 @@ import { template } from "../../template/tag";
 import { ColorSchemeCategory } from "../../utils/color";
 import { Component } from "../component";
 import { ComponentOption } from "../component-options";
-import { ChartPaddingOptions, getPaddings } from "./utils/option-padding";
+import { getPaddings } from "./utils/option-padding";
 
-export interface VennOption extends ComponentOption, ChartPaddingOptions {
+export interface VennOption extends ComponentOption {
     data: VennDiagramEntry[];
     categories: string[];
     radius: number;
     stroke: string;
     opacity: number;
     normalize: boolean;
-    width: number;
-    height: number;
     padding: number;
     orientation: number;
 }
@@ -38,58 +36,47 @@ const SMALL = 1e-10;
 export class VennDiagram extends Component<VennOption> {
     public render = template`
     Component {
-        Component {
-            @let p = paddings
-            x = p[3]
-            y = p[0]
-            width = @geo(100, -p[1]-p[3])
-            height = @geo(100, -p[0]-p[2])
-            Component {
-                width = 100%
-                height = 100%
-                @if (_data !== null) {
-                    @for (c, k) in _data.circles {
-                        @let color = _colorScheme.getColor(k)
-                        Component {
-                            key = "c" + k
-                            Circle.centered {
-                                x = c.x
-                                y = c.y
-                                r = c.radius
-                                fill = color
-                                stroke = color
-                                fillOpacity = prop.opacity
-                            }
-                        }
+        @if (_data !== null) {
+            @for (c, k) in _data.circles {
+                @let color = _colorScheme.getColor(k)
+                Component {
+                    key = "c" + k
+                    Circle.centered {
+                        x = c.x
+                        y = c.y
+                        r = c.radius
+                        fill = color
+                        stroke = color
+                        fillOpacity = prop.opacity
                     }
-                    @for (a, k) in _data.intersections {
-                        Component {
-                            key = "i" + k
-                            Path {
-                                d = a.path
-                                fill = prop.opt.intersectionFill ? prop.opt.intersectionFill : "none"
-                                stroke = prop.opt.intersectionStroke ? prop.opt.intersectionStroke : "black"
-                                @let isw = prop.opt.intersectionStrokeWidth ? prop.opt.intersectionStrokeWidth : prop.strokeWidth
-                                style:stroke-width = a.key.length === 3 ? isw * 2 : isw
-                            }
-                        }
-                    }
-                    @for (t, k) in _data.textCenters {
-                        Component {
-                            key = "t" + k
-                            Text {
-                                x = t.x; y = t.y
-                                text = k
-                            }
-                        }
-                    }
-                    @yield legend with legendData
                 }
-                @else {
+            }
+            @for (a, k) in _data.intersections {
+                Component {
+                    key = "i" + k
+                    Path {
+                        d = a.path
+                        fill = prop.opt.intersectionFill ? prop.opt.intersectionFill : "none"
+                        stroke = prop.opt.intersectionStroke ? prop.opt.intersectionStroke : "black"
+                        @let isw = prop.opt.intersectionStrokeWidth ? prop.opt.intersectionStrokeWidth : prop.strokeWidth
+                        style:stroke-width = a.key.length === 3 ? isw * 2 : isw
+                    }
+                }
+            }
+            @for (t, k) in _data.textCenters {
+                Component {
+                    key = "t" + k
                     Text {
-                        text = "Input data is in wrong format"
+                        x = t.x; y = t.y
+                        text = k
                     }
                 }
+            }
+            @yield legend with legendData
+        }
+        @else {
+            Text {
+                text = "Input data is in wrong format"
             }
         }
     }
@@ -139,7 +126,7 @@ export class VennDiagram extends Component<VennOption> {
                 if (this.prop.normalize) {
                     solution = venn.normalizeSolution(solution, this.prop.orientation, null);
                 }
-                circles = venn.scaleSolution(solution, this.prop.width, this.prop.height, this.prop.padding);
+                circles = venn.scaleSolution(solution, this.$geometry.width, this.$geometry.height, this.prop.padding);
                 textCenters = venn.computeTextCentres(circles, data);
                 intersections = this.getIntersections(circles);
             } else {
