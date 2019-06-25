@@ -34,10 +34,11 @@ svg{
                 fillOpacity: 0.5
             }
         }
-        Scatter {
+        Dots {
             data = "scatter_data"
-            r = 1
-            fill = "blue"
+            // r = 1
+            // fill = "blue"
+            Circle.centered { r = 2; fill ="#3d83ff" }
         }
         Polyline {
             points = @scaled(regression_data)

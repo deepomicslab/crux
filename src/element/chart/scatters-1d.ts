@@ -13,9 +13,10 @@ export class Scatters1D extends BaseChart<Scatters1DOption> {
     Component {
         @for (d1, pos) in data.values {
             @let x = getX(d1.pos)
+            @let values = getValues(d1)
             Component {
-                key = "s" + pos
-                @for (d2, index) in d1.data.values {
+                key = pos
+                @for (d2, index) in values {
                     @let y = getY(d2)
                     Component {
                         key = "s" + pos + "p" + index
@@ -25,7 +26,7 @@ export class Scatters1D extends BaseChart<Scatters1DOption> {
                                 r = prop.r
                                 fill = prop.fill
                                 stroke = prop.stroke
-                                // @props prop.dotOptions
+                                @props prop.dotOptions
                             }
                         }
                     }
@@ -40,6 +41,13 @@ export class Scatters1D extends BaseChart<Scatters1DOption> {
 
     public getDistance(c1: number[], c2: number[]): number {
         return Math.sqrt((c1[0] - c2[0]) ** 2 + (c1[1] - c2[1]) ** 2);
+    }
+
+    // @ts-ignore
+    private getValues(d: any) {
+        if (Array.isArray(d.data)) return d.data;
+        else if ("values" in d.data) return d.data.values;
+        throw new Error(`Scatters1D: Unknown data format.`);
     }
 
     // @ts-ignore
