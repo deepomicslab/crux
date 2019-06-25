@@ -1,3 +1,5 @@
+import d3 = require("d3-array");
+
 import { registerDefaultBioInfoComponents } from "./src/element/global";
 import { visualize } from "./src/visualizer";
 
@@ -28,7 +30,13 @@ import box from "./demo/box/box";
 // @ts-ignore
 import scatters from "./demo/box/demo_scatters";
 // @ts-ignore
+import { contourData, contourThresholds } from "./demo/contour-data";
+// @ts-ignore
+import contour from "./demo/contour/contour";
+// @ts-ignore
 import demo from "./demo/demo";
+// @ts-ignore
+import densityData from "./demo/density-data";
 // @ts-ignore
 import regression from "./demo/line/demo_linear_regression";
 // @ts-ignore
@@ -80,7 +88,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const regressionData = simpleLinearRegression(scatterData);
     window.$v = visualize({
         el: "#canvas",
-        template: demo,
+        template: contour,
         loadData: { data4: { content: "1" }},
         data: {
             array: [1, 3, 8, 6, 5, 4, 2, 7, 3],
@@ -88,6 +96,9 @@ document.addEventListener("DOMContentLoaded", () => {
             array3: [3, 7, 2, 5, 6, 5, 7, 3, 4],
             scatter_data: scatterData,
             regression_data: regressionData,
+            contour_density_data: densityData,
+            contour_data: contourData,
+            contour_thresholds: contourThresholds,
         },
         components: { Clock },
     });

@@ -11,3 +11,5 @@ export * from "./scatters-1d";
 export * from "./radar-chart";
 export * from "./heatmap";
 export * from "./venn-diagram";
+export * from "./contour";
+export * from "./contour-density";
