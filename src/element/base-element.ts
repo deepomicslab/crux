@@ -220,7 +220,7 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
     }
 
     protected _rotate(val: number) {
-        return [val, (this.$geometry as any).x, (this.$geometry as any).y];
+        return [val, "_", "_"];
     }
 
     protected _geo(val: number, offset: number): GeometryValue {

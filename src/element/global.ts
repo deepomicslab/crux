@@ -12,6 +12,7 @@ import { XYPlot } from "./plot";
 import { Arc, ArcLine, Circle, Line, Path, Polygon, Polyline, RadicalLine, Rect, Text } from "./primitive";
 
 import { GeneArea } from "./bioinfo";
+import { Tree } from "./common";
 
 export function registerDefaultGlobalComponents() {
     registerGlobalComponent({
@@ -26,6 +27,8 @@ export function registerDefaultGlobalComponents() {
         RadicalLine,
         Polyline,
         Polygon,
+        // common
+        Tree,
         // plot
         XYPlot,
         // chart

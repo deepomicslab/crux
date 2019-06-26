@@ -51,10 +51,12 @@ import scatterData from "./demo/scatter-data";
 import demo_vennDiagram from "./demo/venn/demo_venn-diagram";
 // @ts-ignore
 import loadData from "./src/load-data";
+import { parseNewick } from "./src/utils";
 // @ts-ignore
 import { DataSourceType } from "./src/utils/data-loader";
 import { Visualizer } from "./src/visualizer/visualizer";
 import { Clock } from "./test/templates/clock";
+import newick from "./test/templates/newick";
 
 // @ts-ignore
 import demo_vennDiagram from "./demo/venn/demo_venn-diagram";
@@ -68,6 +70,8 @@ declare global {
 }
 
 registerDefaultBioInfoComponents();
+
+const treeData = parseNewick(newick);
 
 document.addEventListener("DOMContentLoaded", () => {
     /*
@@ -94,12 +98,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const residualData = confidenceBand(scatterData);
     window.$v = visualize({
         el: "#canvas",
-        template: contour,
+        template: t1,
         loadData: { data4: { content: "1" }},
         data: {
             array: [1, 3, 8, 6, 5, 4, 2, 7, 3],
             array2: [6, 4, 3, 2, 4, 9, 1, 5, 8],
             array3: [3, 7, 2, 5, 6, 5, 7, 3, 4],
+            treeData,
             scatter_data: scatterData,
             regression_data: regressionData,
             contour_density_data: densityData,

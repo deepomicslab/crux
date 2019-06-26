@@ -33,8 +33,8 @@ export class Component<Option extends ComponentOption = ComponentOption>
     public children: ActualElement[] = [];
     public tree?: ElementDef;
 
-    public $scaleX?: Scale;
-    public $scaleY?: Scale;
+    public $scaleX?: Scale | null;
+    public $scaleY?: Scale | null;
 
     public $isCoordRoot: boolean = false;
     public $polar?: PolarCoordInfo;
@@ -76,7 +76,9 @@ export class Component<Option extends ComponentOption = ComponentOption>
     private _setScale(horizontal: boolean) {
         const s = horizontal ? this.prop.xScale : this.prop.yScale;
         const k = horizontal ? "$scaleX" : "$scaleY";
-        if (typeof s === "object" && s.__scale__) {
+        if (s === null) {
+            this[k] = null;
+        } else if (typeof s === "object" && s.__scale__) {
             if (this[k] && s.type === "linear") {
                 if (s.domain) (this[k] as Scale).domain(s.domain);
                 if (s.range) (this[k] as Scale).range(s.range);
@@ -106,14 +108,21 @@ export class Component<Option extends ComponentOption = ComponentOption>
         const attrs = svgPropClip(this as any);
         let v: any;
         let transform: string;
+        let x = 0, y = 0;
         if (this.$coord && this.$coord.$polar && !this.$isCoordRoot) {
             transform = "";
         } else {
-            const [x, y] = getFinalPosition(this as any);
+            [x, y] = getFinalPosition(this as any);
             transform = x === 0 && y === 0 ? "" : `translate(${x},${y})`;
         }
-        if (v = this.prop.rotation)
-            transform = `rotate(${v[0]},${v[1]},${v[2]}) ${transform}`;
+        if (v = this.prop.rotation) {
+            if (typeof v === "number")
+                transform = `rotate(${v}) ${transform}`;
+            else if (Array.isArray(v))
+                transform = `rotate(${v[0]},${v[1] === "_" ? x : v[1]},${v[2] === "_" ? y : v[2]}) ${transform}`;
+            else
+                throw new Error(`transform value must be a number or an array.`);
+        }
         if (transform) {
             attrs.transform = transform;
         }
