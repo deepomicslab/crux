@@ -1,6 +1,6 @@
 import { max, min } from "d3-array";
 import d3 = require("d3-hierarchy");
-import { scaleLinear, scaleLog, ScaleContinuousNumeric } from "d3-scale";
+import { ScaleContinuousNumeric, scaleLinear, scaleLog } from "d3-scale";
 
 import { template } from "../../template/tag";
 import { Component } from "../component";
@@ -35,10 +35,12 @@ export class Tree extends Component<TreeOption> {
             yScale = _scaleY
             @for (link, i) in _links {
                 Path {
+                    ref = "links[]"
                     key = "l" + i
                     stroke = "#aaa"
                     fill = "none"
                     d = getPath(link.source.x, @scaled-y(getR(link.source)), link.target.x, @scaled-y(getR(link.target)))
+                    @props prop.opt.link
                 }
             }
             @for (node, i) in _nodes {
@@ -57,11 +59,14 @@ export class Tree extends Component<TreeOption> {
                     y = leaf.y
                     rotation = @rotate(isRight ? leaf.x - 90 : leaf.x + 90, 0, 0)
                     coord = "cartesian"
-                    Container {
-                        anchor = @anchor(isRight ? "left" : "right", "middle")
-                        padding = 4
-                        Text {
-                            text = leaf.data.name
+                    @let data = leaf.data
+                    @yield leaf with { isRight, data } default {
+                        Container {
+                            anchor = @anchor(isRight ? "left" : "right", "middle")
+                            padding = 4
+                            Text {
+                                text = data.name
+                            }
                         }
                     }
                 }
@@ -142,8 +147,10 @@ export class Tree extends Component<TreeOption> {
         this._nodeCount = this._nodes.length;
         this._leafCount = this._leaves.length;
         this._leafDeg = this.prop.deg / this._leafCount;
+    }
 
-        console.log(this)
+    public didUpdate() {
+        console.log(this.$ref.links);
     }
 
     public defaultProp() {
@@ -154,6 +161,10 @@ export class Tree extends Component<TreeOption> {
             direction: "bottom",
             treeRotation: 0,
         };
+    }
+
+    public getLinks(node: d3.HierarchyPointNode<TreeData>) {
+        console.log(node.links())
     }
 
     private getPath(startAngle: number, startRadius: number, endAngle: number, endRadius: number) {

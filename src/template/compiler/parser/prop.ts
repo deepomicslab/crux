@@ -1,11 +1,11 @@
 import { oneLineTrim } from "common-tags";
 import { ASTNodeComp } from "../ast-node";
 import { ParserStream } from "../parse-stream";
-import { NAME } from "../tokens";
+import { PROP_NAME } from "../tokens";
 import { transformHelper } from "./helper";
 
 export function parseProp(p: ParserStream, node: ASTNodeComp) {
-    const name = p.expect(NAME, "prop name")[0];
+    const name = p.expect(PROP_NAME, "prop name")[0];
     p.skipSpaces();
     p.expect("=");
     p.skipSpaces();

@@ -39,6 +39,7 @@ function findComponent(component: Component, name: string, id: number): [ActualE
     const comp = component.children.find(c => c instanceof ctor && c.id === id);
     if (comp) {
         comp.isActive = true;
+        if (comp instanceof Component) comp.$ref = {};
         return [comp, false];
     }
     const newElm = new ctor(id);
@@ -97,6 +98,23 @@ export function updateTree(parent: Component<ComponentOption>, def?: ElementDef)
         if (opt.styles) elm.setStyles(opt.styles);
         if (opt.behaviors) elm.setBehaviors(opt.behaviors);
         if (opt.stages) elm.$stages = opt.stages;
+
+        const o = opt.props._on;
+        if (o) {
+            elm.setEventHandlers(o);
+        }
+
+        const s = opt.props._stages;
+        if (s) {
+            Object.keys(s).forEach(k => {
+                if (elm.$stages[k]) {
+                    elm.$stages[k] = { ...elm.$stages[k], ...s[k] };
+                } else {
+                    elm.$stages[k] = s[k];
+                }
+            });
+        }
+
         elm.setProp(opt.props);
 
         if (created)
@@ -121,9 +139,18 @@ export function updateTree(parent: Component<ComponentOption>, def?: ElementDef)
     }
 
     // ref
-    const ce = currElement();
-    if (ce && elm.prop.ref) {
-        ce.$ref[elm.prop.ref] = elm;
+    const ce = currElement(), ref = elm.prop.ref;
+    if (ce && ref) {
+        if (ref.endsWith("[]")) {
+            const name = ref.substr(0, ref.length - 2), r = ce.$ref[name];
+            if (Array.isArray(r)) {
+                r.push(elm);
+            } else {
+                ce.$ref[name] = [elm];
+            }
+        } else {
+            ce.$ref[ref] = elm;
+        }
     }
 
     elm.$callHook("__didLayout");

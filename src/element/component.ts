@@ -29,7 +29,7 @@ export class Component<Option extends ComponentOption = ComponentOption>
 
     public static components: Record<string, typeof Component>;
 
-    public $ref: Record<string, ActualElement> = {};
+    public $ref: Record<string, ActualElement | ActualElement[]> = {};
     public children: ActualElement[] = [];
     public tree?: ElementDef;
 

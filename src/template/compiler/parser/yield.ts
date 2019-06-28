@@ -12,7 +12,11 @@ export function parseYield(p: ParserStream): ASTNodeYield {
     if (p.peek(4) === "with") {
         p.expect("with");
         p.skipSpaces();
-        expr = p.expect(FOR_EXPR, "data name")[0];
+        if (p.peek() === "{") {
+            expr = p.consumeTill("}", true) + "}";
+        } else {
+            expr = p.expect(FOR_EXPR, "data name")[0];
+        }
     }
     p.skipSpaces();
     let processor = "";

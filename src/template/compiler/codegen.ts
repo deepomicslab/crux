@@ -3,6 +3,12 @@ import { GEOMETRY_LITERAL } from "../../defs/geometry";
 import { UIDGenerator } from "../../utils/uid";
 import { ASTNode, ASTNodeComp, ASTNodeCondition, ASTNodeElse, ASTNodeFor, ASTNodeIf, ASTNodeYield, isRootElement, newNode } from "./ast-node";
 
+function serialize(obj: any): string {
+    if (typeof obj === "object")
+        return `{${Object.keys(obj).map(k => `'${k}': ${serialize(obj[k])}`).join(",")}}`;
+    return obj.toString();
+}
+
 function wrappedWithLocalData(node: ASTNode, wrapped: string) {
     return `(function(){
         ${genLocalData(node)}
@@ -39,8 +45,23 @@ function genAttrs(node: ASTNodeComp) {
     let hasDelegate = false;
     for (const p of node.props) {
         if (p.delegate) {
-            if (!delegates[p.delegate]) delegates[p.delegate] = {};
-            delegates[p.delegate][p.name] = p.expr;
+            const m = p.delegate.match(/(.+?)\(:(.+?)\)/);
+            if (m) {
+                if (!delegates[m[1]]) delegates[m[1]] = {};
+                const d = delegates[m[1]];
+                if (!d._stages) d._stages = { [m[2]]: {} };
+                d._stages[m[2]][p.name] = p.expr;
+            } else {
+                if (!delegates[p.delegate]) delegates[p.delegate] = {};
+                const d = delegates[p.delegate];
+                if (p.name.startsWith("on:")) {
+                    const eventName = p.name.substr(3);
+                    if (!d._on) d._on = {};
+                    d._on[eventName] = genEventListener(p.expr);
+                } else {
+                    d[p.name] = p.expr;
+                }
+            }
             hasDelegate = true;
         } else {
             normalProps.push(p);
@@ -58,29 +79,24 @@ function genAttrs(node: ASTNodeComp) {
         attrStrings.push(`'${name}': ${genExpr(expr, name)}`);
     }
     if (hasDelegate) {
-        const delegateStr = Object.keys(delegates).map(k =>
-            `'${k}': {${Object.keys(delegates[k]).map(j =>
-                `'${j}': ${delegates[k][j]}`,
-            ).join(",")}}`,
-        ).join(",");
-        attrStrings.push(`opt: { ${delegateStr} }`);
+        attrStrings.push(`opt: ${serialize(delegates)}`);
     }
     return `props: { ${attrStrings.join(",")} },`;
 }
 
+function genEventListener(handler: string): string {
+    if (handler.startsWith("function") || handler.match(/^\(.+?\) *=>/)) {
+        return handler;
+    } else if (handler.match(/^[A-z0-9_]+$/)) {
+        return `${handler}.bind(this)`;
+    } else {
+        return `(function($ev, $el) { ${handler} }).bind(this)`;
+    }
+}
+
 function genEventHdl(node: ASTNodeComp) {
     if (node.on.length === 0) return "";
-    const events = node.on.map(o => {
-        let handler: string;
-        if (o.handler.startsWith("function") || o.handler.match(/^\(.+?\) *=>/)) {
-            handler = o.handler;
-        } else if (o.handler.match(/^[A-z0-9_]+$/)) {
-            handler = `${o.handler}.bind(this)`;
-        } else {
-            handler = `(function($ev, $el) { ${o.handler} }).bind(this)`;
-        }
-        return `${o.name}: ${handler}`;
-    }).join(",");
+    const events = node.on.map(o => `${o.name}: ${genEventListener(o.handler)}`).join(",");
     return `on: { ${events} },`;
 }
 
