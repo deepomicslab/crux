@@ -4,7 +4,6 @@ import { template } from "../../template/tag";
 import { ColorSchemeCategory } from "../../utils/color";
 import { Component } from "../component";
 import { ComponentOption } from "../component-options";
-import { getPaddings } from "./utils/option-padding";
 
 export interface VennOption extends ComponentOption {
     data: VennDiagramEntry[];
@@ -246,11 +245,6 @@ export class VennDiagram extends Component<VennOption> {
             orientation: Math.PI / 2,
             strokeWidth: 1,
         };
-    }
-
-    // @ts-ignore
-    private get paddings() {
-        return getPaddings(this);
     }
 
     // @ts-ignore

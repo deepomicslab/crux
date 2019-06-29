@@ -1,13 +1,15 @@
 {
   "name": "crux",
   "version": "0.1.0",
-  "main": "index.ts",
   "repository": "git@gitlab.deepomics.org:lhc/crux.git",
   "author": "Collider LI",
   "license": "MIT",
   "private": true,
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
-    "test": "mocha --require ts-node/register test/*.ts"
+    "test": "mocha --require ts-node/register test/*.ts",
+    "build": "tsc -p ./ --outDir ./dist",
   },
   "dependencies": {
     "axios": "^0.18.0",
@@ -33,7 +35,7 @@
     "@types/d3-array": "^2.0.0",
     "@types/d3-scale": "^2.1.1",
     "@types/lodash": "^4.14.123",
-    "@types/mocha": "^5.2.6",
+    "@types/mocha": "^5.2.7",
     "@types/mustache": "^0.8.32",
     "@types/node": "^11.13.8",
     "@types/randomstring": "^1.1.6",

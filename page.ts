@@ -1,3 +1,4 @@
+// @ts-ignore
 import d3 = require("d3-array");
 
 import { registerDefaultBioInfoComponents } from "./src/element/global";
@@ -8,7 +9,7 @@ import { dataLoader } from "./reconstructed/data";
 // @ts-ignore
 import { Reconstructed } from "./reconstructed/reconstructed";
 
-import { combine, confidenceBand, simpleLinearRegression } from "./src/algo";
+import { confidenceBand, simpleLinearRegression } from "./src/algo";
 
 // @ts-ignore
 import t1 from "./test/templates/t1";
@@ -59,9 +60,9 @@ import { Clock } from "./test/templates/clock";
 import newick from "./test/templates/newick";
 
 // @ts-ignore
-import demo_vennDiagram from "./demo/venn/demo_venn-diagram";
-
 import demo_linear_regression from "./demo/line/demo_linear_regression";
+// @ts-ignore
+import demo_vennDiagram from "./demo/venn/demo_venn-diagram";
 
 declare global {
     interface Window {

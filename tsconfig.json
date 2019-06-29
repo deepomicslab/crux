@@ -14,11 +14,16 @@
     "noUnusedLocals": true,
     "suppressImplicitAnyIndexErrors": true,
   },
+  "include": [
+    "src/**/*"
+  ],
   "exclude": [
     "**/*.spec.ts",
     "node_modules",
     "vendor",
-    "public"
+    "public",
+    "demo",
+    "docs",
   ],
   "compileOnSave": false
 }

@@ -145,7 +145,6 @@ export function simpleLinearRegression<T>(data: T[] = []): {
 }
 
 export function logisticRegression<T>(data: T[] = []): {} {
-    const n = data.length;
     return [];
 }
 
@@ -154,15 +153,12 @@ export function confidenceBand<T>(data: T[] = [], method: string = "simple_linea
     const xList: number[] = data.map((d) => d[0]);
     const yList: number[] = data.map((d) => d[0]);
     const xStat = statistics(xList);
-    const yStat = statistics(yList);
     let eList: any;
     if (method === "simple_linear") {
         eList = simpleLinearRegression(data);
     } else {
         eList = simpleLinearRegression(data);
     }
-    const upperBound: number[][] = [];
-    const lowerBound: number[][] = [];
     const yStdResidual: number = Math.sqrt(yList.reduce((yStdResidual, yI, cI) => {
         // console.log("yI", yI, "cI", cI, "eList.data[cI][1]", eList.data[cI][1]);
         return yStdResidual + (yI - eList.data[cI][1]) ** 2;

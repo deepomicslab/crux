@@ -75,16 +75,20 @@ export class Tree extends Component<TreeOption> {
     }
     `;
 
+    // @ts-ignore
     private _scaleY: ScaleContinuousNumeric<number, number> | null = null;
 
     private _root!: d3.HierarchyPointNode<TreeData>;
     private _leaves!: Array<d3.HierarchyPointNode<TreeData>>;
     private _nodes!: Array<d3.HierarchyPointNode<TreeData>>;
     private _links!: d3.HierarchyPointLink<TreeData>[];
+    // @ts-ignore
     private _leafLinks!: d3.HierarchyPointLink<TreeData>[];
 
+    // @ts-ignore
     private _nodeCount!: number;
     private _leafCount!: number;
+    // @ts-ignore
     private _leafDeg!: number;
 
     public willRender() {
@@ -167,6 +171,7 @@ export class Tree extends Component<TreeOption> {
         console.log(node.links())
     }
 
+    // @ts-ignore
     private getPath(startAngle: number, startRadius: number, endAngle: number, endRadius: number) {
         const c0 = Math.cos(startAngle = (startAngle - 90) / 180 * Math.PI);
         const s0 = Math.sin(startAngle);
@@ -181,6 +186,7 @@ export class Tree extends Component<TreeOption> {
         return path;
     }
 
+    // @ts-ignore
     private getR(node: d3.HierarchyPointNode<TreeData>) {
         if (this.prop.scale === "none") {
             return node.y;
@@ -188,6 +194,7 @@ export class Tree extends Component<TreeOption> {
         return node.data._radius;
     }
 
+    // @ts-ignore
     private isRightHalf(deg: number): boolean {
         const thres1 = 180 - this.prop.treeRotation;
         const thres2 = 360 - this.prop.treeRotation;
