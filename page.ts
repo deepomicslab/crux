@@ -1,5 +1,5 @@
 // @ts-ignore
-import d3 = require("d3-array");
+import * as d3 from "d3-array";
 
 import { registerDefaultBioInfoComponents } from "./src/element/global";
 import { visualize } from "./src/visualizer";

@@ -1,6 +1,6 @@
-import d3c = require("d3-contour");
-import d3g = require("d3-geo");
-import d3s = require("d3-scale");
+import * as d3c from "d3-contour";
+import * as d3g from "d3-geo";
+import * as d3s from "d3-scale";
 
 import { template } from "../../template/tag";
 import { ColorSchemeGradient } from "../../utils/color/gradient";

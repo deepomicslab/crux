@@ -35,7 +35,7 @@ const currCoordSystems: ("polar" | "cartesian")[] = ["cartesian"];
 const currCoordSystem = () => currCoordSystems[currCoordSystems.length - 1];
 
 function findComponent(component: Component, name: string, id: number): [ActualElement, boolean] {
-    const ctor = getComponent(component, name);
+    const ctor = getComponent(isRenderable(component) ? component : (component as any).$parent, name);
     const comp = component.children.find(c => c instanceof ctor && c.id === id);
     if (comp) {
         comp.isActive = true;
@@ -115,6 +115,9 @@ export function updateTree(parent: Component<ComponentOption>, def?: ElementDef)
             });
         }
 
+        if ("stage" in opt.props) {
+            elm.setStage(opt.props.stage, true);
+        }
         elm.setProp(opt.props);
 
         if (created)
@@ -132,6 +135,7 @@ export function updateTree(parent: Component<ComponentOption>, def?: ElementDef)
 
     elm.$callHook("willUpdate");
 
+    elm._findActiveStage();
     layoutElement(elm);
 
     if (elm.prop.debug) {

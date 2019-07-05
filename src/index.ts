@@ -6,7 +6,7 @@ import * as utils from "./utils";
 import { visualize } from "./visualizer";
 
 // tslint:disable-next-line: variable-name
-export const Crux = {
+const Crux = {
     visualize,
     Component,
     template,
@@ -14,5 +14,7 @@ export const Crux = {
     algo,
     loadData,
 };
+
+export default Crux;
 
 window["Crux"] = Crux;

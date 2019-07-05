@@ -1,3 +1,4 @@
+import { oneLineTrim } from "common-tags";
 import { GeometryValue } from "../defs/geometry";
 import { BaseElement } from "../element/base-element";
 import { Component } from "../element/component";
@@ -17,6 +18,7 @@ export interface VisualizerOption {
     renderer?: "canvas" | "svg";
     width?: number | "auto";
     height?: number | "auto";
+    setup?: (this: Visualizer) => void;
 }
 
 export class Visualizer {
@@ -101,6 +103,35 @@ export class Visualizer {
         this.svgDef[id] = `<${tag} id="${id}" ${attrStr}>${content}</${tag}>`;
     }
 
+    public appendGradient(id: string, def: GradientDef): void;
+    public appendGradient(id: string, direction: "horizontal" | "vertical", stops: [string, string]): void;
+    public appendGradient(id: string): void {
+        let def: GradientDef;
+        if (arguments.length === 2) {
+            def = arguments[1];
+        } else {
+            def = { x1: 0, x2: 0, y1: 0, y2: 0, stops: [] };
+            const direction = arguments[1];
+            const stops = arguments[2] as [string, string];
+            if (direction === "horizontal") {
+                def.x2 = 100;
+            } else {
+                def.y2 = 100;
+            }
+            def.stops = stops.map((s, i) => ({ offset: i * 100, color: s, opacity: 1 }));
+        }
+        this.appendDef(id, "linearGradient", {
+            x1: `${def.x1}%`,
+            x2: `${def.x2}%`,
+            y1: `${def.y1}%`,
+            y2: `${def.y2}%`,
+        }, def.stops.map(s => oneLineTrim`
+            <stop offset="${s.offset}%" style="
+                stop-color:${s.color};
+                stop-opacity:${s.opacity === undefined ? 1 : s.opacity}" />
+            `).join());
+    }
+
     private _parseSize(size: string, isWidth: boolean): number {
         if (size === "auto") {
             const computedStyle = getComputedStyle(this.container);
@@ -122,6 +153,11 @@ function getOpt<T extends keyof VisualizerOption>(
         if (typeof defaultValue !== "undefined") { return defaultValue; }
         throw new Error(`Key "${key}" must present in visualizer options.`);
     }
+}
+
+export interface GradientDef {
+    x1: number; x2: number; y1: number; y2: number;
+    stops: Array<{ offset: number; color: string; opacity?: number }>;
 }
 
 registerDefaultGlobalComponents();

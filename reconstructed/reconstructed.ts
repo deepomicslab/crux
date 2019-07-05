@@ -6,7 +6,7 @@ import { registerGlobalComponent } from "../src/element/global";
 import { template } from "../src/template/tag";
 import mouse from "../src/utils/mouse";
 
-import d3 = require("d3-scale");
+import * as d3 from "d3-scale";
 import { Brush } from "../src/element/interaction";
 
 interface ReconstructedOption extends ComponentOption {

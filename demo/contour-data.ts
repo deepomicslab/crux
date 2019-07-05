@@ -1,4 +1,4 @@
-import d3 = require("d3-array");
+import * as d3 from "d3-array";
 
 // demo contour plot
 function goldsteinPrice(x: number, y: number) {

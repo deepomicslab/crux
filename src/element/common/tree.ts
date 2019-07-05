@@ -1,5 +1,5 @@
 import { max, min } from "d3-array";
-import d3 = require("d3-hierarchy");
+import * as d3 from "d3-hierarchy";
 import { ScaleContinuousNumeric, scaleLinear, scaleLog } from "d3-scale";
 
 import { template } from "../../template/tag";

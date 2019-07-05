@@ -1,4 +1,4 @@
-import d3 = require("d3-scale");
+import * as d3 from "d3-scale";
 
 import { template } from "../../template/tag";
 import { ColorSchemeGradient } from "../../utils/color/gradient";

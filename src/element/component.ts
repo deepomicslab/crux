@@ -17,7 +17,7 @@ export type ActualElement = BaseElement<BaseOption>;
 
 type Scale = d3.ScaleContinuousNumeric<number, number>;
 
-interface PolarCoordInfo {
+export interface PolarCoordInfo {
     r: number;
     cx: number;
     cy: number;

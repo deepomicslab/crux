@@ -1,5 +1,5 @@
 import { isFixed } from "../../defs/geometry";
-import { layoutElement } from "../../layout/layout";
+import { adjustByAnchor, layoutElement } from "../../layout/layout";
 import { BaseElement } from "../base-element";
 import { Component } from "../component";
 import { ComponentOption } from "../component-options";
@@ -15,6 +15,7 @@ export interface ContainerOption extends ComponentOption {
 function layoutDetachedChildren(el: BaseElement, check = true) {
     if (check && !el.$detached) return;
     layoutElement(el, true);
+    adjustByAnchor(el);
     if (el instanceof Component) {
         // skip if children's sizes don't depend on this component
         if (isFixed(el.prop.width) && isFixed(el.prop.height)) return;

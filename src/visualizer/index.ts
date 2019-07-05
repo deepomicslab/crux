@@ -18,12 +18,14 @@ export function visualize(opt: VisualizeOption): Visualizer {
     if (opt.loadData) {
         loadData(opt.loadData).then((d: any) => {
             v.data = { ...v.data, ...d };
+            if (opt.setup) opt.setup.call(v);
             v.run();
             if (window.OVIZ_EXPORT_GLOBAL && window.OVIZ_VISUALIZER) {
                 window.OVIZ_VISUALIZER(v);
             }
         });
     } else {
+        if (opt.setup) opt.setup.call(v);
         v.run();
         if (window.OVIZ_EXPORT_GLOBAL && window.OVIZ_VISUALIZER) {
             window.OVIZ_VISUALIZER(v);

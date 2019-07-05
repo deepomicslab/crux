@@ -1,6 +1,10 @@
 import { template } from "../../template/tag";
 import { BaseChart, BaseChartOption } from "./base-chart";
 
+const a1: number[] = [];
+const a2: number[] = [];
+const a3: number[] = [];
+
 export interface AreaOption extends BaseChartOption {
     data: any[];
     fill: string;
@@ -20,48 +24,36 @@ export class Area extends BaseChart<AreaOption> {
     }
     `;
 
-    private _cachedPath = "";
-    private _cachedData: [number, number, number][] = [];
-
     // @ts-ignore
     private getPath(): string {
         let hasMinValue = false;
         const value = this.data.values as any[];
-        const data = value.map((d, i) => {
+        const len = value.length;
+
+        value.forEach((d, i) => {
             let minValue = 0;
             if ("minValue" in d) {
                 hasMinValue = true;
                 minValue = this.getY(d.minValue);
             }
-            return [
-                this.getX(d.pos),
-                this.getY(d.value),
-                minValue,
-            ] as [number, number, number];
+            a1[i] = this.getX(d.pos);
+            a2[i] = this.getY(d.value);
+            a3[i] = minValue;
         });
 
-        // check dirty
-        if (this._cachedData.length === data.length &&
-            this._cachedData.every((d, i) =>
-                data[i][0] === this._cachedData[i][0] && data[i][1] === this._cachedData[i][1] && data[i][2] === this._cachedData[i][2])
-        ) {
-            return this._cachedPath;
-        }
-        this._cachedData = data;
-
+        const yMin = this.getY(0);
         // generate path
-        let path = `M${data[0][0]},${this.getY(0)} `;
-        for (const d of data) {
-            path += `L${d[0]},${d[1]} `;
+        let path = `M${a1[0]},${yMin} `;
+
+        for (let i = 0; i < len; i++) {
+            path += `L${a1[i]},${a2[i]} `;
         }
         if (hasMinValue) {
-            data.reverse();
-            for (const d of data) {
-                path += `L${d[0]},${d[2]} `;
+            for (let i = len - 1; i >= 0; i--) {
+                path += `L${a1[i]},${a3[i]} `;
             }
         }
         path += `z`;
-        this._cachedPath = path;
         return path;
     }
 }

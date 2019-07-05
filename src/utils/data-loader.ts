@@ -1,15 +1,16 @@
 import axios from "axios";
 import * as d3 from "d3";
-import _ = require("lodash");
-import Mustache = require("mustache");
+import * as _ from "lodash";
+import * as Mustache from "mustache";
 
 import { event } from "./";
 
 declare global {
+    interface GonInfo {
+        urls?: any;
+    }
     interface Window {
-        gon: {
-            urls: any;
-        };
+        gon: GonInfo;
     }
 }
 

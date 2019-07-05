@@ -30,6 +30,7 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
     private _prop: Option;
     public prop!: Option;
     protected state: State = { stage: null } ;
+    public _activeState: string | null = null;
 
     public $parent?: Component; // the containing renderable component
     public $coord?: Component; // component which defined the root coord system
@@ -82,7 +83,7 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
                 if (p === "opt") {
                     return target["opt"] || {};
                 }
-                if (this.state.stage && (s = this.$stages[this.state.stage]) && (p in s)) {
+                if (this._activeState && (s = this.$stages[this._activeState]) && (p in s)) {
                     return s[p];
                 }
                 return target[p];
@@ -167,15 +168,44 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
 
     /* state */
 
-    protected setState(s: Record<string, any>) {
+    public _findActiveStage() {
+        if (this.stage) {
+            this._activeState = this.stage; return;
+        }
+        let el = this.parent;
+        while (el && !el.render) {
+            if (el.stage) {
+                this._activeState = el.stage; return;
+            }
+            el = el.parent;
+        }
+        this._activeState = null;
+    }
+
+    protected setState(s: Record<string, any>, noUpdate = false) {
         Object.keys(s).forEach(k => {
             this.state[k] = s[k];
         });
-        this.draw();
+        if (noUpdate) return;
+
+        let elm: BaseElement<any> | null = null;
+        if (this instanceof Component) {
+            if (typeof this.render === "function") {
+                elm = this;
+            } else if (this.$parent) {
+                elm = this.$parent;
+            }
+        } else {
+            elm = this;
+        }
+
+        if (elm) {
+            elm.redraw();
+        }
     }
 
-    public setStage(s: string) {
-        this.setState({ stage: s });
+    public setStage(s: string, noUpdate = false) {
+        this.setState({ stage: s }, noUpdate);
     }
 
     public get stage(): string | null | undefined {
@@ -189,12 +219,24 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
     /* drawing */
 
     public renderTree() {
-        return;
+        this._findActiveStage();
     }
 
     public draw() {
         this.renderTree();
         this.$v.renderer.call(null, this as any);
+    }
+
+    private _redrawTimeout?: number;
+    private _lateRedraw() {
+        this._redrawTimeout = undefined;
+        this.draw();
+    }
+    public redraw() {
+        if (this._redrawTimeout) {
+            window.clearTimeout(this._redrawTimeout);
+        }
+        this._redrawTimeout = window.setTimeout(this._lateRedraw.bind(this), 5);
     }
 
     /* geometry */

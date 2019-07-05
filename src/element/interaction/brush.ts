@@ -42,6 +42,7 @@ export class Brush extends Component<BrushOption> {
             cornerRadius = prop.cornerRadius
             style:cursor = "move"
             on:mousedown = handleDown($ev, 2)
+            @props prop.opt.brush
         }
         Rect {
             ref = "leftHandle"

@@ -1,10 +1,9 @@
 {
   "compilerOptions": {
-    "declaration": false,
+    "declaration": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "lib": ["es6", "es2017", "esnext", "dom"],
-    "module": "commonjs",
     "moduleResolution": "node",
     "sourceMap": true,
     "outDir": "./dist",

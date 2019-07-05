@@ -1,5 +1,5 @@
-import d3 = require("d3-array");
-import _ = require("lodash");
+import * as d3 from "d3-array";
+import * as _ from "lodash";
 
 import { GeometryValue } from "../../defs/geometry";
 import { ElementDef } from "../../rendering/render-tree";

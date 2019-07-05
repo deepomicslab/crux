@@ -1,4 +1,4 @@
-import d3 = require("d3-array");
+import * as d3 from "d3-array";
 
 import { stackedLayout } from "../../algo";
 import { template } from "../../template/tag";
@@ -8,22 +8,16 @@ import { ComponentOption } from "../component-options";
 
 export interface GeneAreaOption extends ComponentOption {
     genes: GeneData[];
+    rowHeight: number;
     exonHeight: number;
     intronHeight: number;
     rowGap: number;
+    displayExon: boolean;
+    activeGenes: string[];
 }
 
 export class GeneArea extends Component<GeneAreaOption> {
     private _layerCount = 0;
-
-    public defaultProp() {
-        return {
-            ...super.defaultProp(),
-            exonHeight: 20,
-            intronHeight: 4,
-            rowGap: 4,
-        };
-    }
 
     public render = template`
     Component {
@@ -41,15 +35,27 @@ export class GeneArea extends Component<GeneAreaOption> {
                 @let gl = gene.most_left_pos
                 @let gr = gene.most_right_pos
                 Component {
+                    context = gene
+                    ref    = "genes[]"
                     key    = gene.trans_name
-                    x      = @scaled(gl)
-                    y      = layer * (prop.exonHeight + prop.rowGap)
-                    width  = @scaled(gr) - @scaled(gl)
-                    height = prop.exonHeight
+                    x      = @scaled-x(gl)
+                    y      = layer * (prop.exonHeight + prop.rowGap) + prop.rowGap * 0.5
+                    width  = @scaled-x(gr) - @scaled-x(gl)
+                    height = prop.rowHeight
+                    stage  = isGeneActive(gene) ? "active": null
+                    on:mouseenter = $el.stage = "active"
+                    on:mouseleave = $el.stage = null
+                    @props prop.opt.gene
 
                     @if prop.displayPromoters {
                         Rect {
                         }
+                    }
+                    Rect {
+                        width  = 100%
+                        height = 100%
+                        fill   = "none"
+                        @props prop.opt.bg
                     }
                     Rect {
                         anchor = @anchor("left", "middle")
@@ -57,28 +63,44 @@ export class GeneArea extends Component<GeneAreaOption> {
                         width  = 100%
                         height = prop.intronHeight
                         fill   = "#66c"
+                        @props prop.opt.intron
                     }
-                    @for (exon, index) in gene.exons {
-                        @let el = exon.most_left_pos
-                        @let er = exon.most_left_pos + exon.length
-                        Rect {
-                            key      = "ex" + index
-                            x        = @scaled(el) - @scaled(gl)
-                            width    = @scaled(er) - @scaled(el)
-                            height   = 100%
-                            minWidth = 1
-                            fill     = "#66c"
+                    @if prop.displayExon {
+                        @for (exon, index) in gene.exons {
+                            @let el = exon.most_left_pos
+                            @let er = exon.most_left_pos + exon.length
+                            Rect {
+                                key      = "ex" + index
+                                x        = @scaled-x(el) - @scaled-x(gl)
+                                width    = @scaled-x(er) - @scaled-x(el)
+                                height   = 100%
+                                minWidth = 1
+                                fill     = "#66c"
+                                @props prop.opt.exon
+                            }
                         }
                     }
                     Text(gene.trans_name) {
                         y = 50%
                         anchor = @anchor("left", "middle")
+                        @props prop.opt.label
                     }
                 }
             }
         }
     }
     `;
+
+    public defaultProp() {
+        return {
+            ...super.defaultProp(),
+            rowHeight: 20,
+            exonHeight: 20,
+            intronHeight: 4,
+            rowGap: 4,
+            activeGenes: [],
+        };
+    }
 
     public layout(): GeneData[][] {
         const data =  stackedLayout(this.prop.genes!)
@@ -99,10 +121,21 @@ export class GeneArea extends Component<GeneAreaOption> {
         return d3.max(this.prop.genes, g => g.most_right_pos as number)!;
     }
 
+    // @ts-ignore
+    private isGeneActive(gene) {
+        return this.prop.activeGenes.indexOf(gene.trans_name) >= 0;
+    }
+
+    public getGenes(position: number): Component[] {
+        return (this.$ref.genes as Component[]).filter(g =>
+            g.prop.context.most_left_pos <= position &&
+            g.prop.context.most_right_pos >= position);
+    }
+
     public didLayoutSubTree() {
         this._updateGeometry(
             "height",
-            this._layerCount * (this.prop.exonHeight + this.prop.rowGap),
+            this._layerCount * (this.prop.exonHeight + this.prop.rowGap) + this.prop.rowGap,
         );
     }
 }

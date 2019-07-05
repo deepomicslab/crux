@@ -1,4 +1,4 @@
-import _ = require("lodash");
+import * as _ from "lodash";
 
 import { Anchor, GeometryValue } from "../../defs/geometry";
 import { template } from "../../template/tag";
@@ -12,7 +12,7 @@ export interface AxisOption extends ComponentOption {
     tickInterval: number;
     ticks: number[];
     includeEndTicks: boolean;
-    stroke: string;
+    color: string;
 }
 
 export class Axis extends Component<AxisOption> {
@@ -23,8 +23,9 @@ export class Axis extends Component<AxisOption> {
         Line {
             x1 = 0; x2 = getX()
             y1 = 0; y2 = getY()
-            stroke = prop.stroke
             shapeRendering = "crispEdges"
+            stroke = prop.color
+            @props prop.opt.line
         }
         @let offset = isInner ? -4 : 4
         @let labelAnchor = getLabelAnchor
@@ -38,7 +39,8 @@ export class Axis extends Component<AxisOption> {
                     x2 = isHorizontal ? 0 : offset
                     y1 = 0
                     y2 = isHorizontal ? offset : 0
-                    stroke = prop.stroke
+                    stroke = prop.color
+                    @props prop.opt.tick
                 }
                 @yield label with tick default {
                     Text {
@@ -47,8 +49,9 @@ export class Axis extends Component<AxisOption> {
                         y = isHorizontal ? offset : 0
                         anchor = labelAnchor
                         fontSize = 10
-                        fill = prop.stroke
                         style:visibility = tick.show ? "visible" : "hidden"
+                        fill = prop.color
+                        @props prop.opt.label
                     }
                 }
             }

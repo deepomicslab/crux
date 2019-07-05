@@ -9,7 +9,7 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "test": "mocha --require ts-node/register test/*.ts",
-    "build": "tsc -p ./ --outDir ./dist",
+    "build": "tsc -p ./ --outDir ./dist"
   },
   "dependencies": {
     "axios": "^0.18.0",

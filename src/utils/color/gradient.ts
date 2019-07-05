@@ -1,4 +1,4 @@
-import d3 = require("d3-interpolate");
+import * as d3 from "d3-interpolate";
 import { ColorScheme } from "./color-scheme";
 
 export class ColorSchemeGradient implements ColorScheme {

@@ -11,6 +11,8 @@ export interface BaseOption {
 
     detached: boolean;  // for Container
 
+    stage: string;
+
     // interactions
     tooltip?: any;
     zoom?: any;

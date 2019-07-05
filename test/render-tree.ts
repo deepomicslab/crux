@@ -1,4 +1,4 @@
-import assert = require("assert");
+import * as assert from "assert";
 import { Component } from "../src/element/component";
 import { registerDefaultGlobalComponents } from "../src/element/global";
 import { updateTree } from "../src/rendering/render-tree";
