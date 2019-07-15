@@ -40,7 +40,7 @@ export class Brush extends Component<BrushOption> {
             fill = "rgba(200,200,200,.4)"
             stroke = "rgba(20,20,20,.6)"
             cornerRadius = prop.cornerRadius
-            style:cursor = "move"
+            cursor = "move"
             on:mousedown = handleDown($ev, 2)
             @props prop.opt.brush
         }
@@ -50,7 +50,7 @@ export class Brush extends Component<BrushOption> {
             width = 6
             height = 100%
             fill = "rgba(0,0,0,0)"
-            style:cursor = "ew-resize"
+            cursor = "ew-resize"
             on:mousedown = handleDown($ev, 0)
         }
         Rect {
@@ -59,7 +59,7 @@ export class Brush extends Component<BrushOption> {
             width = 6
             height = 100%
             fill = "rgba(0,0,0,0)"
-            style:cursor = "ew-resize"
+            cursor = "ew-resize"
             on:mousedown = handleDown($ev, 1)
         }
     }
@@ -85,6 +85,8 @@ export class Brush extends Component<BrushOption> {
 
     public didCreate() {
         this._brushScale = scaleLinear().range(this.prop.range);
+        this._bodyUpListener = (e: any) => this.handleUp(e);
+        this._bodyMoveListener = (e: any) => this.handleMove(e);
     }
 
     public didLayout() {
@@ -128,17 +130,20 @@ export class Brush extends Component<BrushOption> {
         this._isMoving = true;
         this._moveType = type;
         this._lastX = e.clientX;
-        this._bodyUpListener = this.handleUp.bind(this);
-        this._bodyMoveListener = this.handleMove.bind(this);
         document.body.addEventListener("mouseup", this._bodyUpListener);
         document.body.addEventListener("mousemove", this._bodyMoveListener);
-        this._callListener("onBrushStart");
+        this.$v.transaction(() => {
+            this._callListener("onBrushStart");
+        });
     }
 
     private handleUp(e: MouseEvent) {
         this._isMoving = false;
         document.body.removeEventListener("mouseup", this._bodyUpListener);
-        this._callListener("onBrushEnd");
+        document.body.removeEventListener("mousemove", this._bodyUpListener);
+        this.$v.transaction(() => {
+            this._callListener("onBrushEnd");
+        });
     }
 
     private handleMove(e: MouseEvent) {
@@ -150,22 +155,23 @@ export class Brush extends Component<BrushOption> {
         const l = this.state.brushL + offset;
         const r = this.state.brushR + offset;
 
-        switch (this._moveType) {
-            case 0:
-                if (l < 0) return;
-                this.setState({ brushL: l });
-                break;
-            case 1:
-                if (r > this.$geometry.width) return;
-                this.setState({ brushR: r });
-                break;
-            case 2:
-                if (l < 0 || r > this.$geometry.width) return;
-                this.setState({ brushL: l, brushR: r });
-                break;
-        }
-
-        this._callListener("onBrushUpdate");
+        this.$v.transaction(() => {
+            switch (this._moveType) {
+                case 0:
+                    if (l < 0) return;
+                    this.setState({ brushL: l });
+                    break;
+                case 1:
+                    if (r > this.$geometry.width) return;
+                    this.setState({ brushR: r });
+                    break;
+                case 2:
+                    if (l < 0 || r > this.$geometry.width) return;
+                    this.setState({ brushL: l, brushR: r });
+                    break;
+            }
+            this._callListener("onBrushUpdate");
+        });
     }
 
     private _callListener(name: "onBrushStart" | "onBrushEnd" | "onBrushUpdate") {

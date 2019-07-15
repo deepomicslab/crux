@@ -1,6 +1,7 @@
 import { GeometryOptValue } from "../../../defs/geometry";
+import { canvasFill, canvasStroke } from "../../../rendering/canvas-helper";
 import { svgPropFillAndStroke } from "../../../rendering/svg-helper";
-import { toCartesian } from "../../../utils/math";
+import { toCartesian, toRad } from "../../../utils/math";
 import { BaseElement } from "../../base-element";
 import { BaseElementOption } from "../base-elm-options";
 
@@ -21,10 +22,17 @@ export class ArcLine extends BaseElement<ArcLineOption> {
     public svgTagName() { return "path"; }
     public svgTextContent() { return null; }
 
+    public renderToCanvas(ctx: CanvasRenderingContext2D) {
+        const { x1, x2, r } = this.$geometry;
+        this.path = new Path2D();
+        this.path.arc(0, 0, r, toRad(x1 - 90), toRad(x2 - 90));
+        canvasFill(ctx, this);
+        canvasStroke(ctx, this);
+    }
+
     public defaultProp() {
         return {
             stroke: "#000",
-            fill: "none",
         };
     }
 

@@ -1,4 +1,5 @@
 import { getFinalPosition } from "../../layout/layout";
+import { canvasFill, canvasStroke } from "../../rendering/canvas-helper";
 import { svgInnerHTML, svgPropFillAndStroke, svgPropPassthrough } from "../../rendering/svg-helper";
 import { measuredTextSize } from "../../utils/text-size";
 import { BaseElementOption } from "./base-elm-options";
@@ -49,6 +50,18 @@ export class Text extends PrimitiveElement<TextOption> {
     public svgTagName() { return "text"; }
     public svgTextContent() {
         return this.prop.text;
+    }
+
+    public renderToCanvas(ctx: CanvasRenderingContext2D) {
+        const [x, y] = getFinalPosition(this);
+        ctx.beginPath();
+        canvasFill(ctx, this, true);
+        canvasStroke(ctx, this, true);
+        if (this.prop.fontSize) {
+            ctx.font = `${this.prop.fontSize}px Arial`;
+        }
+        ctx.fillText(this.prop.text, x, y + this.$cachedHeight);
+        if (this.prop.stroke) ctx.strokeText(this.prop.text, x, y + this.$cachedHeight);
     }
 
     public get maxX() {

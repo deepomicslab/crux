@@ -1,11 +1,12 @@
 import { GeometryOptions, GeometryValue } from "../defs/geometry";
 import { getFinalPosition } from "../layout/layout";
+import { canvasClip } from "../rendering/canvas-helper";
 import helperMixin from "../rendering/helper-mixin";
 import { RenderMixin } from "../rendering/render-mixin";
 import { ElementDef, updateTree } from "../rendering/render-tree";
-import { SVGRenderable } from "../rendering/svg";
 import { svgPropClip } from "../rendering/svg-helper";
 import { Renderer } from "../template/compiler";
+import { toRad } from "../utils/math";
 import { applyMixins } from "../utils/mixin";
 import { BaseElement } from "./base-element";
 import { BaseOption } from "./base-options";
@@ -25,7 +26,7 @@ export interface PolarCoordInfo {
 
 export class Component<Option extends ComponentOption = ComponentOption>
     extends BaseElement<Option>
-    implements SVGRenderable, RenderMixin, ScaleMixin {
+    implements RenderMixin, ScaleMixin {
 
     public static components: Record<string, typeof Component>;
 
@@ -43,6 +44,8 @@ export class Component<Option extends ComponentOption = ComponentOption>
     public _inheritedHeight?: boolean;
     public _defaultedWidth?: boolean;
     public _defaultedHeight?: boolean;
+
+    public _cachedTransform?: [number, number, number, number, number];
 
     constructor(id: number, renderer?: Renderer) {
         super(id);
@@ -102,31 +105,55 @@ export class Component<Option extends ComponentOption = ComponentOption>
         updateTree(this as any);
     }
 
+    private _getTransformation(): [number, number, number, number, number] {
+        let v: any;
+        let x = 0, y = 0;
+        if (!(this.$coord && this.$coord.$polar && !this.$isCoordRoot)) {
+            [x, y] = getFinalPosition(this as any);
+        }
+        if (v = this.prop.rotation) {
+            if (typeof v === "number")
+                return [x, y, v, 0, 0];
+            else if (Array.isArray(v))
+                return [x, y, v[0] , v[1] === "_" ? x : v[1], v[2] === "_" ? y : v[2]];
+            else
+                throw new Error(`transform value must be a number or an array.`);
+        }
+        return [x, y, 0, 0, 0];
+    }
+
+    // svg
+
     public svgTagName() { return "g"; }
     public svgTextContent() { return null; }
     public svgAttrs(): Record<string, string|number|boolean> {
         const attrs = svgPropClip(this as any);
-        let v: any;
-        let transform: string;
-        let x = 0, y = 0;
-        if (this.$coord && this.$coord.$polar && !this.$isCoordRoot) {
-            transform = "";
-        } else {
-            [x, y] = getFinalPosition(this as any);
-            transform = x === 0 && y === 0 ? "" : `translate(${x},${y})`;
-        }
-        if (v = this.prop.rotation) {
-            if (typeof v === "number")
-                transform = `rotate(${v}) ${transform}`;
-            else if (Array.isArray(v))
-                transform = `rotate(${v[0]},${v[1] === "_" ? x : v[1]},${v[2] === "_" ? y : v[2]}) ${transform}`;
-            else
-                throw new Error(`transform value must be a number or an array.`);
+        const [x, y, rc, rx, ry] = this._getTransformation();
+        let transform = x === 0 && y === 0 ? "" : `translate(${x},${y})`;
+        if (rc !== 0) {
+            if (rx === 0 && ry === 0) {
+                transform = `rotate(${rc}) ${transform}`;
+            } else {
+                transform = `rotate(${rc},${rx},${ry}) ${transform}`;
+            }
         }
         if (transform) {
             attrs.transform = transform;
         }
         return attrs;
+    }
+
+    // canvas
+    public renderToCanvas(ctx: CanvasRenderingContext2D) {
+        const t = this._cachedTransform = this._getTransformation();
+        const [x, y, rc] = t;
+        if (x !== 0 || y !== 0) {
+            ctx.translate(x, y);
+        }
+        if (rc !== 0) {
+            ctx.rotate(toRad(rc));
+        }
+        canvasClip(ctx, this as any);
     }
 
     // geometry
@@ -186,6 +213,12 @@ export class Component<Option extends ComponentOption = ComponentOption>
     }
 
     protected _scale(val: number, horizontal: boolean): number {
+        if (this.$parent) {
+            if (horizontal) this.$parent.isInXScaleSystem = true;
+            else this.$parent.isInYScaleSystem = true;
+        }
+        if (horizontal) this.isInXScaleSystem = true;
+        else this.isInYScaleSystem = true;
         const scale = this.getScale(horizontal);
         return typeof scale === "function" ? scale(val) : val;
     }

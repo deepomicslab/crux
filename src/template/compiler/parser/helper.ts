@@ -7,6 +7,7 @@ const exprHelpers: Record<string, [string, boolean?]> = {
     "rotate": [`_h.rotate(this, `, true],
     "anchor": [`_h.anchor(`],
     "geo": [`_h.geo(`],
+    "gradient": [`_h.gradient(this, `, true],
 };
 
 export function transformHelper(name: string) {

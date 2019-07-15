@@ -118,7 +118,7 @@ export class XYPlot extends Component<XYPlotOption> {
                 this.prop.discreteCategory :
                 typeof allData[0].pos === "string";
             this._cRange = this.prop.categoryRange ||
-                this.discreteCategory ? _.uniq(allData.map(d => d.pos)) : d3.extent(allData, d => d.pos);
+                (this.discreteCategory ? _.uniq(allData.map(d => d.pos)) : d3.extent(allData, d => d.pos));
             const minValue = d3.min(allData, d => d.minValue)!;
             this._vRange = this.prop.valueRange || [
                 minValue < 0 || this.prop.capToMinValue ? minValue : 0,

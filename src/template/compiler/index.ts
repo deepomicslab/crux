@@ -12,6 +12,7 @@ export interface TemplateMetaData {
     width?: string;
     height?: string;
     rootComponent: string;
+    renderer?: string;
 }
 
 export function compile(template: string): [Renderer, TemplateMetaData | null] {

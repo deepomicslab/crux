@@ -5,6 +5,9 @@ import { getComponent } from "../element/get-component";
 import { isRenderable } from "../element/is";
 import { adjustByAnchor, layoutElement } from "../layout/layout";
 
+// @ts-ignore
+import shallowEqArrays from "shallow-equal/arrays";
+
 const INHERITED_PROPS = [
     "x", "y", "width", "height", "anchor", "rotation",
 ];
@@ -34,12 +37,14 @@ const currCoordRoot = () => currCoordRoots.length === 0 ? null : currCoordRoots[
 const currCoordSystems: ("polar" | "cartesian")[] = ["cartesian"];
 const currCoordSystem = () => currCoordSystems[currCoordSystems.length - 1];
 
+let xScaleSystemChanged = false;
+let yScaleSystemChanged = false;
+
 function findComponent(component: Component, name: string, id: number): [ActualElement, boolean] {
     const ctor = getComponent(isRenderable(component) ? component : (component as any).$parent, name);
     const comp = component.children.find(c => c instanceof ctor && c.id === id);
     if (comp) {
         comp.isActive = true;
-        if (comp instanceof Component) comp.$ref = {};
         return [comp, false];
     }
     const newElm = new ctor(id);
@@ -55,9 +60,23 @@ function findComponent(component: Component, name: string, id: number): [ActualE
     return [newElm, true];
 }
 
+function shouldUpdateElement(elm: ActualElement, opt: OptDict): boolean {
+    if (elm.shouldNotSkipNextUpdate) {
+        elm.shouldNotSkipNextUpdate = false;
+        return true;
+    }
+    if (!((xScaleSystemChanged && elm.isInXScaleSystem) || (yScaleSystemChanged && elm.isInYScaleSystem)) &&
+        elm.compareProps(opt.props)) {
+        return false;
+    }
+    return true;
+}
+
 export function updateTree(parent: Component<ComponentOption>, def?: ElementDef) {
     let elm: ActualElement;
     let created: boolean;
+    let xScaleChangeRoot = false, yScaleChangeRoot = false;
+
     if (!def) {
         elm = parent;
     } else {
@@ -118,6 +137,41 @@ export function updateTree(parent: Component<ComponentOption>, def?: ElementDef)
         if ("stage" in opt.props) {
             elm.setStage(opt.props.stage, true);
         }
+
+        if (!elm._firstRender) {
+            if (isRenderable(elm)) {
+                if (!shouldUpdateElement(elm, opt)) return;
+            } else {
+                if (opt.props["xScale"]) {
+                    const s = opt.props.xScale;
+                    const sn = (elm as Component)["_prop"].xScale;
+                    if (s.__scale__ && sn.__scale__ &&
+                        s.type === sn.type &&
+                        (s.domain === sn.domain || shallowEqArrays(s.domain, sn.domain)) &&
+                        (s.range === sn.range || shallowEqArrays(s.range, sn.range))) {
+                        xScaleSystemChanged = false;
+                    } else {
+                        xScaleChangeRoot = true;
+                        xScaleSystemChanged = true;
+                    }
+                }
+                if (opt.props["yScale"]) {
+                    const s = opt.props.yScale;
+                    const sn = (elm as Component)["_prop"].yScale;
+                    if (s.__scale__ && sn.__scale__ &&
+                        s.type === sn.type &&
+                        (s.domain === sn.domain || shallowEqArrays(s.domain, sn.domain)) &&
+                        (s.range === sn.range || shallowEqArrays(s.range, sn.range))) {
+                        yScaleSystemChanged = false;
+                    } else {
+                        yScaleChangeRoot = true;
+                        yScaleSystemChanged = true;
+                    }
+                }
+            }
+        }
+        if (elm instanceof Component) elm.$ref = {};
+
         elm.setProp(opt.props);
 
         if (created)
@@ -184,6 +238,9 @@ export function updateTree(parent: Component<ComponentOption>, def?: ElementDef)
         currCoordRoots.pop();
         currCoordSystems.pop();
     }
+
+    if (xScaleChangeRoot) xScaleSystemChanged = false;
+    if (yScaleChangeRoot) yScaleSystemChanged = false;
 
     elm.$callHook("didLayoutSubTree");
     elm.$callHook("willAdjustAnchor");

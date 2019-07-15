@@ -4,6 +4,7 @@ import { BaseElement } from "../element/base-element";
 import { Component } from "../element/component";
 import { registerDefaultGlobalComponents } from "../element/global";
 import { RenderFunc } from "../rendering/base-renderer";
+import { init as canvasInit, render as canvasRenderFunc } from "../rendering/canvas";
 import { render as svgRenderFunc } from "../rendering/svg";
 import { compile } from "../template/compiler";
 import { RootComponent } from "./root";
@@ -30,7 +31,18 @@ export class Visualizer {
 
     public svgDef: Record<string, string> = {};
 
+    public rendererType: "svg" | "canvas";
     public renderer: RenderFunc;
+    public ctx?: CanvasRenderingContext2D;
+    public _registeredEvents: Set<string>;
+    public _focusedElements: Set<BaseElement> = new Set();
+    public _currentCursor: string | null = null;
+
+    private _gradients: Record<string, CanvasGradient> = {};
+
+    public _isInTransaction = false;
+    private _queuedTransactions: (() => void)[] = [];
+    public _changedElements: Set<BaseElement<any>> = new Set();
 
     private firstRun = true;
 
@@ -42,6 +54,8 @@ export class Visualizer {
     }
 
     constructor(opt: VisualizerOption) {
+        this._registeredEvents = new Set();
+
         const el = getOpt(opt, "el") as any;
         const c = typeof el === "string" ? document.querySelector(el) :
             (el instanceof HTMLElement) ? el : null;
@@ -56,11 +70,14 @@ export class Visualizer {
         this._data = opt.data || {};
         this.components = opt.components || {};
 
+        this.rendererType = opt.renderer!;
+
         if (opt.template) {
             const [renderer, metadata] = compile(getOpt(opt, "template"));
             if (!metadata) {
                 throw new Error(`The template must be wrapped with an svg or canvas block.`);
             }
+            this.rendererType = metadata.renderer as any;
             this.size = {
                 width: this._parseSize(metadata.width || "auto", true),
                 height: this._parseSize(metadata.height || "auto", false),
@@ -83,7 +100,17 @@ export class Visualizer {
             };
         }
 
-        this.renderer = svgRenderFunc;
+        switch (this.rendererType) {
+            case "svg":
+                this.renderer = svgRenderFunc;
+                break;
+            case "canvas":
+                this.renderer = canvasRenderFunc;
+                canvasInit(this);
+                break;
+            default:
+                throw new Error(`Unknown renderer ${this.rendererType}`);
+        }
     }
 
     public setRootElement(el: BaseElement) {
@@ -93,9 +120,58 @@ export class Visualizer {
         this.root.$callHook("didCreate");
     }
 
+    public get isCanavs() {
+        return this.rendererType === "canvas";
+    }
+
+    public get isSVG() {
+        return this.rendererType === "svg";
+    }
+
     public run() {
         this.root.draw();
         this.firstRun = false;
+    }
+
+    public transaction(callback: () => void) {
+        if (this._isInTransaction) {
+            this._queuedTransactions.push(callback);
+            return;
+        }
+        this._isInTransaction = true;
+        this._queuedTransactions.push(callback);
+        let task;
+        while (task = this._queuedTransactions.shift()) {
+            task.call(null);
+        }
+        // check changed elements
+        const toRemove: BaseElement[] = [];
+        let p: BaseElement;
+        for (const el of this._changedElements.values()) {
+            p = el;
+            while (p) {
+                if (p !== el && this._changedElements.has(p)) {
+                    toRemove.push(el);
+                    break;
+                }
+                p = p.parent;
+            }
+        }
+        this._isInTransaction = false;
+        toRemove.forEach(e => this._changedElements.delete(e));
+        // redraw
+        if (this.isCanavs) {
+            if (this._changedElements.size > 0) {
+                for (const el of this._changedElements.values()) {
+                    el.renderTree();
+                }
+                this.root.redraw();
+            }
+        } else {
+            for (const el of this._changedElements.values()) {
+                el.redraw();
+            }
+        }
     }
 
     public appendDef(id: string, tag: string, attrs: Record<string, string> = {}, content: string = "") {
@@ -103,9 +179,9 @@ export class Visualizer {
         this.svgDef[id] = `<${tag} id="${id}" ${attrStr}>${content}</${tag}>`;
     }
 
-    public appendGradient(id: string, def: GradientDef): void;
-    public appendGradient(id: string, direction: "horizontal" | "vertical", stops: [string, string]): void;
-    public appendGradient(id: string): void {
+    public defineGradient(id: string, def: GradientDef): void;
+    public defineGradient(id: string, direction: "horizontal" | "vertical", stops: [string, string]): void;
+    public defineGradient(id: string): void {
         let def: GradientDef;
         if (arguments.length === 2) {
             def = arguments[1];
@@ -120,16 +196,24 @@ export class Visualizer {
             }
             def.stops = stops.map((s, i) => ({ offset: i * 100, color: s, opacity: 1 }));
         }
-        this.appendDef(id, "linearGradient", {
-            x1: `${def.x1}%`,
-            x2: `${def.x2}%`,
-            y1: `${def.y1}%`,
-            y2: `${def.y2}%`,
-        }, def.stops.map(s => oneLineTrim`
-            <stop offset="${s.offset}%" style="
-                stop-color:${s.color};
-                stop-opacity:${s.opacity === undefined ? 1 : s.opacity}" />
-            `).join());
+        if (this.isCanavs) {
+            const g = this.ctx!.createLinearGradient(def.x1, def.y1, def.x2, def.y2);
+            for (const stop of def.stops) {
+                g.addColorStop(stop.offset * 0.01, stop.color);
+            }
+            this._gradients[id] = g;
+        } else {
+            this.appendDef(id, "linearGradient", {
+                x1: `${def.x1}%`,
+                x2: `${def.x2}%`,
+                y1: `${def.y1}%`,
+                y2: `${def.y2}%`,
+            }, def.stops.map(s => oneLineTrim`
+                <stop offset="${s.offset}%" style="
+                    stop-color:${s.color};
+                    stop-opacity:${s.opacity === undefined ? 1 : s.opacity}" />
+                `).join());
+        }
     }
 
     private _parseSize(size: string, isWidth: boolean): number {

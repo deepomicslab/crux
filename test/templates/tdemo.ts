@@ -4,7 +4,7 @@ import { Clock } from "./clock";
 registerGlobalComponent({ Clock });
 
 export default `//bvt
-svg {
+canvas {
     width = auto
     height = 1200
 
@@ -44,6 +44,7 @@ svg {
                             stage:active {
                                 fill = "#ffb13d"
                             }
+                            cursor = "pointer"
                             on:mouseenter = $el.setStage("active")
                             on:mouseleave = $el.setStage(null)
                         }
@@ -249,7 +250,7 @@ svg {
                     }
                     :median (d) {
                         Circle.centered { r = 4; x = 50%; fill = "#ffb13d" }
-                        Line { x1 = 0; x2 = 100%; y1 = 0; y2 = 0; stroke = "#ffb13d"; dashArray = [2, 2] }
+                        Line { x1 = 0; x2 = 100%; y1 = 0; y2 = 0; stroke = "#ffb13d"; dashArray = "2,2" }
                     }
                     :outlier {
                         Circle.centered { r = 2; fill = "#777" }

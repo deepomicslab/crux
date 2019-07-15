@@ -38,7 +38,7 @@ function insertHook(elm: BaseElement<BaseElementOption>) {
     };
 }
 
-function render(element: BaseElement<any>) {
+export function render(element: BaseElement<any>) {
     const vnode = _genView(element);
     _patch(element, vnode);
 }
@@ -76,7 +76,7 @@ function _genView(element: BaseElement<any>): VNode {
     // events
     const listeners = gatherEventListeners(element);
     if (listeners) {
-        opt.on = listeners;
+        opt.on = listeners as any;
     }
 
     // styles
@@ -84,6 +84,19 @@ function _genView(element: BaseElement<any>): VNode {
     keys = Object.keys(element.$styles);
     if (keys.length > 0) {
         opt.style = element.$styles;
+    }
+
+    // cursor and visibility
+    let v: any;
+    v = element.prop.cursor;
+    if (typeof v !== "undefined") {
+        if (!opt.style) opt.style = {};
+        opt.style["cursor"] = v;
+    }
+    v = element.prop.visible;
+    if (typeof v !== "undefined") {
+        if (!opt.style) opt.style = {};
+        opt.style["visibility"] = v ? "visible" : "hidden";
     }
 
     // hooks
@@ -123,5 +136,3 @@ function _createRootElm(element: BaseElement): Element {
     element.$v.container.appendChild(svg);
     return rootElm;
 }
-
-export { render };

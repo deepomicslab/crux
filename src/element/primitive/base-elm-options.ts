@@ -7,5 +7,4 @@ export interface BaseElementOption extends BaseOption {
     strokeOpacity: string;
     strokeWidth: number;
     dashArray: string;
-    cursor: string;
 }

@@ -1,5 +1,6 @@
 import { GeometryOptValue } from "../../defs/geometry";
 import { getFinalPosition } from "../../layout/layout";
+import { canvasFill, canvasStroke } from "../../rendering/canvas-helper";
 import { svgPropFillAndStroke } from "../../rendering/svg-helper";
 import { BaseElementOption } from "./base-elm-options";
 import { PrimitiveElement } from "./primitive";
@@ -23,6 +24,15 @@ export class Circle extends PrimitiveElement<CircleOption> {
 
     public svgTagName() { return "circle"; }
     public svgTextContent() { return null; }
+
+    public renderToCanvas(ctx: CanvasRenderingContext2D) {
+        const [x, y] = getFinalPosition(this);
+        const r = this.$geometry.r;
+        this.path = new Path2D();
+        this.path.arc(x + r, y + r, r, 0, 2 * Math.PI, false);
+        canvasFill(ctx, this);
+        canvasStroke(ctx, this);
+    }
 
     public static geometryProps() {
         const { h, v } = super.geometryProps();

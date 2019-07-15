@@ -1,5 +1,6 @@
 import { GeometryOptValue } from "../../defs/geometry";
 import { getFinalPosition } from "../../layout/layout";
+import { canvasFill, canvasStroke } from "../../rendering/canvas-helper";
 import { svgPropFillAndStroke, svgPropPassthrough } from "../../rendering/svg-helper";
 import { BaseElementOption } from "./base-elm-options";
 import { PrimitiveElement } from "./primitive";
@@ -30,6 +31,28 @@ export class Rect extends PrimitiveElement<RectOption> {
 
     public svgTagName() { return "rect"; }
     public svgTextContent() { return null; }
+
+    public renderToCanvas(ctx: CanvasRenderingContext2D) {
+        const [x, y] = getFinalPosition(this as any);
+        const w = this._widthWithMin();
+        const h = this._heightWithMin();
+        this.path = new Path2D();
+        if (this.prop.cornerRadius) {
+            let r = this.prop.cornerRadius as number;
+            if (w < 2 * r) r = w / 2;
+            if (h < 2 * r) r = h / 2;
+            this.path.moveTo(x + r, y);
+            this.path.arcTo(x + w, y, x + w, y + h, r);
+            this.path.arcTo(x + w, y + h, x, y + h, r);
+            this.path.arcTo(x, y + h, x, y, r);
+            this.path.arcTo(x, y, x + w, y, r);
+            this.path.closePath();
+        } else {
+            this.path.rect(x, y, w, h);
+        }
+        canvasFill(ctx, this);
+        canvasStroke(ctx, this);
+    }
 
     public static geometryProps() {
         const { h, v } = super.geometryProps();

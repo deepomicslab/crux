@@ -1,4 +1,5 @@
 import { GeometryOptValue } from "../../../defs/geometry";
+import { canvasFill, canvasStroke } from "../../../rendering/canvas-helper";
 import { svgPropFillAndStroke } from "../../../rendering/svg-helper";
 import { toRad } from "../../../utils/math";
 import { BaseElement } from "../../base-element";
@@ -24,6 +25,13 @@ export class Arc extends BaseElement<ArcOption> {
 
     public svgTagName() { return "path"; }
     public svgTextContent() { return null; }
+
+    public renderToCanvas(ctx: CanvasRenderingContext2D) {
+        ctx.beginPath();
+        this.path = new Path2D(this.getPath()!);
+        canvasFill(ctx, this);
+        canvasStroke(ctx, this);
+    }
 
     private getPath() {
         return arc()

@@ -1,4 +1,5 @@
 import { GeometryOptValue } from "../../defs/geometry";
+import { canvasStroke } from "../../rendering/canvas-helper";
 import { svgPropFillAndStroke, svgPropPassthrough } from "../../rendering/svg-helper";
 import { BaseElementOption } from "./base-elm-options";
 import { PrimitiveElement } from "./primitive";
@@ -29,6 +30,13 @@ export class Line extends PrimitiveElement<LineOption> {
 
     public svgTagName() { return "line"; }
     public svgTextContent() { return null; }
+
+    public renderToCanvas(ctx: CanvasRenderingContext2D) {
+        this.path = new Path2D();
+        this.path.moveTo(this.$geometry.x1, this.$geometry.y1);
+        this.path.lineTo(this.$geometry.x2, this.$geometry.y2);
+        canvasStroke(ctx, this);
+    }
 
     public static geometryProps() {
         const { h, v } = super.geometryProps();

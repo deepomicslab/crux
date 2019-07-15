@@ -1,9 +1,9 @@
-import { BaseElement } from "../element/base-element";
+import { BaseElement, ElementEventListener } from "../element/base-element";
 import { BaseOption } from "../element/base-options";
 import { isRenderable } from "../element/is";
 
 export function gatherEventListeners(el: BaseElement<BaseOption>) {
-    const listeners: Record<string, ((e: Event) => void)[] | ((e: Event) => void)> = {};
+    const listeners: Record<string, ElementEventListener|ElementEventListener[]> = {};
     let p = el;
     let empty = true;
     function gather(k: string, l: any) {

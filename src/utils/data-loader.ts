@@ -4,6 +4,7 @@ import * as _ from "lodash";
 import * as Mustache from "mustache";
 
 import { event } from "./";
+import { parseNewick } from "./newick";
 
 declare global {
     interface GonInfo {
@@ -34,6 +35,7 @@ export enum DataSourceType {
     TSV = "tsv",
     JSON = "json",
     TEXT = "text",
+    NEWICK = "newick",
 }
 
 export type DSVRowType = "string" | "int" | "float" | "skip";
@@ -217,6 +219,9 @@ export class DataLoader<T extends { [key: string]: any } = { [key: string]: any 
                         case DataSourceType.JSON:
                             if (isRawData)
                                 data = JSON.parse(data);
+                            break;
+                        case DataSourceType.NEWICK:
+                            data = parseNewick(data);
                             break;
                     }
                     fullfill(data);

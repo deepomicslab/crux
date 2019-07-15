@@ -43,8 +43,8 @@ export class GeneArea extends Component<GeneAreaOption> {
                     width  = @scaled-x(gr) - @scaled-x(gl)
                     height = prop.rowHeight
                     stage  = isGeneActive(gene) ? "active": null
-                    on:mouseenter = $el.stage = "active"
-                    on:mouseleave = $el.stage = null
+                    on:mouseenter = setFocusedGene($el.prop.context.trans_name)
+                    on:mouseleave = setFocusedGene(null)
                     @props prop.opt.gene
 
                     @if prop.displayPromoters {
@@ -102,6 +102,11 @@ export class GeneArea extends Component<GeneAreaOption> {
         };
     }
 
+    public state = {
+        stage: null,
+        focusedGene: null,
+    };
+
     public layout(): GeneData[][] {
         const data =  stackedLayout(this.prop.genes!)
             .value(x => x.most_left_pos)
@@ -123,7 +128,12 @@ export class GeneArea extends Component<GeneAreaOption> {
 
     // @ts-ignore
     private isGeneActive(gene) {
-        return this.prop.activeGenes.indexOf(gene.trans_name) >= 0;
+        return this.state.focusedGene === gene.trans_name || this.prop.activeGenes.indexOf(gene.trans_name) >= 0;
+    }
+
+    // @ts-ignore
+    private setFocusedGene(gene) {
+        this.setState({ focusedGene: gene });
     }
 
     public getGenes(position: number): Component[] {

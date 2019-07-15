@@ -66,5 +66,12 @@ export default {
         const range = (r1 !== undefined && r2 !== undefined) ? [r1, r2] : null;
         return { __scale__: true, type: "linear", domain, range };
     },
+    gradient(self: any, name: string) {
+        if (self.$v.isSVG) {
+            return `url(#${name})`;
+        } else {
+            return self.$v._gradients[name];
+        }
+    },
     ANCHOR,
 };

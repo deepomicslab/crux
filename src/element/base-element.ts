@@ -1,6 +1,7 @@
 import { Behavior } from "../behavior/behavior";
 import { Zoom, ZoomOption } from "../behavior/zoom";
 import { GeometryOptions, GeometryUnit, GeometryValue } from "../defs/geometry";
+import { CanvasRenderable } from "../rendering/canvas";
 import { SVGRenderable } from "../rendering/svg";
 import { VNode } from "../rendering/vdom/vnode";
 import { toCartesian } from "../utils/math";
@@ -9,13 +10,20 @@ import { Visualizer } from "../visualizer/visualizer";
 import { BaseOption } from "./base-options";
 import { Component } from "./component";
 
+// @ts-ignore
+import shallowEqArrays from "shallow-equal/arrays";
+// @ts-ignore
+import shallowEqObjects from "shallow-equal/objects";
+
 interface State {
     stage?: string | null | undefined;
     [name: string]: any;
 }
 
+export type ElementEventListener = (ev: Event, el: BaseElement<any>) => void;
+
 export abstract class BaseElement<Option extends BaseOption = BaseOption>
-    implements SVGRenderable {
+    implements SVGRenderable, CanvasRenderable {
 
     public _name!: string;
     public id: number;
@@ -25,7 +33,14 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
     public isActive = true;
     public parent!: Component; // the direct parent
     public logicalParent?: Component; // parent when rendering
+
     public vnode?: VNode;
+    public path?: Path2D;
+    public _gatheredListeners?: Record<string, ElementEventListener|ElementEventListener[]> | null;
+    public _isFocused = false;
+
+    public _firstRender = true;
+    public shouldNotSkipNextUpdate = false;
 
     private _prop: Option;
     public prop!: Option;
@@ -34,6 +49,8 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
 
     public $parent?: Component; // the containing renderable component
     public $coord?: Component; // component which defined the root coord system
+    public isInXScaleSystem = false;
+    public isInYScaleSystem = false;
 
     public $on: Record<string, any> = {};
     public $styles: Record<string, string> = {};
@@ -121,10 +138,44 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
             if (!(k in this._prop))
                 this._prop[k] = this.$defaultProp[k];
         });
+
+        this._firstRender = false;
     }
 
     protected _setPropsWithModifier(mod: string, props: Record<string, any>) {
         // wip
+    }
+
+    public compareProps(p: Record<string, any>): boolean {
+        const k1 = Object.keys(p); // , k2 = Object.keys(this._prop);
+        // if (!shallowEqArrays(k1, k2)) return false;
+        let k, p1, p2, t1, t2;
+        for (k of k1) {
+            p1 = p[k]; p2 = this._prop[k];
+            t1 = typeof p1; t2 = typeof p2;
+            if (t1 !== t2) return false;
+            switch (t1) {
+                case "string":
+                case "number":
+                case "undefined":
+                case "boolean":
+                case "function":
+                case "bigint":
+                case "symbol":
+                    if (p1 !== p2) return false;
+                    continue;
+                default:
+                    if (Array.isArray(p1)) {
+                        if (Array.isArray(p2) && shallowEqArrays(p1, p2)) {
+                            continue;
+                        }
+                        return false;
+                    }
+                    if (!shallowEqObjects) return false;
+                    continue;
+            }
+        }
+        return true;
     }
 
     public parseInternalProps() {
@@ -227,16 +278,40 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
         this.$v.renderer.call(null, this as any);
     }
 
-    private _redrawTimeout?: number;
-    private _lateRedraw() {
-        this._redrawTimeout = undefined;
-        this.draw();
-    }
-    public redraw() {
-        if (this._redrawTimeout) {
-            window.clearTimeout(this._redrawTimeout);
+    public shouldDraw() {
+        if (this.$v._isInTransaction) {
+            this.$v._changedElements.add(this);
+            return false;
         }
-        this._redrawTimeout = window.setTimeout(this._lateRedraw.bind(this), 5);
+        return true;
+    }
+
+    private _hasBufferedRedraw = false;
+    private _isReDrawing = false;
+
+    public redraw() {
+        if (!this.shouldDraw()) {
+            return;
+        }
+        if (this.$v.isCanavs) {
+            this._hasBufferedRedraw = true;
+            if (!this._isReDrawing) {
+                window.requestAnimationFrame(this._performRedraw.bind(this));
+            }
+        } else {
+            this.draw();
+        }
+    }
+
+    private _performRedraw() {
+        this._hasBufferedRedraw = false;
+        this._isReDrawing = true;
+        if (this.shouldDraw()) this.draw();
+        if (!this._hasBufferedRedraw) {
+            this._isReDrawing = false;
+            return;
+        }
+        window.requestAnimationFrame(this._performRedraw.bind(this));
     }
 
     /* geometry */
@@ -257,6 +332,12 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
     /* scale */
 
     protected _scale(val: number, horizontal: boolean): number {
+        if (this.$parent) {
+            if (horizontal) this.$parent.isInXScaleSystem = true;
+            else this.$parent.isInYScaleSystem = true;
+        }
+        if (horizontal) this.isInXScaleSystem = true;
+        else this.isInYScaleSystem = true;
         const scale = this.parent.getScale(horizontal);
         return typeof scale === "function" ? scale(val) : val;
     }
@@ -274,6 +355,9 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
     public abstract svgTagName(): string;
     public abstract svgAttrs(): Record<string, string | number | boolean>;
     public abstract svgTextContent(): string | null;
+
+    /* canvas */
+    public abstract renderToCanvas(ctx: CanvasRenderingContext2D): void;
 
     public static geometryProps(): { h: string[], v: string[] } {
         return {

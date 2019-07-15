@@ -6,7 +6,8 @@ import { parseBlock } from "./block";
 export function parse(template: string): [ASTNode, TemplateMetaData | null] {
     const parser = new ParserStream(template.trim());
 
-    const isRoot = !!parser.expect("svg|canvas|component", "svg/canvas/component block", true);
+    const rootBlock = parser.expect("svg|canvas|component", "svg/canvas/component block", true);
+    const isRoot = !!rootBlock;
     const ast = parseBlock(parser) as ASTNodeComp;
     parser.expectEnd();
 
@@ -22,6 +23,8 @@ export function parse(template: string): [ASTNode, TemplateMetaData | null] {
             return acc;
         }, {}) as TemplateMetaData;
 
+        if (isRoot)
+            metadata.renderer = rootBlock[0];
         metadata.rootComponent = (ast.children[0] as ASTNodeComp).name;
         ast.props = [];
         return [ast, metadata];

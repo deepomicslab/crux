@@ -9,6 +9,9 @@ export interface BaseOption {
     rotation?: number | [number, number, number];
     rotateAfterTranslate?: boolean;
 
+    cursor: string;
+    visible: boolean;
+
     detached: boolean;  // for Container
 
     stage: string;
