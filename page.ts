@@ -51,6 +51,9 @@ import scatterData from "./demo/scatter-data";
 // @ts-ignore
 import demo_vennDiagram from "./demo/venn/demo_venn-diagram";
 // @ts-ignore
+import violin from "./demo/violin/violin";
+
+// @ts-ignore
 import loadData from "./src/load-data";
 import { parseNewick } from "./src/utils";
 // @ts-ignore
@@ -99,7 +102,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const residualData = confidenceBand(scatterData);
     window.$v = visualize({
         el: "#canvas",
-        template: t1,
+        template: violin,
         loadData: { data4: { content: "1" }},
         data: {
             array: [1, 3, 8, 6, 5, 4, 2, 7, 3],

@@ -418,7 +418,7 @@ svg {
                     includeEndTicks = true
                     dashArray = "1, 2"
                 }
-                BoxesNotched {
+                Boxes {
                     data = "boxData";
                     :box (notchData) {
                         Path {d = notchData.path; fill = fills[notchData.pos]}

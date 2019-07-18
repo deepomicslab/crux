@@ -2,8 +2,8 @@ import { componentList } from "./get-component";
 
 import { Axis, AxisBackground, AxisRadical, Legend } from "./auxiliary";
 import {
-    Area, Bars, Boxes, BoxesNotched, Contour, ContourDensity, Dots, GroupedBars, HeatMap, PieChart, RadarChart,
-    Scatters1D, StackedArea, StackedBars, VennDiagram,
+    Area, Bars, Boxes, Contour, ContourDensity, Dots, GroupedBars, HeatMap, PieChart, RadarChart,
+    Scatters1D, StackedArea, StackedBars, VennDiagram, Violins,
 } from "./chart";
 import { Component } from "./component";
 import { Brush } from "./interaction";
@@ -36,7 +36,6 @@ export function registerDefaultGlobalComponents() {
         StackedArea,
         Bars,
         Boxes,
-        BoxesNotched,
         Dots,
         StackedBars,
         GroupedBars,
@@ -47,6 +46,7 @@ export function registerDefaultGlobalComponents() {
         VennDiagram,
         Contour,
         ContourDensity,
+        Violins,
         // layout
         Container,
         Rows,

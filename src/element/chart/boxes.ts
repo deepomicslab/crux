@@ -3,6 +3,10 @@ import { template } from "../../template/tag";
 import { BaseChart, BaseChartOption } from "./base-chart";
 
 export interface BoxesOption extends BaseChartOption {
+    fill: string;
+    showNotch: boolean;
+    showMean: boolean;
+    notchWidth: number;
 }
 
 export class Boxes extends BaseChart<BoxesOption> {
@@ -11,7 +15,6 @@ export class Boxes extends BaseChart<BoxesOption> {
         @for (d, pos) in data.raw.values {
             Component {
                 @let means = data.raw.means[pos]
-                @let _d = { data: d, pos }
 
                 key = "b" + pos
                 anchor = getAnchor()
@@ -33,35 +36,49 @@ export class Boxes extends BaseChart<BoxesOption> {
                         }
                     }
                 }
-                Component {
-                    anchor = getBoxAnchor()
-                    @props boxOpts(d)
-                    @yield box with _d default {
-                        Rect.full {
+                @if notched {
+                    Component {
+                        Path {
+                            d = notchPath(d, data.raw.notches[pos])
+                            fill = "none"
                             stroke = "#000"
-                            fill = prop.fill || "none"
+                            @props prop.opt.notch
+                        }
+                    }
+                }
+                @else {
+                    Component {
+                        anchor = getBoxAnchor()
+                        @props boxOpts(d)
+                        @yield box with { data: d, pos } default {
+                            Rect.full {
+                                @props prop.opt.box
+                                stroke = "#000"
+                                fill = prop.fill || "none"
+                            }
                         }
                     }
                 }
                 Component {
                     @props medianOpts(d)
-                    @yield median with d default {
-                        @if flipped {
-                            Line { y1 = 0; y2 = 100%; x1 = 0; x2 = 0 }
-                        }
-                        @else {
-                            Line { x1 = 0; x2 = 100%; y1 = 0; y2 = 0 }
-                        }
-                    }
+                    @yield median with d
                 }
-                Component {
-                    @props meanOpts(means)
-                    @yield mean with means default {
-                        @if flipped {
-                            Line { y1 = 0; y2 = 100%; x1 = 0; x2 = 0; stroke = "#000" }
-                        }
-                        @else {
-                            Line { x1 = 0; x2 = 100%; y1 = 0; y2 = 0; stroke = "#000" }
+                @if hasMean {
+                    Component {
+                        @props meanOpts(means)
+                        @yield mean with means default {
+                            @if flipped {
+                                Line {
+                                    @props prop.opt.mean
+                                    y1 = 0; y2 = 100%; x1 = 0; x2 = 0; stroke = "#000"
+                                }
+                            }
+                            @else {
+                                Line {
+                                    @props prop.opt.mean
+                                    x1 = 0; x2 = 100%; y1 = 0; y2 = 0; stroke = "#000"
+                                }
+                            }
                         }
                     }
                 }
@@ -78,12 +95,25 @@ export class Boxes extends BaseChart<BoxesOption> {
                 y = flipped ? x : y
 
                 @yield outlier with o default {
-                    Circle.centered { r = 2; fill = "red" }
+                    Circle.centered {
+                        @props prop.opt.outlier
+                        r = 2; fill = "red"
+                    }
                 }
             }
         }
     }
     `;
+
+    // @ts-ignore
+    private get notched() {
+        return !!this.data.raw.notches && this.prop.showNotch;
+    }
+
+    // @ts-ignore
+    private get hasMean() {
+        return !!this.data.raw.mean && this.prop.showMean;
+    }
 
     // @ts-ignore
     private medianOpts(d) {
@@ -120,6 +150,21 @@ export class Boxes extends BaseChart<BoxesOption> {
     }
 
     // @ts-ignore
+    private notchPath(d, n) {
+        const max = this.getY(d[1]);
+        const notchMin = this.getY(n[1]);
+        const medium = this.getY(d[2]);
+        const notchMax = this.getY(n[0]);
+        const min = this.getY(d[3]);
+        const width = this.columnWidth;
+        const nWidth = width * 0.5 * this.prop.notchWidth;
+        const seg = (x: number, y: number, isM = false) => (isM ? "M" : "L") + (this.flipped ? `${y},${x} ` : `${x},${y} `);
+        // tslint:disable-next-line: prefer-template
+        return seg(0, max, true) + seg(0, notchMax) + seg(nWidth, medium) + seg(0, notchMin) + seg(0, min)
+        + seg(width, min) + seg(width, notchMin) + seg(width - nWidth, medium) + seg(width, notchMax) + seg(width, max) + "z";
+}
+
+    // @ts-ignore
     private containerOpts(pos) {
         return this.flippedOpts({
             x: this.getX(pos),
@@ -133,5 +178,12 @@ export class Boxes extends BaseChart<BoxesOption> {
         return this.flipped ?
             (this.inverted ? Anchor.Left : Anchor.Right) | Anchor.Top :
             (this.inverted ? Anchor.Top : Anchor.Bottom) | Anchor.Left;
+    }
+
+    public defaultProp() {
+        return {
+            ...super.defaultProp(),
+            notchWidth: 0.5,
+        };
     }
 }

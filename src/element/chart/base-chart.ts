@@ -95,4 +95,5 @@ export class BaseChart<Option extends BaseChartOption = BaseChartOption> extends
 
 const FLIP_OPT_MAP = {
     x: "y", y: "x", width: "height", height: "width",
+    x1: "y1", x2: "y2", y1: "x1", y2: "x2",
 };
