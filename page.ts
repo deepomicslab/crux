@@ -102,7 +102,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const residualData = confidenceBand(scatterData);
     window.$v = visualize({
         el: "#canvas",
-        template: violin,
+        template: box,
         loadData: { data4: { content: "1" }},
         data: {
             array: [1, 3, 8, 6, 5, 4, 2, 7, 3],

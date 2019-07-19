@@ -21,6 +21,7 @@ export interface ParsedData {
 }
 
 interface DataHandler {
+    categories: ((d: any) => any[]) | null;
     values: (d: any) => any[];
     min: (d: any, i: number) => number;
     value: (d: any, i: number) => number;
@@ -145,6 +146,7 @@ export class XYPlot extends Component<XYPlotOption> {
     public get inverted() { return !!this.prop.invertValueAxis; }
     public get categoryScale() { return this.flipped ? this._yScale : this._xScale; }
     public get valueScale() { return this.flipped ? this._xScale : this._yScale; }
+    public get categories() { return this._cRange; }
 
     public stackedDataKeys(key: string) { return this.prop.stackedData[key]; }
 
@@ -192,9 +194,14 @@ export function getGetter(vf: string | ((d: any, i: number) => any)) {
 
 export function parseData(elm: Component<ComponentOption>, data: any, h: DataHandler) {
     h = h ? addDefaultsToDataHandler(h) : createDataHandler(data);
+    let categories: any[] | null = null;
+    if (h.categories) {
+        categories = h.categories(data);
+    }
     return {
         values: h.values(data).map((d, i) => ({
-            pos: h.pos(d, i), value: h.value(d, i), minValue: h.min(d, i), data: d,
+            pos: categories ? categories[i] : h.pos(d, i),
+            value: h.value(d, i), minValue: h.min(d, i), data: d,
         })),
         raw: data,
     };
@@ -210,11 +217,15 @@ function addDefaultsToDataHandler(h: DataHandler) {
 
 function createDataHandler(data: any): DataHandler {
     let values: (d: any) => number[] = d => d;
+    let categories: ((d: any) => any[]) | null = null;
     let v: any[];
     if (Array.isArray(data)) {
         v = data;
     } else {
         values = d => d["values"];
+        if ("categories" in data) {
+            categories = d => d.categories;
+        }
         v = data.values;
         if (!Array.isArray(v))
             throw new Error(`XYPlot is unable to handle the data. Please use a customized data handler.`);
@@ -235,5 +246,5 @@ function createDataHandler(data: any): DataHandler {
         pos = d => d.pos;
         max = d => d.value;
     }
-    return { values, min, value: max, pos };
+    return { categories, values, min, value: max, pos };
 }

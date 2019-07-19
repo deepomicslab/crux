@@ -34,13 +34,13 @@ svg {
                     padding-y = 20
                     padding-l = 40
                     data = { boxData }
+                    discreteCategory = true
                     Rect { fill = "#ffffff"; stroke="#000000" }
                     AxisBackground {
                         dashArray = "1, 2"
                     }
                     AxisBackground {
                         orientation = "vertical"
-                        includeEndTicks = true
                         dashArray = "1, 2"
                     }
                     Boxes {

@@ -75,9 +75,9 @@ export class Axis extends Component<AxisOption> {
     public willRender() {
         if (this.$parent instanceof XYPlot &&
             this.$parent.flipped !== this.isHorizontal) {
-            const domain = this.$parent.categoryScale.domain();
+            const domain = this.$parent.categories;
             this._tickValues = this.$parent.discreteCategory ?
-                domain : null; // _.range(domain[0], domain[1] + 1);
+                domain : undefined; // _.range(domain[0], domain[1] + 1);
         }
     }
 
@@ -133,32 +133,37 @@ export function getTicks(
     } else {
         ticks = [];
         const domain = scale.domain();
-        let i: number;
-        if (interval) {
-            i = interval;
-        } else {
-            if (!count) {
-                throw new Error(`Axis: "ticks", "tickInterval" or "tickCount" must be provided.`);
+        const isNumeric = domain.length === 2 && typeof domain[0] === "number";
+        if (isNumeric) {
+            let i: number;
+            if (interval) {
+                i = interval;
+            } else {
+                if (!count) {
+                    throw new Error(`Axis: "ticks", "tickInterval" or "tickCount" must be provided.`);
+                }
+                const rawInterval = (domain[1] - domain[0]) / count;
+                const digits = baseDigitOf(rawInterval);
+                i = _.minBy([0.1, 0.2, 0.5, 1, 2, 5].map(x => x * digits), x => {
+                    if (x > domain[1]) { return Number.MAX_SAFE_INTEGER; }
+                    return Math.abs(x - rawInterval);
+                })!;
             }
-            const rawInterval = (domain[1] - domain[0]) / count;
-            const digits = baseDigitOf(rawInterval);
-            i = _.minBy([0.1, 0.2, 0.5, 1, 2, 5].map(x => x * digits), x => {
-                if (x > domain[1]) { return Number.MAX_SAFE_INTEGER; }
-                return Math.abs(x - rawInterval);
-            })!;
-        }
-        // check whether domain[0] can be divided by interval
-        const start = Math.ceil(domain[0] / i) * i;
-        let counter = start;
-        while (counter < domain[1]) {
-            ticks.push(pretty(counter));
-            counter += i;
-        }
+            // check whether domain[0] can be divided by interval
+            const start = Math.ceil(domain[0] / i) * i;
+            let counter = start;
+            while (counter < domain[1]) {
+                ticks.push(pretty(counter));
+                counter += i;
+            }
 
-        // add start and end ticks
-        if (includeEndTicks) {
-            ticks.unshift(domain[0].toFixed());
-            ticks.push(domain[1].toFixed());
+            // add start and end ticks
+            if (includeEndTicks && isNumeric) {
+                ticks.unshift(Math.floor(domain[0]));
+                ticks.push(Math.floor(domain[1]));
+            }
+        } else {
+            ticks = domain;
         }
     }
 
