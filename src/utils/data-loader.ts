@@ -266,6 +266,8 @@ export class DataLoader<T extends { [key: string]: any } = { [key: string]: any 
         const def = this.dataSources[type];
         if (typeof def.url === "string") {
             return Mustache.render(def.url, options ? options : this);
+        } else if (typeof def.url === "function") {
+            return def.url.call(this, this);
         } else if (typeof def.fileKey === "string") {
             if ((window as any).BVD_CUSTOM_DATA_PROVIDER) {
                 const dataList: any[] = (window as any).BVD_CUSTOM_DATA_PROVIDER;

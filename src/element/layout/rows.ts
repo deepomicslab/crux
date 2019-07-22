@@ -19,7 +19,7 @@ export class Rows extends Component {
                     c = c.children[0] as Component<ComponentOption>;
                     c.$geometry._yOffset.row = counter;
                 }
-                counter += (c as Component).$geometry.height;
+                counter += (c as Component).$geometry.height + (c as Component).$geometry.y;
             } else {
                 throw Error(`Rows can only contain Components as direct child`);
             }

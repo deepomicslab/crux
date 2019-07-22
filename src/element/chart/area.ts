@@ -7,6 +7,7 @@ const a3: number[] = [];
 
 export interface AreaOption extends BaseChartOption {
     data: any[];
+    xOffset: number;
     fill: string;
     stroke: string;
     pathOptions: any;
@@ -29,6 +30,7 @@ export class Area extends BaseChart<AreaOption> {
     private updateData() {
         this._hasMinValue = false;
         const value = this.data.values as any[];
+        const xOffset = this.prop.xOffset || 0;
 
         value.forEach((d, i) => {
             let minValue = 0;
@@ -36,7 +38,7 @@ export class Area extends BaseChart<AreaOption> {
                 this._hasMinValue = true;
                 minValue = this.getY(d.minValue);
             }
-            a1[i] = this.getX(d.pos);
+            a1[i] = this.getX(d.pos + xOffset);
             a2[i] = this.getY(d.value);
             a3[i] = minValue;
         });
