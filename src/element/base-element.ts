@@ -342,8 +342,8 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
         return typeof scale === "function" ? scale(val) : val;
     }
 
-    protected _rotate(val: number) {
-        return [val, "_", "_"];
+    protected _rotate(val: number, x: number, y: number) {
+        return [val, typeof x === "number" ? x : "_", typeof y === "number" ? y : "_"];
     }
 
     protected _geo(val: number, offset: number): GeometryValue {

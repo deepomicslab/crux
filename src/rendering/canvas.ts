@@ -51,12 +51,7 @@ export function init(v: Visualizer) {
     }
 
     const ratio = window.devicePixelRatio || 1;
-    const { width, height } = v.size;
-
-    canvas.width = width * ratio;
-    canvas.height = height * ratio;
-    canvas.style.width = `${width}px`;
-    canvas.style.height = `${height}px`;
+    setSize(canvas, v);
     ctx.font = "12px Arial";
     ctx.scale(ratio, ratio);
 
@@ -66,6 +61,16 @@ export function init(v: Visualizer) {
 
     v.container.appendChild(canvas);
     v.ctx = ctx;
+}
+
+export function setSize(canvas: HTMLCanvasElement, v: Visualizer) {
+    const ratio = window.devicePixelRatio || 1;
+    const { width, height } = v.size;
+
+    canvas.width = width * ratio;
+    canvas.height = height * ratio;
+    canvas.style.width = `${width}px`;
+    canvas.style.height = `${height}px`;
 }
 
 const MOUSE_EVENT_MAP = {
@@ -87,8 +92,8 @@ function addMouseEventListener<T>(v: Visualizer, canvas: HTMLCanvasElement, even
     canvas.addEventListener(event, function(this: HTMLCanvasElement, e: MouseEvent) {
         if (!v._registeredEvents.has(mappedEvent)) return;
         const b = canvas.getBoundingClientRect();
-        const x = (e.pageX - b.left) * window.devicePixelRatio;
-        const y = (e.pageY - b.top) * window.devicePixelRatio;
+        const x = (e.clientX - b.left) * window.devicePixelRatio;
+        const y = (e.clientY - b.top) * window.devicePixelRatio;
         const element = isMouseLeave ? null : findElement(v.ctx!, v.root, x, y);
         if (isMouseMove) {
             for (const el of v._focusedElements.values()) {

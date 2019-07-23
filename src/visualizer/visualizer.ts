@@ -4,7 +4,7 @@ import { BaseElement } from "../element/base-element";
 import { Component } from "../element/component";
 import { registerDefaultGlobalComponents } from "../element/global";
 import { RenderFunc } from "../rendering/base-renderer";
-import { init as canvasInit, render as canvasRenderFunc } from "../rendering/canvas";
+import { init as canvasInit, render as canvasRenderFunc, setSize } from "../rendering/canvas";
 import { render as svgRenderFunc } from "../rendering/svg";
 import { compile } from "../template/compiler";
 import { RootComponent } from "./root";
@@ -19,13 +19,13 @@ export interface VisualizerOption {
     renderer?: "canvas" | "svg";
     width?: number | "auto";
     height?: number | "auto";
-    setup?: (this: Visualizer) => void;
 }
 
 export class Visualizer {
     public container: Element;
     public root!: BaseElement;
     private _data: Record<string, any>;
+    private _dataProxy!: Record<string, any>;
     public size!: { width: number, height: number };
     public components: Record<string, typeof Component>;
 
@@ -46,11 +46,25 @@ export class Visualizer {
 
     private firstRun = true;
 
-    public get data() { return this._data; }
+    public get data() { return this._dataProxy; }
     public set data(d) {
         this._data = d;
         Object.keys(this._data).forEach(k => this.root[k] = this._data[k]);
+        this._createDataProxy();
         if (!this.firstRun) this.run();
+    }
+
+    private _createDataProxy() {
+        this._dataProxy = new Proxy(this._data, {
+            get: (target: any, p: string) => {
+                return target[p];
+            },
+            set: (target: any, p: string, val: any) => {
+                target[p] = val;
+                this.root[p] = val;
+                return true;
+            },
+        });
     }
 
     constructor(opt: VisualizerOption) {
@@ -68,6 +82,8 @@ export class Visualizer {
         this.container.innerHTML = "";
 
         this._data = opt.data || {};
+        this._createDataProxy();
+
         this.components = opt.components || {};
 
         this.rendererType = opt.renderer!;
@@ -130,6 +146,9 @@ export class Visualizer {
 
     public run() {
         this.root.draw();
+        if (this.firstRun && this.isCanavs) {
+            setSize(this.ctx!.canvas, this);
+        }
         this.firstRun = false;
     }
 

@@ -146,12 +146,18 @@ export class Component<Option extends ComponentOption = ComponentOption>
     // canvas
     public renderToCanvas(ctx: CanvasRenderingContext2D) {
         const t = this._cachedTransform = this._getTransformation();
-        const [x, y, rc] = t;
+        const [x, y, rc, rx, ry] = t;
+        if (rc !== 0) {
+            if (rx === 0 && ry === 0) {
+                ctx.rotate(toRad(rc));
+            } else {
+                ctx.translate(rx, ry);
+                ctx.rotate(toRad(rc));
+                ctx.translate(-rx, -ry);
+            }
+        }
         if (x !== 0 || y !== 0) {
             ctx.translate(x, y);
-        }
-        if (rc !== 0) {
-            ctx.rotate(toRad(rc));
         }
         canvasClip(ctx, this as any);
     }

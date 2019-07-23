@@ -136,31 +136,34 @@ export function getTicks(
         const isNumeric = domain.length === 2 && typeof domain[0] === "number";
         if (isNumeric) {
             let i: number;
+            const isInversed = domain[1] < domain[0];
             if (interval) {
-                i = interval;
+                i = isInversed ? -interval : interval;
             } else {
                 if (!count) {
                     throw new Error(`Axis: "ticks", "tickInterval" or "tickCount" must be provided.`);
                 }
                 const rawInterval = (domain[1] - domain[0]) / count;
-                const digits = baseDigitOf(rawInterval);
+                const absInterval = Math.abs(rawInterval);
+                const digits = baseDigitOf(absInterval);
                 i = _.minBy([0.1, 0.2, 0.5, 1, 2, 5].map(x => x * digits), x => {
-                    if (x > domain[1]) { return Number.MAX_SAFE_INTEGER; }
-                    return Math.abs(x - rawInterval);
+                    if (!isInversed && x > domain[1]) { return Number.MAX_SAFE_INTEGER; }
+                    return Math.abs(x - absInterval);
                 })!;
+                if (isInversed) i = -i;
             }
             // check whether domain[0] can be divided by interval
             const start = Math.ceil(domain[0] / i) * i;
             let counter = start;
-            while (counter < domain[1]) {
+            while ((isInversed ? counter - domain[1] : domain[1] - counter) > 1e-15) {
                 ticks.push(pretty(counter));
                 counter += i;
             }
 
             // add start and end ticks
             if (includeEndTicks && isNumeric) {
-                ticks.unshift(Math.floor(domain[0]));
-                ticks.push(Math.floor(domain[1]));
+                ticks.unshift(domain[0]);
+                ticks.push(domain[1]);
             }
         } else {
             ticks = domain;

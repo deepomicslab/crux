@@ -9,6 +9,7 @@ interface TextOption extends BaseElementOption {
     text: any;
     html: string;
     fontSize: number;
+    fontFamily: string;
 }
 
 export class Text extends PrimitiveElement<TextOption> {
@@ -29,7 +30,7 @@ export class Text extends PrimitiveElement<TextOption> {
             throw new Error(`Text: you must supply either "text" or "html".`);
         }
 
-        const box = measuredTextSize(text, this.prop.fontSize);
+        const box = measuredTextSize(text, this.prop.fontSize, this.prop.fontFamily);
         this.$cachedHeight = box.height;
         this.$cachedWidth = box.width;
     }
@@ -41,6 +42,7 @@ export class Text extends PrimitiveElement<TextOption> {
             ...svgInnerHTML(this),
             ...svgPropPassthrough({
                 "font-size": "fontSize",
+                "font-family": "fontFamily",
             })(this),
             x,
             y: y + this.$cachedHeight,
@@ -58,7 +60,7 @@ export class Text extends PrimitiveElement<TextOption> {
         canvasFill(ctx, this, true);
         canvasStroke(ctx, this, true);
         if (this.prop.fontSize) {
-            ctx.font = `${this.prop.fontSize}px Arial`;
+            ctx.font = `${this.prop.fontSize}px ${this.prop.fontFamily || "Arial"}`;
         }
         ctx.fillText(this.prop.text, x, y + this.$cachedHeight);
         if (this.prop.stroke) ctx.strokeText(this.prop.text, x, y + this.$cachedHeight);

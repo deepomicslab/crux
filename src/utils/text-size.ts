@@ -5,8 +5,8 @@ let useSVG = false;
 let textSize = 12;
 let textFont = "Arial";
 
-const cachedWidth: Record<number, Record<string, number>> = {
-    [textSize]: {},
+const cachedWidth: Record<number, Record<string, Record<string, number>>> = {
+    [textFont]: { [textSize]: {} },
 };
 
 const cachedHeight: Record<number, number> = {};
@@ -19,32 +19,44 @@ export function setFont(font: string) {
     textFont = font;
 }
 
-export function measuredTextSize(text: string, size: number = textSize): { width: number, height: number } {
+export function measuredTextSize(text: string, size: number = textSize, family: string = "Arial"): { width: number, height: number } {
     if (text.length === 0) return { width: 0, height: 0};
 
-    if (cachedWidth[size]) {
-        const width = cachedWidth[size][text];
+    if (!(family in cachedWidth)) {
+        cachedWidth[family] = {};
+    }
+    const cachedFamilyWidth = cachedWidth[family];
+    if (cachedFamilyWidth[size]) {
+        const width = cachedFamilyWidth[size][text];
         if (typeof width === "number") {
             return { width, height: cachedHeight[size] };
         }
     } else {
-        cachedWidth[size] = {};
+        cachedFamilyWidth[size] = {};
     }
 
     // measure
     let width: number;
 
+    let fontChanged = false;
+    if (size !== textSize) {
+        textSize = size; fontChanged = true;
+    }
+    if (family !== textFont) {
+        textFont = family; fontChanged = true;
+    }
+
     if (useSVG) {
         if (!testTextElm) testTextElm = createTestText();
-        // updtae size
-        if (size !== textSize) {
+        // update size
+        if (fontChanged) {
             testTextElm.setAttribute("font-size", textSize);
-            textSize = size;
+            testTextElm.setAttribute("font-family", textFont);
         }
         // measure width
         testTextElm.textContent = text;
         width = testTextElm.getComputedTextLength();
-        cachedWidth[size][text] = width;
+        cachedFamilyWidth[size][text] = width;
         // measure height
         if (!cachedHeight[size]) {
             testTextElm.textContent = "m";
@@ -53,13 +65,12 @@ export function measuredTextSize(text: string, size: number = textSize): { width
     } else {
         if (!testCanvasContext) testCanvasContext = createTestCanvasContext();
         // updtae size
-        if (size !== textSize) {
-            testCanvasContext.font = `${size}px ${textFont}`;
-            textSize = size;
+        if (fontChanged) {
+            testCanvasContext.font = `${textSize}px ${textFont}`;
         }
         // measure width
         width = testCanvasContext.measureText(text).width;
-        cachedWidth[size][text] = width;
+        cachedFamilyWidth[size][text] = width;
         // measure height
         if (!cachedHeight[size]) {
             cachedHeight[size] = testCanvasContext.measureText("m").width;

@@ -41,13 +41,17 @@ export class AxisBackground extends Component<AxisBackgroundOption> {
                     @props prop.lineOptions
                 }
                 @if prop.showLabels {
-                    Text {
-                        text = tick.value
+                    Component {
                         x = isHorizontal ? 0 : labelPos
                         y = isHorizontal ? labelPos : 0
-                        anchor = labelAnchor
-                        fontSize = 10
-                        style:visibility = tick.show ? "visible" : "hidden"
+                        @yield label with tick default {
+                            Text {
+                                text = tick.value
+                                anchor = labelAnchor
+                                fontSize = 10
+                                style:visibility = tick.show ? "visible" : "hidden"
+                            }
+                        }
                     }
                 }
             }

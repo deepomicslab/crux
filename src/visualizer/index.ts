@@ -4,6 +4,8 @@ import { Visualizer, VisualizerOption } from "./visualizer";
 
 type VisualizeOption = VisualizerOption & {
     loadData?: Record<string, DataSource<any, any>>;
+    setup?: (this: Visualizer) => void;
+    didRender?: (this: Visualizer) => void;
 };
 
 declare global {
@@ -23,6 +25,7 @@ export function visualize(opt: VisualizeOption): Visualizer {
             if (window.OVIZ_EXPORT_GLOBAL && window.OVIZ_VISUALIZER) {
                 window.OVIZ_VISUALIZER(v);
             }
+            if (opt.didRender) opt.didRender.call(v);
         });
     } else {
         if (opt.setup) opt.setup.call(v);
@@ -30,6 +33,7 @@ export function visualize(opt: VisualizeOption): Visualizer {
         if (window.OVIZ_EXPORT_GLOBAL && window.OVIZ_VISUALIZER) {
             window.OVIZ_VISUALIZER(v);
         }
+        if (opt.didRender) opt.didRender.call(v);
     }
     return v;
 }

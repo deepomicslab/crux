@@ -33,9 +33,16 @@ export default {
         }
         return a1 | a2;
     },
-    rotate(self: any, value: number, unit: string) {
-        if (unit === "rad") value = toDeg(value);
-        return self._rotate(value);
+    rotate(self: any, value: number) {
+        if (arguments.length >= 4) {
+            const x = arguments[2], y = arguments[3], unit = arguments[4];
+            if (unit === "rad") value = toDeg(value);
+            return self._rotate(value, x, y);
+        } else {
+            const unit = arguments[2];
+            if (unit === "rad") value = toDeg(value);
+            return self._rotate(value);
+        }
     },
     scaledX(self: any, value: number | number[]) {
         if (Array.isArray(value)) {
