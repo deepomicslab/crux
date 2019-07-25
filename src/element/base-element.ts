@@ -138,8 +138,6 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
             if (!(k in this._prop))
                 this._prop[k] = this.$defaultProp[k];
         });
-
-        this._firstRender = false;
     }
 
     protected _setPropsWithModifier(mod: string, props: Record<string, any>) {
@@ -265,6 +263,15 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
 
     public set stage(s: string | null | undefined) {
         this.setState({ stage: s });
+    }
+
+    private _boundMethods = new Map();
+    protected _bindMethod(m: any) {
+        let bound;
+        if (bound = this._boundMethods.get(m)) return bound;
+        bound = m.bind(this);
+        this._boundMethods.set(m, bound);
+        return bound;
     }
 
     /* drawing */

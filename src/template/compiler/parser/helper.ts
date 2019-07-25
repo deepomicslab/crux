@@ -8,6 +8,7 @@ const exprHelpers: Record<string, [string, boolean?]> = {
     "anchor": [`_h.anchor(`],
     "geo": [`_h.geo(`],
     "gradient": [`_h.gradient(this, `, true],
+    "bind": [`this._bindMethod(`],
 };
 
 export function transformHelper(name: string) {

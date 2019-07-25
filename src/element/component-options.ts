@@ -15,4 +15,5 @@ export interface ComponentOption extends BaseOption {
     opt?: Record<string, any>;
 
     context?: any;
+    static?: boolean;
 }

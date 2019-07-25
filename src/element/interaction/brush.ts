@@ -6,6 +6,7 @@ import { scaleLinear } from "d3-scale";
 
 export interface BrushOption extends ComponentOption {
     range: [number, number];
+    currentRange: [number, number];
     cornerRadius: number;
     onBrushEnd: () => void;
     onBrushUpdate: () => void;
@@ -92,9 +93,13 @@ export class Brush extends Component<BrushOption> {
     public didLayout() {
         if (!this._inited) {
             const w = this.$geometry.width;
-            this.state.brushL = 0;
-            this.state.brushR = w;
             this._brushScale.domain([0, w]);
+            if (this.prop.currentRange) {
+                this.$setCurrentRange.apply(this, this.prop.currentRange);
+            } else {
+                this.state.brushL = 0;
+                this.state.brushR = w;
+            }
             this._inited = true;
         }
     }

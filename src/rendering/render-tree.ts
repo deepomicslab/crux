@@ -227,10 +227,12 @@ export function updateTree(parent: Component<ComponentOption>, def?: ElementDef)
 
         currElements.pop();
     } else if (elm instanceof Component) {
-        currElementInheriting = false;
-        elm.children.forEach(c => c.isActive = false);
-        for (const child of def!.children) {
-            updateTree(elm, child);
+        if (!elm.prop.static || elm._firstRender) {
+            currElementInheriting = false;
+            elm.children.forEach(c => c.isActive = false);
+            for (const child of def!.children) {
+                updateTree(elm, child);
+            }
         }
     }
 
@@ -247,4 +249,5 @@ export function updateTree(parent: Component<ComponentOption>, def?: ElementDef)
     adjustByAnchor(elm);
 
     elm.$callHook("didUpdate");
+    elm._firstRender = false;
 }

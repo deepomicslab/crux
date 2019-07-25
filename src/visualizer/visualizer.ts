@@ -163,6 +163,8 @@ export class Visualizer {
         while (task = this._queuedTransactions.shift()) {
             task.call(null);
         }
+        this._isInTransaction = false;
+        /*
         // check changed elements
         const toRemove: BaseElement[] = [];
         let p: BaseElement;
@@ -176,8 +178,8 @@ export class Visualizer {
                 p = p.parent;
             }
         }
-        this._isInTransaction = false;
         toRemove.forEach(e => this._changedElements.delete(e));
+        */
         // redraw
         if (this.isCanavs) {
             if (this._changedElements.size > 0) {
