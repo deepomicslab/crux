@@ -4,7 +4,7 @@ import { BaseElement } from "../element/base-element";
 import { Component } from "../element/component";
 import { registerDefaultGlobalComponents } from "../element/global";
 import { RenderFunc } from "../rendering/base-renderer";
-import { init as canvasInit, render as canvasRenderFunc, setSize } from "../rendering/canvas";
+import { init as canvasInit, render as canvasRenderFunc } from "../rendering/canvas";
 import { render as svgRenderFunc } from "../rendering/svg";
 import { compile } from "../template/compiler";
 import { RootComponent } from "./root";
@@ -146,9 +146,6 @@ export class Visualizer {
 
     public run() {
         this.root.draw();
-        if (this.firstRun && this.isCanavs) {
-            setSize(this.ctx!.canvas, this);
-        }
         this.firstRun = false;
     }
 

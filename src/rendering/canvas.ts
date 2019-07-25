@@ -17,7 +17,11 @@ export function render(element: BaseElement<any>) {
         init(v);
     }
     v.ctx!.clearRect(0, 0, v.ctx!.canvas.width, v.ctx!.canvas.height);
+    const ratio = window.devicePixelRatio || 1;
+    v.ctx!.save();
+    v.ctx!.scale(ratio, ratio);
     _render(v.ctx!, v.root);
+    v.ctx!.restore();
 }
 
 function _render(ctx: CanvasRenderingContext2D, element: BaseElement<any>): void {
@@ -50,10 +54,10 @@ export function init(v: Visualizer) {
         throw new Error(`Cannot get canvas context`);
     }
 
-    const ratio = window.devicePixelRatio || 1;
+    // const ratio = window.devicePixelRatio || 1;
     setSize(canvas, v);
     ctx.font = "12px Arial";
-    ctx.scale(ratio, ratio);
+    // ctx.scale(ratio, ratio);
 
     for (const event of Object.keys(MOUSE_EVENT_MAP) as (keyof typeof MOUSE_EVENT_MAP)[]) {
         addMouseEventListener(v, canvas, event);
@@ -91,10 +95,14 @@ function addMouseEventListener<T>(v: Visualizer, canvas: HTMLCanvasElement, even
     const isMouseLeave = event === "mouseleave";
     canvas.addEventListener(event, function(this: HTMLCanvasElement, e: MouseEvent) {
         if (!v._registeredEvents.has(mappedEvent)) return;
+        const ratio = window.devicePixelRatio || 1;
         const b = canvas.getBoundingClientRect();
-        const x = (e.clientX - b.left) * window.devicePixelRatio;
-        const y = (e.clientY - b.top) * window.devicePixelRatio;
+        const x = (e.clientX - b.left) * ratio;
+        const y = (e.clientY - b.top) * ratio;
+        v.ctx!.save();
+        v.ctx!.scale(ratio, ratio);
         const element = isMouseLeave ? null : findElement(v.ctx!, v.root, x, y);
+        v.ctx!.restore();
         if (isMouseMove) {
             for (const el of v._focusedElements.values()) {
                 el._isFocused = false;
@@ -135,7 +143,8 @@ function findElement(ctx: CanvasRenderingContext2D, el: BaseElement<any>, x: num
             return findElement(ctx, el.children[0], x, y);
         } else {
             ctx.save();
-            const [tx, ty, rc] = el._cachedTransform!;
+            if (!el._cachedTransform) return null;
+            const [tx, ty, rc] = el._cachedTransform;
             if (tx !== 0 || ty !== 0) {
                 ctx.translate(tx, ty);
             }
@@ -221,8 +230,10 @@ function callListener(
     e._m_y = y;
     if (typeof listener === "function") {
         listener.call(null, e, el);
+    } else if (listener[0] !== null) {
+        listener[0].apply(null, listener.slice(1) as any);
     } else {
         for (let i = 1; i < listener.length; i++)
-            listener[i].call(null, e, el);
+            callListener(listener[i], e, el, x, y);
     }
 }

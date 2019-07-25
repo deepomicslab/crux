@@ -85,7 +85,8 @@ function genAttrs(node: ASTNodeComp) {
 }
 
 function genEventListener(handler: string): string {
-    if (handler.startsWith("function") || handler.match(/^\(.+?\) *=>/)) {
+    if (handler.startsWith("function") || handler.match(/^\(.+?\) *=>/) ||
+        handler[0] === "[" || handler[0] === "@") {
         return handler;
     } else if (handler.match(/^[A-z0-9_]+$/)) {
         return `${handler}.bind(this)`;
