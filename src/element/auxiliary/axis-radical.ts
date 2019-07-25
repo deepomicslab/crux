@@ -10,6 +10,7 @@ export interface AxisRadicalOption extends ComponentOption {
     tickInterval?: number;
     ticks?: number[];
     includeEndTicks?: boolean;
+    roundEndTicks: boolean;
     showLabels?: boolean;
     labelAnchor?: Anchor;
     labelPosition?: GeometryOptValue;
@@ -59,6 +60,7 @@ export class AxisRadical extends Component<AxisRadicalOption> {
             this.prop.tickInterval,
             this.prop.tickCount,
             this.prop.includeEndTicks,
+            this.prop.roundEndTicks,
         );
     }
 }

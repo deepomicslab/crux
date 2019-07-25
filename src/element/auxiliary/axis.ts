@@ -12,6 +12,7 @@ export interface AxisOption extends ComponentOption {
     tickInterval: number;
     ticks: number[];
     includeEndTicks: boolean;
+    roundEndTicks: boolean;
     color: string;
 }
 
@@ -64,6 +65,7 @@ export class Axis extends Component<AxisOption> {
             orientation: "top",
             tickCount: 5,
             includeEndTicks: true,
+            roundEndTicks: false,
             stroke: "#000",
         };
     }
@@ -78,6 +80,13 @@ export class Axis extends Component<AxisOption> {
             const domain = this.$parent.categories;
             this._tickValues = this.$parent.discreteCategory ?
                 domain : undefined; // _.range(domain[0], domain[1] + 1);
+        }
+        if (this._firstRender) {
+            if (this.prop.orientation === "top" || this.prop.orientation === "bottom") {
+                this.isInXScaleSystem = true;
+            } else {
+                this.isInYScaleSystem = true;
+            }
         }
     }
 
@@ -113,6 +122,7 @@ export class Axis extends Component<AxisOption> {
             this.prop.tickInterval,
             this.prop.tickCount,
             this.prop.includeEndTicks,
+            this.prop.roundEndTicks,
         );
     }
 }
@@ -121,7 +131,9 @@ export type TickValue = { value: string, pos: number, show: boolean };
 
 export function getTicks(
     scale: any, providedTicks: any,
-    interval: number | undefined, count: number | undefined, includeEndTicks: boolean | undefined): TickValue[] {
+    interval: number | undefined, count: number | undefined,
+    includeEndTicks: boolean | undefined,
+    roundEndTicks: boolean | undefined): TickValue[] {
     if (!scale) {
         throw new Error(`Axis: you must supply a scale.`);
     }
@@ -162,8 +174,8 @@ export function getTicks(
 
             // add start and end ticks
             if (includeEndTicks && isNumeric) {
-                ticks.unshift(domain[0]);
-                ticks.push(domain[1]);
+                ticks.unshift(roundEndTicks ? Math.round(domain[0]) : domain[0]);
+                ticks.push(roundEndTicks ? Math.round(domain[1]) : domain[1]);
             }
         } else {
             ticks = domain;

@@ -10,6 +10,7 @@ export interface AxisBackgroundOption extends ComponentOption {
     tickInterval?: number;
     ticks?: number[];
     includeEndTicks?: boolean;
+    roundEndTicks: boolean;
     showLabels?: boolean;
     labelAnchor?: Anchor;
     labelPosition?: GeometryOptValue;
@@ -86,6 +87,7 @@ export class AxisBackground extends Component<AxisBackgroundOption> {
             this.prop.tickInterval,
             this.prop.tickCount,
             this.prop.includeEndTicks,
+            this.prop.roundEndTicks,
         );
     }
 }
