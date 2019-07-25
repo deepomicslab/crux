@@ -20,11 +20,16 @@ export default {
     geo(percentage: number, offset: number = 0) {
         return GeometryValue.create(percentage, GeometryUnit.Percent, offset);
     },
-    clip(type: string, radius: number = 0) {
-        if (type !== "bound") {
-            throw new Error(`Unknown clip path type`);
+    clip(type: string) {
+        switch (type) {
+            case "bound":
+                const radius = arguments[1];
+                return { type: "bound", inset: 0, rx: radius, ry: radius };
+            case "polygon":
+                return { type: "polygon", points: arguments[1] };
+            default:
+                throw new Error(`Unknown clip path type: ${type}`);
         }
-        return { type: "bound", inset: 0, rx: radius, ry: radius };
     },
     anchor(s1: string, s2: string) {
         const a1 = ANCHOR[s1], a2 = ANCHOR[s2];

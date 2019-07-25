@@ -95,7 +95,7 @@ export class Brush extends Component<BrushOption> {
             const w = this.$geometry.width;
             this._brushScale.domain([0, w]);
             if (this.prop.currentRange) {
-                this.$setCurrentRange.apply(this, this.prop.currentRange);
+                this._setCurrentRange.apply(this, this.prop.currentRange);
             } else {
                 this.state.brushL = 0;
                 this.state.brushR = w;
@@ -104,10 +104,15 @@ export class Brush extends Component<BrushOption> {
         }
     }
 
-    public $setCurrentRange(l: number, r: number) {
+    private _setCurrentRange(l: number, r: number) {
         const i = this._brushScale.invert;
         this.state.brushL = i(l);
         this.state.brushR = i(r);
+    }
+
+    public setCurrentRange(l: number, r: number) {
+        this._setCurrentRange(l, r);
+        this.draw();
     }
 
     // @ts-ignore
@@ -135,6 +140,8 @@ export class Brush extends Component<BrushOption> {
         this._isMoving = true;
         this._moveType = type;
         this._lastX = e.clientX;
+        e.preventDefault();
+        e.stopPropagation();
         document.body.addEventListener("mouseup", this._bodyUpListener);
         document.body.addEventListener("mousemove", this._bodyMoveListener);
         this.$v.transaction(() => {
@@ -144,6 +151,8 @@ export class Brush extends Component<BrushOption> {
 
     private handleUp(e: MouseEvent) {
         this._isMoving = false;
+        e.preventDefault();
+        e.stopPropagation();
         document.body.removeEventListener("mouseup", this._bodyUpListener);
         document.body.removeEventListener("mousemove", this._bodyUpListener);
         this.$v.transaction(() => {
@@ -153,6 +162,9 @@ export class Brush extends Component<BrushOption> {
 
     private handleMove(e: MouseEvent) {
         if (!this._isMoving) return;
+        e.preventDefault();
+        e.stopPropagation();
+
         const offset = e.clientX - this._lastX;
         this._lastX = e.clientX;
         if (offset === 0) return;

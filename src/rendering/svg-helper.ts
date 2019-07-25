@@ -1,4 +1,5 @@
 import { oneLineTrim } from "common-tags";
+import { GeometryValue } from "../defs/geometry";
 import { BaseElement } from "../element/base-element";
 import { Component } from "../element/component";
 import { ComponentOption } from "../element/component-options";
@@ -39,12 +40,20 @@ export function svgPropClip(elm: Component<ComponentOption>) {
     let v: any;
 
     if (v = elm.prop.clip) {
+        const width = elm.$geometry.width;
+        const height = elm.$geometry.height;
         let clipPath: string;
         if (v.type === "bound") {
             clipPath = oneLineTrim`<rect x="0" y="0"
-                width="${elm.$geometry.width}"
-                height="${elm.$geometry.height}"
+                width="${width}"
+                height="${height}"
                 rx="${v.rx}" ry="${v.ry}">`;
+        } else if (v.type === "polygon") {
+            const points: number[] = v.points.map((p: GeometryValue | number, i: number) => typeof p === "object" ?
+                GeometryValue.cal(p, i % 2 ? height : width) : p);
+            clipPath = oneLineTrim`<polygon points="
+                ${points.map((p, i) => p.toString() + (i % 2 ? " " : ",")).join("")}
+                ">`;
         } else {
             throw new Error(`Clip: unknown type "${v.type}"`);
         }

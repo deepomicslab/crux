@@ -13,7 +13,7 @@ export interface ZoomOption {
     onZoom?: (range: [number, number]) => void;
 }
 
-export class Zoom extends Behavior {
+export default class Zoom extends Behavior {
     public rangeX: [number, number];
     public rangeY: [number, number];
     public currRangeX: [number, number];

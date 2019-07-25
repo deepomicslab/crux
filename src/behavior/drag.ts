@@ -14,4 +14,8 @@ export class Drag extends Behavior {
     }
 
     public events = [];
+
+    public updateProps(op: any): void {
+        throw new Error("Method not implemented.");
+    }
 }

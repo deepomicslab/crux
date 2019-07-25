@@ -44,6 +44,9 @@ export function render(element: BaseElement<any>) {
 }
 
 function _genView(element: BaseElement<any>): VNode {
+    if (element.parent && element.parent.prop.static && element.vnode) {
+        return element.vnode;
+    }
     if (isRenderable(element)) {
         return _genView(element.children[0]);
     }

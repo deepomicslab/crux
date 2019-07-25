@@ -1,5 +1,4 @@
 import { Behavior } from "../behavior/behavior";
-import { Zoom, ZoomOption } from "../behavior/zoom";
 import { GeometryOptions, GeometryUnit, GeometryValue } from "../defs/geometry";
 import { CanvasRenderable } from "../rendering/canvas";
 import { SVGRenderable } from "../rendering/svg";
@@ -14,6 +13,7 @@ import { Component } from "./component";
 import shallowEqArrays from "shallow-equal/arrays";
 // @ts-ignore
 import shallowEqObjects from "shallow-equal/objects";
+import { behavoirs } from "../behavior";
 
 interface State {
     stage?: string | null | undefined;
@@ -198,14 +198,18 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
     }
 
     public setBehaviors(s: Record<string, Record<string, any>>) {
-        if (s.zoom) {
-            const zoomDef = s.zoom as ZoomOption;
-            if (!this.$behavior.zoom) {
-                this.$behavior.zoom = new Zoom(this as any, zoomDef);
-            } else {
-                (this.$behavior.zoom as Zoom).updateProps(zoomDef);
+        Object.keys(s).forEach(k => {
+            const behavior = behavoirs[k];
+            if (!behavior) {
+                throw new Error(`Unknown behavior: ${k}`);
             }
-        }
+            const def = s[k];
+            if (this.$behavior[k]) {
+                this.$behavior[k].updateProps(def);
+            } else {
+                this.$behavior[k] = new behavior(this as any, def);
+            }
+        });
     }
 
     /* event */

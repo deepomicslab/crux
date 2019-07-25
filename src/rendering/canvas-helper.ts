@@ -1,14 +1,27 @@
 import * as d3c from "d3-color";
 
+import { GeometryValue } from "../defs/geometry";
 import { BaseElement, Component, ComponentOption } from "../element";
 import { BaseElementOption } from "../element/primitive/base-elm-options";
 
 export function canvasClip(ctx: CanvasRenderingContext2D, elm: Component<ComponentOption>) {
+    const width = elm.$geometry.width;
+    const height = elm.$geometry.height;
     let v: any;
     if (v = elm.prop.clip) {
         if (v.type === "bound") {
             ctx.beginPath();
-            ctx.rect(0, 0, elm.$geometry.width, elm.$geometry.height);
+            ctx.rect(0, 0, width, height);
+            ctx.clip();
+        } else if (v.type === "polygon") {
+            const points: number[] = v.points.map((p: GeometryValue | number, i: number) => typeof p === "object" ?
+                GeometryValue.cal(p, i % 2 ? height : width) : p);
+            ctx.beginPath();
+            ctx.moveTo(points[0], points[1]);
+            for (let i = 2; i < points.length; i += 2) {
+                ctx.lineTo(points[i], points[i + 1]);
+            }
+            ctx.closePath();
             ctx.clip();
         } else {
             throw new Error(`Clip: unknown type "${v.type}"`);

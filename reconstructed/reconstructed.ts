@@ -180,7 +180,7 @@ export class Reconstructed extends Component<ReconstructedOption> {
 
     // @ts-ignore
     private updateRange(range: [number, number]) {
-        (this.$ref.brush as unknown as Brush).$setCurrentRange(range[0], range[1]);
+        (this.$ref.brush as unknown as Brush).setCurrentRange(range[0], range[1]);
         this.setState({
             scaledL: range[0],
             scaledR: range[1],

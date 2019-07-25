@@ -10,16 +10,18 @@ export interface LegendOption extends ComponentOption {
     data: { type: LegendType, label: string, stroke?: string, fill?: string }[];
     lineHeight: number;
     legendWidth: number;
+    padding: number;
 }
 
 export class Legend extends Component<LegendOption> {
     public render = template`
     Container {
-        padding = 4
+        padding = prop.padding
         Rect.full {
             detached = true
             fill = "#fff"
             stroke = "#000"
+            @props prop.opt.bg
         }
         Rows {
             x = 4
@@ -66,6 +68,7 @@ export class Legend extends Component<LegendOption> {
                             y = 50%
                             anchor = @anchor("left", "middle")
                             text = data.label
+                            @props prop.opt.label
                         }
                     }
                 }
@@ -81,6 +84,7 @@ export class Legend extends Component<LegendOption> {
             legendWidth: 20,
             data: [],
             type: "rect",
+            padding: 4,
         };
     }
 }
