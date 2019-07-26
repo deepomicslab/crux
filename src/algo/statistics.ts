@@ -8,16 +8,22 @@ export class Statistics {
     private _max: number;
     private _sum: number;
     private _mean: number;
-    private _oneQuarter: number;
-    private _threeQuarters: number;
+    private _median: number;
+    private _firstQuartile: number;
+    private _thirdQuartile: number;
     private _length: number;
 
     constructor(data: number[]) {
         this._data = data.sort((x, y) => x - y);
         this._length = this._data.length;
-        this._oneQuarter = this._data[Math.floor(this._length / 4)];
-        this._mean = this._length % 2 === 0 ? (this._data[this._length / 2] + this._data[this._length / 2 + 1]) / 2 : this._data[Math.floor(this._length / 2)];
-        this._threeQuarters = this._data[Math.floor(this._length / 4 * 3)];
+        const tmpFirstQuartile = this._length * 25 / 100;
+        this._firstQuartile = Number.isInteger(tmpFirstQuartile) ? (this._data[tmpFirstQuartile - 1] + this._data[tmpFirstQuartile]) / 2 : this._data[Math.ceil(tmpFirstQuartile)];
+        
+        this._median = this._length % 2 === 0 ? (this._data[this._length / 2 - 1] +
+            this._data[this._length / 2]) / 2 : this._data[Math.floor(this._length / 2)];
+        
+            const tmpThirdQuartile = this._length * 75 / 100;
+        this._thirdQuartile = Number.isInteger(tmpThirdQuartile) ? (this._data[tmpThirdQuartile - 1] + this._data[tmpThirdQuartile]) / 2 : this._data[Math.ceil(tmpThirdQuartile) - 1];
         if (this._data.length > 0) {
             let sum = 0;
             let min = this._data[0];
@@ -30,6 +36,7 @@ export class Statistics {
             this._min = min;
             this._max = max;
             this._sum = sum;
+            this._mean = sum / this._length;
         } else {
             throw new Error(`Data is empty`);
         }
@@ -47,9 +54,11 @@ export class Statistics {
 
     public mean(): number { return this._mean; }
 
-    public oneQuater(): number { return this._oneQuarter; }
+    public median(): number { return this._median; }
 
-    public threeQuarters(): number { return this._threeQuarters; }
+    public Q1(): number { return this._firstQuartile; }
+
+    public Q3(): number { return this._thirdQuartile; }
 
     public variance(): number {
         const mean = this.mean();
