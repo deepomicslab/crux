@@ -1,9 +1,10 @@
 import { componentList } from "./get-component";
 
 import { Axis, AxisBackground, AxisRadical, Legend } from "./auxiliary";
+
 import {
     Area, Bars, Boxes, Contour, ContourDensity, Dots, GroupedBars, HeatMap, PieChart, RadarChart,
-    Scatters1D, StackedArea, StackedBars, VennDiagram, Violins,
+    Scatters1D, StackedArea, StackedBars, StepLine, UnequalBins, VennDiagram, Violins,
 } from "./chart";
 import { Component } from "./component";
 import { Brush } from "./interaction";
@@ -47,6 +48,8 @@ export function registerDefaultGlobalComponents() {
         Contour,
         ContourDensity,
         Violins,
+        StepLine,
+        UnequalBins,
         // layout
         Container,
         Rows,

@@ -13,3 +13,5 @@ export * from "./venn-diagram";
 export * from "./contour";
 export * from "./contour-density";
 export * from "./violins";
+export * from "./step-line";
+export * from "./unequal-bins";

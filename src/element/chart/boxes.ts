@@ -112,7 +112,7 @@ export class Boxes extends BaseChart<BoxesOption> {
 
     // @ts-ignore
     private get hasMean() {
-        return !!this.data.raw.mean && this.prop.showMean;
+        return !!this.data.raw.means && this.prop.showMean;
     }
 
     // @ts-ignore

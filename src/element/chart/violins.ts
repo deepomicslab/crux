@@ -1,78 +1,98 @@
 import * as d3 from "d3";
+import { Statistics } from "../../algo";
 import { Anchor, GeometryValue } from "../../defs/geometry";
 import { template } from "../../template/tag";
 import { BaseChart, BaseChartOption } from "./base-chart";
 
+interface ViolinData {
+    bins: {x1: number , x2: number, y: number}[];
+    maxY: number;
+    stat: Statistics;
+}
+
 export interface ViolinsOption extends BaseChartOption {
     dataLine: boolean;
-    lineClosed: boolean;
-    quartileClip: boolean;
-    maxBin: number;
+    quartile: boolean;
+    extremeLine: boolean;
+    /**
+     * for non-grouped violins: one color for all or one color for each violin.
+     * for grouped violins: one color for each hue (totally two colors).
+     */
+    fill: string | string[];
+    /**
+     * "one": each violin has the same max width
+     * "hue": violins from the same hue are scaled together
+     * "cat": violins from the same category are scaled together
+     * "all": all violins are scaled together
+     */
+    equalMaxCount: string;
+    /**
+     * limit the violin range within the range of the observed data
+     */
+    cut: boolean;
+
+    // options applying only to non-grouped violins
+    /**
+     * setting half to "left" to draw only the left half of violin
+     */
+    half: string;
+
+    // options applying only to grouped violins
+    /**
+     * setting split to True will draw half of a violin
+     */
+    split: boolean;
+
+    // styling options
+    quartileLineOptions: any;
+    meanPointOptions: any;
+    violinOptions: any;
+    extremeLineOptions: any;
 }
 
 export class Violins extends BaseChart<ViolinsOption> {
     public render = template`
     Component {
-        @let bandWidth = getBandWidth(data.raw.bins)
-        @for (d, pos) in data.raw.values {
-            Component {
-                @let q = data.raw.quartiles[pos]
-                @let mean = data.raw.means[pos]
-                @let bin = data.raw.bins[pos]
-                key = pos
-                anchor = getAnchor()
-                @props containerOpts(pos)
-
+        @let prepData = prep()
+        @for (arr, pos) in prepData {
+            @for (d, i) in arr {
                 Component {
-                    @let _d = {quartiles: q, bins: bin}
-                    @let violinData = getPath(bin, q, bandWidth)
-                    @props violinOpts(bin)
-                    anchor = getViolinAnchor()
-                    Path {
-                        @props prop.opt.violin
-                        d = violinData.p
-                        stroke = "#aaa"
-                        fill = "none"
-                    }
-                    @if prop.dataLine {
-                        @for (bin, pos) in violinData.ps {
-                            @let x = bin[0]
-                            @let y = bin[1]
-                            @if flipped {
-                                Line {
-                                    @props prop.opt.dataLine
-                                    x1 = x
-                                    x2 = x
-                                    y1 = y
-                                    y2 = violinData.midX
-                                    key = "l" + x + y
-                                }
-                            }
-                            @else {
-                                Line {
-                                    @props prop.opt.dataLine
-                                    x1 =x
-                                    x2 = violinData.midX
-                                    y1 = y
-                                    y2 = y
-                                    key = "l" + x + y
-                                }
+                    key = pos * 10 + i
+                    anchor = getAnchor()
+                    @props containerOpts(pos)
+                    @let pathData = d.path
+                    Component {
+                        anchor = getViolinAnchor()
+                        // violin
+                        Path {
+                            @props prop.opt.violin
+                            d = pathData
+                            stroke = "#aaa"
+                            fill = d.fill ? d.fill : "none"
+                            @props prop.violinOptions
+                        }
+                        // extreme value line
+                        @if prop.extremeLine && d.stat {
+                            Line {
+                                @props extremeValueLine(d.stat, d.centerPos, d.trans)
+                                fill = "grey"
+                                @props prop.extremeLineOptions
                             }
                         }
-                    }
-                    // quatile
-                    @if prop.quartile {
-                        Line {
-                            @props quartileOpts(violinData, pos, 0)
-                            @props prop.opt.firstQuartile
-                        }
-                        Line {
-                            @props quartileOpts(violinData, pos, 1)
-                            @props prop.opt.medianLine
-                        }
-                        Line {
-                            @props quartileOpts(violinData, pos, 2)
-                            @props prop.opt.thirdQuartile
+                        // quartile
+                        @if prop.quartile && d.stat {
+                            Line {
+                                @props quartileOpts(d.stat, d.centerPos, d.trans)
+                                strokeWidth = "5px"
+                                @props prop.quartileLineOptions
+                            }
+                            Circle.centered {
+                                @props medianCircleOpts(d.stat, d.centerPos, d.trans)
+                                r = 3
+                                fill = "white"
+                                stroke = "black"
+                                @props prop.meanPointOptions
+                            }
                         }
                     }
                 }
@@ -81,86 +101,110 @@ export class Violins extends BaseChart<ViolinsOption> {
     }
     `;
 
+    private _halfWidth!: number;
+
     public defaultProp() {
         return {
             ...super.defaultProp(),
             dataLine: false,
-            lineClosed: false,
-            quartileClip: false,
+            quartile: true,
+            half: null,
+            equalMaxCount: "all",
+            position: null,
+            fill: null,
+            cut: false,
+            split: false,
+            extremeLine: true,
         };
     }
 
     // @ts-ignore
-    private quartileOpts(d: any, index: number, pos: number) {
-        const q = this.data.raw.quartiles[index];
+    private quartileOpts(stat: Statistics, centerPos: number, trans: number) {
         return this.flippedOpts({
-            x1: d.qps[q[pos]][0],
-            x2: d.qps[q[pos]][1],
-            y1: d.qps[q[pos]][2],
-            y2: d.qps[q[pos]][2],
+            y1: this.getScale(this.flipped)(stat.Q1()),
+            y2: this.getScale(this.flipped)(stat.Q3()),
+            x1: centerPos + trans * 3,
+            x2: centerPos + trans * 3,
         });
     }
 
     // @ts-ignore
-    private getPath(bins: [number, number][], quartiles: number[], bandWidth: number) {
-        const min = bins[0][0];
-        const max = bins[bins.length - 1][0];
-        const lPoints: [number, number][] = [];
-        const rPoints: [number, number][] = [];
-        const quartilePoints = {};
-        const height = this.getHeight(bins[bins.length - 1][0] - bins[0][0], bins[0][0]);
-        const width = this.columnWidth;
-        const midXn = width / 2;
-        for (const bin of bins) {
-            if (this.prop.quartileClip) {
-                if (bin[0] < quartiles[0] || bin[0] > quartiles[2]) {
-                    continue;
-                }
-            }
-            const x1 = (1 - bin[1] / bandWidth) * width / 2;
-            const x2 = (1 + bin[1] / bandWidth) * width / 2;
-            const y = (max - bin[0]) / (max - min) * height;
-            lPoints.push(this.flipped ? [y, x1] : [x1, y]);
-            if (bin[0] === quartiles[0]) {
-                quartilePoints[bin[0]] = [x1, x2, y];
-            }
-            if (bin[0] === quartiles[2]) {
-                quartilePoints[bin[0]] = [x1, x2, y];
-            }
-            if (bin[0] === quartiles[1]) {
-                quartilePoints[bin[0]] = [x1, x2, y];
-            }
-        }
-        for (let i = bins.length - 1; i >= 0; i--) {
-            const bin = bins[i];
-            if (this.prop.quartileClip) {
-                if (bin[0] < quartiles[0] || bin[0] > quartiles[2]) {
-                    continue;
-                }
-            }
-            let x: number, y: number;
-            x = (1 + bin[1] / bandWidth) * width / 2;
-            y = (max - bin[0]) / (max - min) * height;
-            rPoints.push(this.flipped ? [y, x] : [x, y]);
-        }
-        let path: string;
-        let points: any;
-        let lineG: d3.Line<[number, number]>;
-        if (this.prop.quartileClip || this.prop.lineClosed) {
-            lineG = d3.line().curve(d3.curveCatmullRom.alpha(0));
-            path = lineG(lPoints)!.concat(`L${rPoints[0][0]},${rPoints[0][1]}`).concat(lineG(rPoints)!);
-            path += `L${lPoints[0][0]},${lPoints[0][1]}`;
+    private extremeValueLine(stat: Statistics, centerPos: number, trans: number) {
+        return this.flippedOpts({
+            y1: this.getScale(this.flipped)(stat.max()),
+            y2: this.getScale(this.flipped)(stat.min()),
+            x1: centerPos + trans,
+            x2: centerPos + trans,
+        });
+    }
+
+    // @ts-ignore
+    private medianCircleOpts(stat: Statistics, centerPos: number, trans: number) {
+        return this.flippedOpts({
+            x: centerPos + trans * 3,
+            y: this.getScale(this.flipped)(stat.median()),
+        });
+    }
+
+    // @ts-ignore
+    private prep() {
+        const useHue = Array.isArray(this.data.raw.violins[0]);
+        const max = this.getMax(useHue);
+        let toReturn: {path: string, fill: string, quartiles: [number, number, number]};
+        this.updateScale(useHue);
+        if (useHue) {
+            this._halfWidth = this.columnWidth / 4;
+            toReturn = this.data.raw.violins.map((arr: ViolinData[], i: number) => {
+                return arr.map((d, j) => {
+                    if (d.bins.length === 0) {
+                        return {path: "", stat: null};
+                    } else {
+                        let height;
+                        switch (this.prop.equalMaxCount) {
+                            case "one":
+                                height = d.maxY;
+                                break;
+                            case "hue":
+                                height = max[j];
+                                break;
+                            case "cat":
+                                height = Math.max(...arr.map(d => d.maxY));
+                                break;
+                            default:
+                                height = Math.max(max[0], max[1]);
+                        }
+                        const centerPos = this.prop.split ? this.columnWidth / 2
+                        : (j === 0 ? this.columnWidth / 4 : this.columnWidth * 3 / 4);
+                        const cachedPoints = this.getCachedPoints(d.bins, centerPos, height, d.stat);
+                        const path = this.prop.split ? this.getPath(cachedPoints[j]) :
+                        this.getPath(cachedPoints[0]).concat(this.getPath(cachedPoints[1]));
+                        // const path = this.getPath(cachedPoints[0])
+                        return {
+                            path, centerPos,
+                            fill: this.prop.fill ? this.prop.fill[j] : "none",
+                            stat: d.stat,
+                            trans: this.prop.split ? (j === 0 ? -1 : 1) : 0,
+                        };
+                    }
+                });
+            });
         } else {
-            lineG = d3.line().curve(d3.curveCatmullRomClosed.alpha(0));
-            points = lPoints.concat(rPoints);
-            path = lineG(points)!;
+            this._halfWidth = this.columnWidth / 2;
+            toReturn = this.data.raw.violins.map((d: ViolinData, i: number) => {
+                const height = this.prop.equalMaxCount === "one" ? d.maxY : max[0];
+                const centerPos = this.columnWidth / 2;
+                const cachedPoints = this.getCachedPoints(d.bins, centerPos, height, d.stat);
+                const path = !false ? this.getPath(cachedPoints[0]).concat(this.getPath(cachedPoints[1]))
+                : this.getPath(cachedPoints[this.prop.half === "left" ? 0 : 1]);
+                return [{
+                    path, centerPos,
+                    fill: this.prop.fill ? (Array.isArray(this.prop.fill) ? this.prop.fill[i] : this.prop.fill) : "none",
+                    stat: d.stat,
+                    trans: this.prop.half ? (this.prop.half === "left" ? -1 : 1) : 0,
+                }];
+            });
         }
-        return {
-            p: path,
-            ps: points,
-            midX: midXn,
-            qps: quartilePoints,
-        };
+        return toReturn;
     }
 
     // @ts-ignore
@@ -173,65 +217,99 @@ export class Violins extends BaseChart<ViolinsOption> {
         });
     }
 
-    // @ts-ignore
-    private whiskleOpts(d) {
-        return this.flippedOpts({
-            width: GeometryValue.fullSize,
-            y: this.getY(d[0]),
-            height: this.getHeight(d[1] - d[0], d[0]),
-        });
-    }
-
-    // @ts-ignore
-    private medianOpts(q) {
-        return this.flippedOpts({
-            width: GeometryValue.fullSize,
-            y: this.getY(q[1]),
-        });
-    }
-
-    // @ts-ignore
-    private meanOpts(mean) {
-        return this.flippedOpts({
-            width: GeometryValue.fullSize,
-            y: this.getY(mean),
-        });
-    }
-
-    // @ts-ignore
-    private violinOpts(bins) {
-        return this.flippedOpts({
-            width: GeometryValue.fullSize,
-            y: this.getY(bins[0][0]),
-            height: this.getHeight(bins[bins.length - 1][0] - bins[0][0], bins[0][0]),
-        });
-    }
-
-    // @ts-ignore
-    private getBandWidth(bins) {
-        let max = -0;
-        for (const columnBins of bins) {
-            for (const bin of columnBins) {
-                if (bin[1] > max) {
-                    max = bin[1];
-                }
-            }
-        }
-        return max;
-    }
-
-    // @ts-ignore
-    private boxOpts(q) {
-        return this.flippedOpts({
-            width: GeometryValue.fullSize,
-            y: this.getY(q[0]),
-            height: this.getHeight(q[2] - q[0], q[0]),
-        });
-    }
-
     protected getViolinAnchor() {
         return this.flipped ?
             (this.inverted ? Anchor.Left : Anchor.Right) | Anchor.Top :
             (this.inverted ? Anchor.Top : Anchor.Bottom) | Anchor.Left;
+    }
+
+    protected getCachedPoints(histoBins: {x1: number, x2: number, y: number}[], centerPos: number, height: number, stat: Statistics) {
+        // transform bins to points for line
+        let s: {x1: number, x2: number, y: number}[];
+        let e: {x1: number, x2: number, y: number}[];
+        if (this.prop.cut) {
+            s = [
+                {x1: stat.min(), x2: stat.min(), y: 0},
+                {x1: stat.min(), x2: stat.min(), y: histoBins[0].y},
+            ];
+            e = [
+                {x1: stat.max(), x2: stat.max(), y: histoBins[histoBins.length - 1].y},
+                {x1: stat.max(), x2: stat.max(), y: 0},
+
+            ];
+            if (histoBins[0][0] <= stat.min()) histoBins = histoBins.slice(1);
+            if (histoBins[histoBins.length - 1][0] >= stat.max()) histoBins.pop();
+        } else {
+            s = [{
+                x1: histoBins[0].x1 - (histoBins[0].x2 - histoBins[0].x1) / 2,
+                x2: histoBins[0].x1 - (histoBins[0].x2 - histoBins[0].x1) / 2,
+                y: 0,
+            }];
+            e = [{
+                x1: histoBins[histoBins.length - 1].x2 + (histoBins[histoBins.length - 1].x2 - histoBins[histoBins.length - 1].x1) / 2,
+                x2: histoBins[histoBins.length - 1].x2 + (histoBins[histoBins.length - 1].x2 - histoBins[histoBins.length - 1].x1) / 2,
+                y: 0,
+            }];
+        }
+        histoBins = s.concat(histoBins).concat(e);
+        const lPoints: [number, number][] = [];
+        const rPoints: [number, number][] = [];
+        histoBins.forEach((bin) => {
+            const xl = centerPos + (- bin.y / height) * this._halfWidth;
+            const xr = centerPos + (bin.y / height) * this._halfWidth;
+            const y = this.getScale(this.flipped)((bin.x1 + bin.x2) / 2);
+            lPoints.push(this.flipped ? [y, xl] : [xl, y]);
+            rPoints.push(this.flipped ? [y, xr] : [xr, y]);
+        });
+        rPoints.reverse();
+        return [lPoints, rPoints];
+    }
+
+    protected getPath(cachedPoints: [number, number][]) {
+        let path: string;
+        const lineG: d3.Line<[number, number]> = d3.line().curve(d3.curveCatmullRom.alpha(0.5));
+        if (this.prop.cut) {
+            console.log(cachedPoints)
+            const curvePoints = cachedPoints.slice(1, cachedPoints.length - 1);
+            path = `M${cachedPoints[0][0]}, ${cachedPoints[0][1]}
+                    L${curvePoints[0][0]}, ${curvePoints[0][1]}`
+                .concat(lineG(curvePoints)!.replace("M", "L"))
+                .concat(`L${curvePoints[curvePoints.length - 1][0]}, ${curvePoints[curvePoints.length - 1][1]}`)
+                .concat(`L${cachedPoints[cachedPoints.length - 1][0]}, ${cachedPoints[cachedPoints.length - 1][1]}`);
+        } else {
+            path = lineG(cachedPoints)!;
+        }
+        return path;
+    }
+
+    protected getMax(useHue: boolean) {
+        if (useHue) {
+            return [0, 1].map((_: number, i: number) => Math.max(...this.data.raw.violins.map((arr: ViolinData[]) => arr[i].maxY)));
+        } else {
+            return [Math.max(...this.data.raw.violins.map((d: ViolinData) => d.maxY))];
+        }
+    }
+
+    protected updateScale(useHue: boolean) {
+        const orgMin = Math.min(...(this.data.values as {minValue: number}[]).map(d => d.minValue));
+        const orgMax = Math.max(...(this.data.values as {value: number}[]).map(d => d.value));
+        const scale = this.getScale(this.flipped);
+        if (scale.domain()[0] === orgMin && scale.domain()[1] === orgMax) {
+            if (useHue) {
+                const violinData: {x1: number, x2: number, y: number}[][] = [];
+                this.data.raw.violins.forEach((arr: ViolinData[]) => arr.forEach(d => {
+                    if (d.bins.length !== 0) violinData.push(d.bins);
+                }));
+                const min = Math.min(...violinData.map(d => d[0].x1 - (d[0].x2 - d[0].x1) / 2));
+                const max = Math.max(...violinData.map(d => d[d.length - 1].x2 + (d[d.length - 1].x2 - d[d.length - 1].x1) / 2));
+                scale.domain([min, max]);
+            } else {
+                const min = Math.min(...this.data.raw.violins.map((d: ViolinData) => d.bins[0].x1 - (d.bins[0].x2 - d.bins[0].x1) / 2));
+                const max = Math.max(...this.data.raw.violins
+                    .map((d: ViolinData) => d.bins[d.bins.length - 1].x2 + (d.bins[d.bins.length - 1].x2 - d.bins[d.bins.length - 1].x1) / 2));
+                scale.domain([min, max]);
+            }
+        }
+
     }
 }

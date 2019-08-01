@@ -16,14 +16,33 @@ export class Statistics {
     constructor(data: number[]) {
         this._data = data.sort((x, y) => x - y);
         this._length = this._data.length;
-        const tmpFirstQuartile = this._length * 25 / 100;
-        this._firstQuartile = Number.isInteger(tmpFirstQuartile) ? (this._data[tmpFirstQuartile - 1] + this._data[tmpFirstQuartile]) / 2 : this._data[Math.ceil(tmpFirstQuartile)];
-        
-        this._median = this._length % 2 === 0 ? (this._data[this._length / 2 - 1] +
-            this._data[this._length / 2]) / 2 : this._data[Math.floor(this._length / 2)];
-        
-            const tmpThirdQuartile = this._length * 75 / 100;
-        this._thirdQuartile = Number.isInteger(tmpThirdQuartile) ? (this._data[tmpThirdQuartile - 1] + this._data[tmpThirdQuartile]) / 2 : this._data[Math.ceil(tmpThirdQuartile) - 1];
+        if (this._length === 1) {
+            this._firstQuartile = this._data[0];
+            this._thirdQuartile = this._data[0];
+            this._mean = this._data[0];
+            this._median = this._data[0];
+        } else if (this._length === 2) {
+            this._firstQuartile = this._data[0];
+            this._thirdQuartile = this._data[1];
+            this._mean = (this._data[0] + this._data[1]) / 2;
+            this._median = (this._data[0] + this._data[1]) / 2;
+        } else if (this._length === 3) {
+            this._firstQuartile = this._data[0];
+            this._thirdQuartile = this._data[2];
+            this._mean = (this._data[0] + this._data[1] + this._data[2]) / 3;
+            this._median = this._data[1];
+        } else {
+            const tmpFirstQuartile = this._length * 25 / 100;
+            this._firstQuartile = Number.isInteger(tmpFirstQuartile) ?
+            (this._data[tmpFirstQuartile - 1] + this._data[tmpFirstQuartile]) / 2 : this._data[Math.ceil(tmpFirstQuartile)];
+
+            this._median = this._length % 2 === 0 ? (this._data[this._length / 2 - 1] +
+                this._data[this._length / 2]) / 2 : this._data[Math.floor(this._length / 2)];
+
+                const tmpThirdQuartile = this._length * 75 / 100;
+            this._thirdQuartile = Number.isInteger(tmpThirdQuartile) ?
+            (this._data[tmpThirdQuartile - 1] + this._data[tmpThirdQuartile]) / 2 : this._data[Math.ceil(tmpThirdQuartile) - 1];
+        }
         if (this._data.length > 0) {
             let sum = 0;
             let min = this._data[0];
