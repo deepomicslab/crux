@@ -28,7 +28,7 @@ export class Component<Option extends ComponentOption = ComponentOption>
     extends BaseElement<Option>
     implements RenderMixin, ScaleMixin {
 
-    public static components: Record<string, typeof Component>;
+    public static components: Record<string, any>;
 
     public $ref: Record<string, ActualElement | ActualElement[]> = {};
     public children: ActualElement[] = [];
@@ -120,6 +120,10 @@ export class Component<Option extends ComponentOption = ComponentOption>
                 throw new Error(`transform value must be a number or an array.`);
         }
         return [x, y, 0, 0, 0];
+    }
+
+    public get isStatic() {
+        return !this.$v.forceRedraw && this.prop.static;
     }
 
     // svg

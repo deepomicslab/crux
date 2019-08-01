@@ -32,10 +32,20 @@ const HOOKS_MAP = {
 };
 
 function insertHook(elm: BaseElement<BaseElementOption>) {
-    return (vnode: VNode) => {
+    if (elm.__insertHook) return elm.__insertHook;
+    const hook = elm.__insertHook = (vnode: VNode) => {
         if (!elm.isRoot) elm.vnode = vnode;
         elm.$callHook("didMount");
     };
+    return hook;
+}
+
+function updateHook(elm: BaseElement<BaseElementOption>) {
+    if (elm.__updateHook) return elm.__updateHook;
+    const hook = elm.__updateHook = (_: VNode, vnode: VNode) => {
+        if (!elm.isRoot) elm.vnode = vnode;
+    };
+    return hook;
 }
 
 export function render(element: BaseElement<any>) {
@@ -44,7 +54,7 @@ export function render(element: BaseElement<any>) {
 }
 
 function _genView(element: BaseElement<any>): VNode {
-    if (element.parent && element.parent.prop.static && element.vnode) {
+    if (element.parent && element.parent.isStatic && element.vnode) {
         return element.vnode;
     }
     if (isRenderable(element)) {
@@ -67,6 +77,7 @@ function _genView(element: BaseElement<any>): VNode {
         ns,
         hook: {
             insert: insertHook(element),
+            update: updateHook(element),
         },
         _elm: element,
     };

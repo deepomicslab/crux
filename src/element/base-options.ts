@@ -11,6 +11,7 @@ export interface BaseOption {
 
     cursor: string;
     visible: boolean;
+    events: string;
 
     detached: boolean;  // for Container
 

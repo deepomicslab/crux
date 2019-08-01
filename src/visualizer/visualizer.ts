@@ -40,6 +40,7 @@ export class Visualizer {
 
     private _gradients: Record<string, CanvasGradient> = {};
 
+    public forceRedraw = false;
     public _isInTransaction = false;
     private _queuedTransactions: (() => void)[] = [];
     public _changedElements: Set<BaseElement<any>> = new Set();
@@ -147,6 +148,7 @@ export class Visualizer {
     public run() {
         this.root.draw();
         this.firstRun = false;
+        this.forceRedraw = false;
     }
 
     public transaction(callback: () => void) {

@@ -45,7 +45,7 @@ export class Axis extends Component<AxisOption> {
                 }
                 @yield label with tick default {
                     Text {
-                        text = tick.value
+                        text = prop.tickFormat ? prop.tickFormat(tick.value) : tick.value
                         x = isHorizontal ? 0 : offset
                         y = isHorizontal ? offset : 0
                         anchor = labelAnchor

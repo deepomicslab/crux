@@ -162,11 +162,18 @@ function findElement(ctx: CanvasRenderingContext2D, el: BaseElement<any>, x: num
         }
         return null;
     } else {
-        if (el.path && ctx.isPointInPath(el.path, x, y)) {
+        if (el.isActive && shouldAcceptEvents(el) && el.path && ctx.isPointInPath(el.path, x, y)) {
             return el;
         }
         return null;
     }
+}
+
+function shouldAcceptEvents(el: BaseElement) {
+    const events = el.prop.events;
+    if (events === "all") return true;
+    else if (events === "none") return false;
+    return el.prop["fill"] !== "none";
 }
 
 function bubbleEvent(event: string, el: BaseElement<any>) {

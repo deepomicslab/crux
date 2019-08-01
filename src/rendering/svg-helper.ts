@@ -15,6 +15,7 @@ export function svgPropFillAndStroke(elm: BaseElement<BaseElementOption>) {
     if (v = elm.prop.strokeOpacity) result["stroke-opacity"] = v;
     if (v = elm.prop.strokeWidth) result["stroke-width"] = v;
     if (v = elm.prop.dashArray) result["stroke-dasharray"] = v;
+    if (v = elm.prop.events) result["pointer-events"] = v;
     return result;
 }
 

@@ -227,8 +227,8 @@ export function updateTree(parent: Component<ComponentOption>, def?: ElementDef)
 
         currElements.pop();
     } else if (elm instanceof Component) {
-        if (!elm.prop.static || elm._firstRender) {
-            currElementInheriting = false;
+        currElementInheriting = false;
+        if (!elm.isStatic || elm._firstRender) {
             elm.children.forEach(c => c.isActive = false);
             for (const child of def!.children) {
                 updateTree(elm, child);

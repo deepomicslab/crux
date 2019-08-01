@@ -72,6 +72,11 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
 
     public $v!: Visualizer;
 
+    // tslint:disable-next-line: variable-name
+    public __insertHook: any;
+    // tslint:disable-next-line: variable-name
+    public __updateHook: any;
+
     constructor(id: number) {
         this.id = id;
         this.uid = defaultUIDGenerator.gen();
