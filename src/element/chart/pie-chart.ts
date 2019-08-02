@@ -10,7 +10,7 @@ export interface PieChartOption extends ComponentOption, ChartPaddingOptions {
     innerRadius: number;
     data: PieChartData;
     totalValue: number;
-    pieProps: any;
+    colorScheme: any;
 }
 
 export interface PieChartPoint {
@@ -51,7 +51,7 @@ export class PieChart extends Component<PieChartOption> {
                                 r1 = prop.innerRadius
                                 r2 = 100%
                                 fill = color
-                                @props prop.pieProps
+                                @props prop.opt.arc
                             }
                         }
                         Component {
@@ -92,7 +92,7 @@ export class PieChart extends Component<PieChartOption> {
             [this.prop.startAngle || 0, this.prop.endAngle || 360]);
         // color scheme
         const categories = this.prop.data.map((d, i) => "name" in d ? d.name : i) as string[];
-        this._colorScheme = ColorSchemeCategory.create(categories);
+        this._colorScheme = this.prop.colorScheme || ColorSchemeCategory.create(categories);
     }
 
     // @ts-ignore

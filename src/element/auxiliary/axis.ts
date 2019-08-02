@@ -123,6 +123,7 @@ export class Axis extends Component<AxisOption> {
             this.prop.tickCount,
             this.prop.includeEndTicks,
             this.prop.roundEndTicks,
+            this.isHorizontal,
         );
     }
 }
@@ -133,7 +134,8 @@ export function getTicks(
     scale: any, providedTicks: any,
     interval: number | undefined, count: number | undefined,
     includeEndTicks: boolean | undefined,
-    roundEndTicks: boolean | undefined): TickValue[] {
+    roundEndTicks: boolean | undefined,
+    isHorizontal: boolean): TickValue[] {
     if (!scale) {
         throw new Error(`Axis: you must supply a scale.`);
     }
@@ -188,7 +190,7 @@ export function getTicks(
         show: true,
     }));
 
-    if (includeEndTicks && !hasProvidedTicks) {
+    if (includeEndTicks && !hasProvidedTicks && isHorizontal) {
         // remove overlap
         const FACTOR = 3;
         if (Math.abs(tickValues[0].pos - tickValues[1].pos) <

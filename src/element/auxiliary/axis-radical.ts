@@ -61,6 +61,7 @@ export class AxisRadical extends Component<AxisRadicalOption> {
             this.prop.tickCount,
             this.prop.includeEndTicks,
             this.prop.roundEndTicks,
+            false,
         );
     }
 }

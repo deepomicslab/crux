@@ -41,7 +41,7 @@ export enum DataSourceType {
 export type DSVRowType = "string" | "int" | "float" | "skip";
 export type DSVRowDef = [DSVRowType, string?];
 
-export interface DataSource<T extends {}, U> {
+export interface DataSource<T extends Record<string, any>, U> {
     _type?: U;
     url?: string | ((dl: DataLoader<T>) => string);
     fileKey?: string;
@@ -52,6 +52,7 @@ export interface DataSource<T extends {}, U> {
     dsvRowParser?: (rawRow: d3.DSVRowString | string[], index: number, columns: string[]) => any;
     dsvHasHeader?: boolean;
     loader?: DataSourceLoader<T>;
+    shouldLoad?: (this: DataLoader) => boolean;
     loaded?: DataSourceCallback<T, U>;
     optional?: boolean;
     multiple?: boolean;
@@ -65,7 +66,7 @@ export interface DataLoaderOption<T> {
     debug?: boolean;
 }
 
-export class DataLoader<T extends { [key: string]: any } = { [key: string]: any }> {
+export class DataLoader<T extends Record<string, any> = Record<string, any>> {
     public data: T & { [otherData: string]: any };
     public metadata?: { [key: string]: any };
     public fileMissing = false;
@@ -102,6 +103,7 @@ export class DataLoader<T extends { [key: string]: any } = { [key: string]: any 
             const paths = await axios.get(window.gon.urls.chosen_file_paths);
             this.selectedFiles = paths.data;
             this.metadata = _.mapValues(this.selectedFiles, x => {
+                if (!x) return null;
                 if (x instanceof Array) {
                     return x.map(z => z.metadata);
                 }
@@ -126,6 +128,10 @@ export class DataLoader<T extends { [key: string]: any } = { [key: string]: any 
             return 0;
         });
         for (const key of loadOrder) {
+            const shouldLoad = this.dataSources[key].shouldLoad;
+            if (shouldLoad && !shouldLoad.call(this as any)) {
+                continue;
+            }
             await this.loadDataFor(key).then((rawData) => {
                 const def = this.dataSources[key];
                 let data = rawData;
@@ -244,25 +250,35 @@ export class DataLoader<T extends { [key: string]: any } = { [key: string]: any 
             def.loader.call(this, origLoader);
             return Promise.all(tasks);
         } else if (def.multiple) {
-            return Promise.all(this.apiPathMultiple(key).map(x => createPromise(x, d3Loader)));
+            const apiPaths = this.apiPathMultiple(key);
+            if (apiPaths) {
+                return Promise.all(apiPaths.map(x => createPromise(x, d3Loader)));
+            } else {
+                return Promise.resolve(null);
+            }
         } else if (isRawData) {
             return createPromise(null, null);
         } else {
-            return createPromise(this.apiPath(key), d3Loader);
+            const apiPath = this.apiPath(key);
+            if (apiPath) {
+                return createPromise(apiPath, d3Loader);
+            } else {
+                return Promise.resolve(null);
+            }
         }
     }
 
-    protected apiPathMultiple(type: string): string[] {
+    protected apiPathMultiple(type: string): string[] | null {
         return this._apiPath(type, null, true);
     }
 
-    protected apiPath(type: string, options= null): string {
+    protected apiPath(type: string, options= null): string | null {
         return this._apiPath(type, options);
     }
 
-    protected _apiPath(type: string, options: any, multiple?: false): string;
-    protected _apiPath(type: string, options: any, multiple?: true): string[];
-    protected _apiPath(type: string, options: any = null, multiple = false): string | string[] {
+    protected _apiPath(type: string, options: any, multiple?: false): string | null;
+    protected _apiPath(type: string, options: any, multiple?: true): string[] | null;
+    protected _apiPath(type: string, options: any = null, multiple = false): string | string[] | null {
         const def = this.dataSources[type];
         if (typeof def.url === "string") {
             return Mustache.render(def.url, options ? options : this);
@@ -273,10 +289,11 @@ export class DataLoader<T extends { [key: string]: any } = { [key: string]: any 
                 const dataList: any[] = (window as any).BVD_CUSTOM_DATA_PROVIDER;
                 return dataList.find(d => d.fileKey === def.fileKey).url;
             }
-            const info = this.selectedFiles[def.fileKey];
-            if (!info) {
+            if (!(def.fileKey in this.selectedFiles)) {
                 throw new Error("DataLoader: File key misconfigured. The visualization module required a key that is not available in this analysis.");
             }
+            const info = this.selectedFiles[def.fileKey];
+            if (!info) return null;
             if (multiple) {
                 if (info instanceof Array) {
                     return info.map(x => x.url);

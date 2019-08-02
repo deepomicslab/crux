@@ -88,6 +88,7 @@ export class AxisBackground extends Component<AxisBackgroundOption> {
             this.prop.tickCount,
             this.prop.includeEndTicks,
             this.prop.roundEndTicks,
+            !this.isHorizontal,
         );
     }
 }

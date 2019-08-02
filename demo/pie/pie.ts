@@ -6,9 +6,7 @@ svg {
         PieChart {
             height = 200; width = 300; padding = 20
             data = pieData
-            pieProps = {
-                stroke: "#fff"
-            }
+            arc.stroke = "#fff"
             :label (d) {
                 Text.centered {
                     text = d.data.name + ": " + d.data.percentage.toFixed(1) + "%"
@@ -25,9 +23,7 @@ svg {
             height = 200; width = 300; padding = 20
             data = pieData
             innerRadius = 50
-            pieProps = {
-                pad: 0.04
-            }
+            arc.pad = 0.04
             :label (d) {
                 Text.centered {
                     text = d.data.name + ": " + d.data.percentage.toFixed(1) + "%"
@@ -38,9 +34,7 @@ svg {
             height = 200; width = 300; padding = 20
             data = [{ value: 6, name: "A" }]
             totalValue = 20
-            pieProps = {
-                stroke: "#fff"
-            }
+            arc.stroke = "#fff"
             :background {
                 Circle.centered {
                     r = 100%+1
