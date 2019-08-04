@@ -283,6 +283,10 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
         return bound;
     }
 
+    protected _b(m: any, ...args: any[]) {
+        return [this._bindMethod(m), ...args];
+    }
+
     /* drawing */
 
     public renderTree() {

@@ -11,6 +11,8 @@ export function gatherEventListeners(el: BaseElement<BaseOption>) {
             listeners[k] = l;
         } else if (typeof listeners[k] === "function") {
             listeners[k] = [null, listeners[k] as any, l];
+        } else if (listeners[k][0] !== null) {
+            listeners[k] = [null, listeners[k] as any, l];
         } else {
             (listeners[k] as any[]).push(l);
         }
