@@ -1,10 +1,17 @@
 import { ColorScheme } from "./color-scheme";
 
+interface HSL { h: number; s: number; l: number; }
+
+export interface ColorSchemeCategoryOption {
+    colors?: string[];
+    initialColor?: HSL;
+}
+
 export class ColorSchemeCategory<T extends number|string> implements ColorScheme {
     public colors: Record<T, string>;
     public categories: string[];
 
-    constructor(data: any) {
+    constructor(data: any, initialColor?: HSL) {
         if (Array.isArray(data)) {
             this.categories = data;
             const n = this.categories.length;
@@ -15,10 +22,16 @@ export class ColorSchemeCategory<T extends number|string> implements ColorScheme
             let a = 0;
             let flag = false;
             this.colors = {} as any;
+            let ih: number, is: number, il: number;
+            if (initialColor) {
+                [ih, is, il] = [initialColor.h, initialColor.s, initialColor.l];
+            } else {
+                [ih, is, il] = [200, 80, 50];
+            }
             this.categories.forEach((c, i) => {
-                let h = 200 + a;
+                let h = ih + a;
                 if (h > 360) h -= 360;
-                this.colors[c] = `hsl(${h},${flag ? 95 : 85}%,${flag ? 65 : 55}%)`;
+                this.colors[c] = `hsl(${h},${is + (flag ? 5 : 5)}%,${il + (flag ? 5 : -5)}%)`;
                 a += flag ? gap1Size : gap2Sise;
                 flag = !flag;
             });
@@ -36,13 +49,19 @@ export class ColorSchemeCategory<T extends number|string> implements ColorScheme
         return this.categories.map(c => ({ label: c.toString(), fill: this.getColor(c)}));
     }
 
-    public static create(c: number | number[]): ColorSchemeCategory<number>;
-    public static create(c: string[]): ColorSchemeCategory<string>;
-    public static create(c: number | (number|string)[]): ColorSchemeCategory<string> | ColorSchemeCategory<number> {
-        if (typeof c === "number") {
-            return new ColorSchemeCategory<number>(Array.from(Array(c)).map((_, i) => i));
+    public static create<T extends (number | string)>(k: number | T[], opt?: ColorSchemeCategoryOption): ColorSchemeCategory<T> {
+        let colors: T[] | Record<T, string>;
+        if (typeof k === "number") {
+            colors = Array.from(Array(k)).map((_, i) => i) as T[];
+        } else if (opt && opt.colors) {
+            colors = {} as Record<T, string>;
+            for (let i = 0; i < k.length; i++) {
+                colors[k[i]] = opt.colors[i];
+            }
         } else {
-            return new ColorSchemeCategory(c) as any;
+            colors = k;
         }
+        const initialColor = opt && opt.initialColor ? opt.initialColor : undefined;
+        return new ColorSchemeCategory(colors, initialColor);
     }
 }

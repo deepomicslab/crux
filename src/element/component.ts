@@ -133,12 +133,13 @@ export class Component<Option extends ComponentOption = ComponentOption>
     public svgAttrs(): Record<string, string|number|boolean> {
         const attrs = svgPropClip(this as any);
         const [x, y, rc, rx, ry] = this._getTransformation();
+        const rotateAfterTranslate = this.prop.rotateAfterTranslate;
         let transform = x === 0 && y === 0 ? "" : `translate(${x},${y})`;
         if (rc !== 0) {
             if (rx === 0 && ry === 0) {
-                transform = `rotate(${rc}) ${transform}`;
+                transform = rotateAfterTranslate ? `${transform} rotate(${rc})` : `rotate(${rc}) ${transform}`;
             } else {
-                transform = `rotate(${rc},${rx},${ry}) ${transform}`;
+                transform = rotateAfterTranslate ? `${transform} rotate(${rc},${rx},${ry})` : `rotate(${rc},${rx},${ry}) ${transform}`;
             }
         }
         if (transform) {
@@ -151,6 +152,11 @@ export class Component<Option extends ComponentOption = ComponentOption>
     public renderToCanvas(ctx: CanvasRenderingContext2D) {
         const t = this._cachedTransform = this._getTransformation();
         const [x, y, rc, rx, ry] = t;
+        const rotateAfterTranslate = this.prop.rotateAfterTranslate;
+        const needTranslate = (x !== 0 || y !== 0);
+        if (rotateAfterTranslate && needTranslate) {
+            ctx.translate(x, y);
+        }
         if (rc !== 0) {
             if (rx === 0 && ry === 0) {
                 ctx.rotate(toRad(rc));
@@ -160,7 +166,7 @@ export class Component<Option extends ComponentOption = ComponentOption>
                 ctx.translate(-rx, -ry);
             }
         }
-        if (x !== 0 || y !== 0) {
+        if (!rotateAfterTranslate && needTranslate) {
             ctx.translate(x, y);
         }
         canvasClip(ctx, this as any);
