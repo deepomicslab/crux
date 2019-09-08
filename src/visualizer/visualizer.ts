@@ -4,8 +4,8 @@ import { BaseElement } from "../element/base-element";
 import { Component } from "../element/component";
 import { registerDefaultGlobalComponents } from "../element/global";
 import { RenderFunc } from "../rendering/base-renderer";
-import { init as canvasInit, render as canvasRenderFunc } from "../rendering/canvas";
-import { render as svgRenderFunc } from "../rendering/svg";
+import { init as canvasInit, render as canvasRenderFunc, setSize as canvasSetSize } from "../rendering/canvas";
+import { render as svgRenderFunc, setSize as svgSetSize } from "../rendering/svg";
 import { compile } from "../template/compiler";
 import { RootComponent } from "./root";
 
@@ -33,6 +33,7 @@ export class Visualizer {
 
     public rendererType: "svg" | "canvas";
     public renderer: RenderFunc;
+    public svg?: SVGElement;
     public ctx?: CanvasRenderingContext2D;
     public _registeredEvents: Set<string>;
     public _focusedElements: Set<BaseElement> = new Set();
@@ -89,13 +90,14 @@ export class Visualizer {
 
         this.rendererType = opt.renderer!;
 
+        let size: { width: number, height: number };
         if (opt.template) {
             const [renderer, metadata] = compile(getOpt(opt, "template"));
             if (!metadata) {
                 throw new Error(`The template must be wrapped with an svg or canvas block.`);
             }
             this.rendererType = metadata.renderer as any;
-            this.size = {
+            size = {
                 width: this._parseSize(metadata.width || "auto", true),
                 height: this._parseSize(metadata.height || "auto", false),
             };
@@ -111,11 +113,21 @@ export class Visualizer {
         } else if (opt.root) {
             opt.root.setProp(getOpt(opt, "props", {}));
             this.setRootElement(opt.root);
-            this.size = {
+            size = {
                 width: this._parseSize(getOpt(opt, "width", "auto").toString(), true),
                 height: this._parseSize(getOpt(opt, "height", "auto").toString(), false),
             };
+        } else {
+            throw new Error(`Visualizer: Either "template" or "root" must be supplied.`);
         }
+
+        this.size = new Proxy(size, {
+            set: (obj, prop, value) => {
+                obj[prop] = value;
+                this._updateSize();
+                return true;
+            },
+        });
 
         switch (this.rendererType) {
             case "svg":
@@ -245,6 +257,15 @@ export class Visualizer {
                 this.container.clientHeight - parseFloat(computedStyle.paddingLeft!) - parseFloat(computedStyle.paddingRight!);
         } else {
             return parseFloat(size);
+        }
+    }
+
+    private _updateSize() {
+        if (this.rendererType === "canvas") {
+            if (this.ctx)
+                canvasSetSize(this.ctx.canvas, this);
+        } else {
+            svgSetSize(this);
         }
     }
 }

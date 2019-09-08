@@ -12,6 +12,8 @@ export type ColorSchemeGradientOptions = {
 } | {
     type: "threshold";
     thresholds: number[];
+    minDistinct: boolean;
+    maxDistinct: boolean;
     domain: [number, number];
 } | {
     type: "quantize";
@@ -40,11 +42,16 @@ export class ColorSchemeGradient implements ColorScheme {
                     if (options.base) this.numberScale.base(options.base);
                     break;
                 case "threshold":
-                    const l1 = options.thresholds.length;
+                    const l1 = options.thresholds.length + (+options.minDistinct) + (+options.maxDistinct);
                     const q1 = 1 / l1;
                     this.colors = Array.from(Array(l1 + 1)).map((_, i) => i * q1);
-                    this.bounds = [options.domain[0]].concat(options.thresholds).concat([options.domain[1]]);
-                    this.numberScale = scaleThreshold().range(this.colors).domain(options.thresholds);
+                    const bounds = [
+                        ...options.minDistinct ? [options.domain[0] + Number.EPSILON] : [],
+                        ...options.thresholds,
+                        ...options.maxDistinct ? [options.domain[1] - Number.EPSILON] : [],
+                    ];
+                    this.bounds = [options.domain[0]].concat(bounds).concat([options.domain[1]]);
+                    this.numberScale = scaleThreshold().range(this.colors).domain(bounds);
                     break;
                 case "quantize":
                     const l2 = options.groups - 1;
@@ -69,7 +76,7 @@ export class ColorSchemeGradient implements ColorScheme {
             case "threshold": case "quantize":
                 return this.colors!.map((d, i) => ({
                     range: [b[i], b[i + 1]],
-                    label: `[${b[i]}, ${b[i + 1]})`,
+                    label: i === b.length - 1 ? `>=${b[i]}` : `[${b[i]}, ${b[i + 1]})`,
                     fill: this.scale(d),
                 }));
         }

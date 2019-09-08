@@ -42,7 +42,7 @@ function _render(ctx: CanvasRenderingContext2D, element: BaseElement<any>): void
     }
 
     if (element instanceof Component) {
-        element.children.filter(c => c.isActive).forEach(e => _render(ctx, e));
+        element.children.filter(c => c._isActive).forEach(e => _render(ctx, e));
     }
     ctx.restore();
 }
@@ -162,7 +162,7 @@ function findElement(ctx: CanvasRenderingContext2D, el: BaseElement<any>, x: num
         }
         return null;
     } else {
-        if (el.isActive && shouldAcceptEvents(el) && el.path && ctx.isPointInPath(el.path, x, y)) {
+        if (el._isActive && shouldAcceptEvents(el) && el.path && ctx.isPointInPath(el.path, x, y)) {
             return el;
         }
         return null;

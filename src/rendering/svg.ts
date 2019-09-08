@@ -9,6 +9,7 @@ import { BaseElement } from "../element/base-element";
 import { Component } from "../element/component";
 import { isRenderable } from "../element/is";
 import { BaseElementOption } from "../element/primitive/base-elm-options";
+import { Visualizer } from "../visualizer/visualizer";
 import ns from "./ns";
 import { gatherEventListeners } from "./utils";
 
@@ -67,7 +68,7 @@ function _genView(element: BaseElement<any>): VNode {
     let children: VNode[] | undefined;
     if (element instanceof Component) {
         children = element.children
-            .filter(c => c.isActive)
+            .filter(c => c._isActive)
             .map(c => _genView(c));
     }
     const key = element.prop.key || element.id;
@@ -140,13 +141,18 @@ function _createRootElm(element: BaseElement): Element {
     const rootElm = document.createElementNS(ns, "g");
     const defElm = document.createElementNS(ns, "defs");
     defElm.innerHTML = Object.values(element.$v.svgDef).join("");
-    const svg = document.createElementNS(ns, "svg");
+    const svg = element.$v.svg = document.createElementNS(ns, "svg");
     svg.setAttribute("xmlns", ns);
-    svg.setAttribute("width", element.$v.size.width);
-    svg.setAttribute("height", element.$v.size.height);
+    setSize(element.$v);
     svg.setAttribute("style", "font-family: Arial");
     svg.appendChild(rootElm);
     svg.appendChild(defElm);
     element.$v.container.appendChild(svg);
     return rootElm;
+}
+
+export function setSize(v: Visualizer) {
+    if (!v.svg) return;
+    v.svg.setAttribute("width", v.size.width);
+    v.svg.setAttribute("height", v.size.height);
 }

@@ -30,7 +30,8 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
     public uid: number;
 
     public isRoot = false;
-    public isActive = true;
+    public _isActive = true;
+    public _order = 0;
     public parent!: Component; // the direct parent
     public logicalParent?: Component; // parent when rendering
 

@@ -44,7 +44,7 @@ function findComponent(component: Component, name: string, id: number): [ActualE
     const ctor = getComponent(isRenderable(component) ? component : (component as any).$parent, name);
     const comp = component.children.find(c => c instanceof ctor && c.id === id);
     if (comp) {
-        comp.isActive = true;
+        comp._isActive = true;
         return [comp, false];
     }
     const newElm = new ctor(id);
@@ -72,7 +72,7 @@ function shouldUpdateElement(elm: ActualElement, opt: OptDict): boolean {
     return true;
 }
 
-export function updateTree(parent: Component<ComponentOption>, def?: ElementDef) {
+export function updateTree(parent: Component<ComponentOption>, def?: ElementDef, order?: number) {
     let elm: ActualElement;
     let created: boolean;
     let xScaleChangeRoot = false, yScaleChangeRoot = false;
@@ -178,6 +178,8 @@ export function updateTree(parent: Component<ComponentOption>, def?: ElementDef)
             elm.$callHook("didCreate");
     }
 
+    if (order) elm._order = order;
+
     const newCoordSystem = elm instanceof Component &&
         elm.prop.coord && elm.prop.coord !== currCoordSystem();
     elm.$coord = currCoordRoot()!;
@@ -229,10 +231,11 @@ export function updateTree(parent: Component<ComponentOption>, def?: ElementDef)
     } else if (elm instanceof Component) {
         currElementInheriting = false;
         if (!elm.isStatic || elm._firstRender) {
-            elm.children.forEach(c => c.isActive = false);
-            for (const child of def!.children) {
-                updateTree(elm, child);
+            elm.children.forEach(c => c._isActive = false);
+            for (let i = 0, l = def!.children.length; i < l; i++) {
+                updateTree(elm, def!.children[i], i);
             }
+            elm.children.sort(ascending);
         }
     }
 
@@ -251,3 +254,5 @@ export function updateTree(parent: Component<ComponentOption>, def?: ElementDef)
     elm.$callHook("didUpdate");
     elm._firstRender = false;
 }
+
+const ascending = (a: BaseElement, b: BaseElement) => a._order - b._order;
