@@ -52,6 +52,7 @@ function updateHook(elm: BaseElement<BaseElementOption>) {
 export function render(element: BaseElement<any>) {
     const vnode = _genView(element);
     _patch(element, vnode);
+    updateSVGDef(element.$v);
 }
 
 function _genView(element: BaseElement<any>): VNode {
@@ -149,6 +150,11 @@ function _createRootElm(element: BaseElement): Element {
     svg.appendChild(defElm);
     element.$v.container.appendChild(svg);
     return rootElm;
+}
+
+function updateSVGDef(v: Visualizer) {
+    const defElm = v.svg!.getElementsByTagName("defs")[0];
+    defElm.innerHTML = Object.values(v.svgDef).join("");
 }
 
 export function setSize(v: Visualizer) {

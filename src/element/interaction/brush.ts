@@ -42,7 +42,7 @@ export class Brush extends Component<BrushOption> {
             stroke = "rgba(20,20,20,.6)"
             cornerRadius = prop.cornerRadius
             cursor = "move"
-            on:mousedown = handleDown($ev, 2)
+            on:mousedown = (ev) => handleDown(ev, 2)
             @props prop.opt.brush
         }
         Rect {
@@ -52,7 +52,7 @@ export class Brush extends Component<BrushOption> {
             height = 100%
             fill = "rgba(0,0,0,0)"
             cursor = "ew-resize"
-            on:mousedown = handleDown($ev, 0)
+            on:mousedown = (ev) => handleDown(ev, 0)
         }
         Rect {
             ref = "rightHandle"
@@ -61,7 +61,7 @@ export class Brush extends Component<BrushOption> {
             height = 100%
             fill = "rgba(0,0,0,0)"
             cursor = "ew-resize"
-            on:mousedown = handleDown($ev, 1)
+            on:mousedown = (ev) => handleDown(ev, 1)
         }
     }
     `;

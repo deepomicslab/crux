@@ -16,6 +16,12 @@ function layoutDetachedChildren(el: BaseElement, check = true) {
     if (check && !el.$detached) return;
     layoutElement(el, true);
     adjustByAnchor(el);
+    let e = el;
+    while (e["render"]) {
+        e = (e as Component).children[0];
+        e.$geometry._x = el.$geometry._x;
+        e.$geometry._y = el.$geometry._y;
+    }
     if (el instanceof Component) {
         // skip if children's sizes don't depend on this component
         if (isFixed(el.prop.width) && isFixed(el.prop.height)) return;

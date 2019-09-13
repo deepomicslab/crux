@@ -1,5 +1,6 @@
+import { getFinalPosition } from "../../layout/layout";
 import { canvasFill, canvasStroke } from "../../rendering/canvas-helper";
-import { svgPropFillAndStroke } from "../../rendering/svg-helper";
+import { svgPropFillAndStroke, svgPropXAndY } from "../../rendering/svg-helper";
 import { BaseElementOption } from "./base-elm-options";
 import { PrimitiveElement } from "./primitive";
 
@@ -13,16 +14,24 @@ export class Path extends PrimitiveElement<PathOption> {
     public static propNameForInitializer(): string { return "d"; }
 
     public svgAttrs(): any {
-        return {
+        const result = {
             ...svgPropFillAndStroke(this),
+            ...svgPropXAndY(this),
             d: this.prop.d,
         };
+        if (this.$geometry.x !== 0 || this.$geometry.y !== 0) {
+            result.transform = `translate(${this.$geometry.x},${this.$geometry.y})`;
+        }
+        return result;
     }
 
     public svgTagName() { return "path"; }
     public svgTextContent() { return null; }
 
     public renderToCanvas(ctx: CanvasRenderingContext2D) {
+        const [x, y] = getFinalPosition(this);
+        ctx.translate(x, y);
+
         switch (typeof this.prop.d) {
             case "string":
                 this.path = new Path2D(this.prop.d);

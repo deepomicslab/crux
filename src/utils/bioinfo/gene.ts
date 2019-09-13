@@ -35,6 +35,7 @@ export interface GeneData {
     exon_number: number;
     exons: { most_left_pos: number, length: number }[];
     CDS_region: string;
+    color?: string;
 }
 
 function toNumArray(str: string): number[] {

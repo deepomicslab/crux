@@ -32,6 +32,7 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
     public isRoot = false;
     public _isActive = true;
     public _order = 0;
+    public _reordered = false;
     public parent!: Component; // the direct parent
     public logicalParent?: Component; // parent when rendering
 

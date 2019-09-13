@@ -45,6 +45,7 @@ function findComponent(component: Component, name: string, id: number): [ActualE
     const comp = component.children.find(c => c instanceof ctor && c.id === id);
     if (comp) {
         comp._isActive = true;
+        comp._reordered = false;
         return [comp, false];
     }
     const newElm = new ctor(id);
@@ -178,7 +179,7 @@ export function updateTree(parent: Component<ComponentOption>, def?: ElementDef,
             elm.$callHook("didCreate");
     }
 
-    if (order) elm._order = order;
+    if (order !== undefined) elm._order = order;
 
     const newCoordSystem = elm instanceof Component &&
         elm.prop.coord && elm.prop.coord !== currCoordSystem();
@@ -235,7 +236,24 @@ export function updateTree(parent: Component<ComponentOption>, def?: ElementDef,
             for (let i = 0, l = def!.children.length; i < l; i++) {
                 updateTree(elm, def!.children[i], i);
             }
-            elm.children.sort(ascending);
+            // sort
+            let tmp, o;
+            const d = elm.children;
+            for (let i = 0, l = d.length; i < l; i++) {
+                if (d[i]._reordered || !d[i]._isActive) continue;
+                if (o !== i) {
+                    while (1) {
+                        tmp = d[i];
+                        if (!tmp._isActive || tmp._order === i) break;
+                        o = tmp._order;
+                        d[i] = d[o];
+                        d[o] = tmp;
+                        tmp._reordered = true;
+                    }
+                } else {
+                    d[i]._reordered = true;
+                }
+            }
         }
     }
 
@@ -254,5 +272,3 @@ export function updateTree(parent: Component<ComponentOption>, def?: ElementDef,
     elm.$callHook("didUpdate");
     elm._firstRender = false;
 }
-
-const ascending = (a: BaseElement, b: BaseElement) => a._order - b._order;

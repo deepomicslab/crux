@@ -48,7 +48,7 @@ export function svgPropClip(elm: Component<ComponentOption>) {
             clipPath = oneLineTrim`<rect x="0" y="0"
                 width="${width}"
                 height="${height}"
-                rx="${v.rx}" ry="${v.ry}">`;
+                rx="${v.rx || 0}" ry="${v.ry || 0}">`;
         } else if (v.type === "polygon") {
             const points: number[] = v.points.map((p: GeometryValue | number, i: number) => typeof p === "object" ?
                 GeometryValue.cal(p, i % 2 ? height : width) : p);
