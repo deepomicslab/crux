@@ -20,6 +20,7 @@ export interface GeneAreaOption extends ComponentOption {
     rowGap: number;
     displayExon: boolean;
     activeGenes: string[];
+    layout: "packed" | "merged";
     labelPos: "innerLeft" | "right" | "none";
     labelText: (g: GeneData) => string;
     labelSize: number;
@@ -106,6 +107,7 @@ export class GeneArea extends Component<GeneAreaOption> {
             rowGap: 4,
             activeGenes: [],
             geneColor: (gene: GeneData) => gene.color || "#66f",
+            layout: "packed",
             labelPos: "innerLeft",
             labelText: (gene: GeneData) => gene.trans_name_orig,
             labelSize: 12,
@@ -128,21 +130,25 @@ export class GeneArea extends Component<GeneAreaOption> {
         this.prop.genes!.forEach(g => {
             g._x0 = scale(g.most_left_pos);
             g._x1 = scale(g.most_right_pos);
-        })
+        });
         this.layers = this.layout();
     }
 
     public layout(): ScaledGeneData[][] {
-        const data =  stackedLayout(this.prop.genes!)
-            .value(x => x._x0!)
-            .extent(x => [
-                x._x0!,
-                this.prop.labelPos === "right" ?
-                    x._x1! + measuredTextSize(this.prop.labelText(x), this.prop.labelSize).width + 2 :
-                    x._x1!,
-            ])
-            .run();
-        return data;
+        if (this.prop.layout === "packed") {
+            return stackedLayout(this.prop.genes!)
+                .value(x => x._x0!)
+                .extent(x => [
+                    x._x0!,
+                    this.prop.labelPos === "right" ?
+                        x._x1! + measuredTextSize(this.prop.labelText(x), this.prop.labelSize).width + 2 :
+                        x._x1!,
+                ])
+                .run();
+        } else if (this.prop.layout === "merged") {
+            return [this.prop.genes!];
+        }
+        return [];
     }
 
     public get geneMinPos(): number {

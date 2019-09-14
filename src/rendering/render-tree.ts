@@ -85,6 +85,8 @@ export function updateTree(parent: Component<ComponentOption>, def?: ElementDef,
         const key = typeof opt.props.key === "undefined" ? opt.id : opt.props.key;
         [elm, created] = findComponent(parent, tag, key);
 
+        if (order !== undefined) elm._order = order;
+
         if (opt.props.debug) {
             console.log("Rendering component:");
         }
@@ -178,8 +180,6 @@ export function updateTree(parent: Component<ComponentOption>, def?: ElementDef,
         if (created)
             elm.$callHook("didCreate");
     }
-
-    if (order !== undefined) elm._order = order;
 
     const newCoordSystem = elm instanceof Component &&
         elm.prop.coord && elm.prop.coord !== currCoordSystem();

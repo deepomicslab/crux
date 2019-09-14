@@ -8,6 +8,7 @@ export class Columns extends Component {
         const autoHeight = this.heightIsNotDefined;
         let maxY = 0;
         for (const child of this.children) {
+            if (!child._isActive) continue;
             if (child instanceof Component) {
                 let c = child as Component<ComponentOption>;
                 if (autoHeight) {

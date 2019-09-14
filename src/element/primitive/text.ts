@@ -23,7 +23,8 @@ export class Text extends PrimitiveElement<TextOption> {
     }
 
     public willAdjustAnchor() {
-        const text = ((this.prop.text || this.prop.text === 0) && this.prop.text.toString) ? this.prop.text.toString() :
+        const text = (typeof this.prop.text === "string") ? this.prop.text :
+            ((this.prop.text || this.prop.text === 0) && this.prop.text.toString) ? this.prop.text.toString() :
             (this.prop.html && this.prop.html.toString) ? strip(this.prop.html.toString()) : null;
 
         if (text === null) {

@@ -115,6 +115,13 @@ export class Brush extends Component<BrushOption> {
         this.draw();
     }
 
+    public setRange(l: number, r: number) {
+        this._brushScale.range([l, r]);
+        this.state.brushL = 0;
+        this.state.brushR = this._brushScale.domain()[1];
+        this.draw();
+    }
+
     // @ts-ignore
     private brushX(): number {
         return this.state.brushL;

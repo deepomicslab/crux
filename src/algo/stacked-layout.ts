@@ -30,7 +30,7 @@ export class StackedLayout<T> {
         this._data.sort((a, b) => this._value(a) - this._value(b));
         // stack
         let currentLayer = 0;
-        const layerMaxValue: number[] = [Number.MIN_VALUE];
+        const layerMaxValue: number[] = [-Number.MAX_VALUE];
         // process
         const layers: T[][] = [[]];
 

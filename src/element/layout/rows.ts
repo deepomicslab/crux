@@ -8,6 +8,7 @@ export class Rows extends Component {
         const autoWidth = this.widthIsNotDefined;
         let maxX = 0;
         for (const child of this.children) {
+            if (!child._isActive) continue;
             if (child instanceof Component) {
                 let c = child as Component<ComponentOption>;
                 if (autoWidth) {

@@ -15,8 +15,25 @@ declare global {
     }
 }
 
-export function visualize(opt: VisualizeOption): Visualizer {
-    const v = new Visualizer(opt);
+interface VisualizeResult {
+    visualizer: Visualizer;
+    option: VisualizeOption;
+}
+
+function isVisualizeResult(v: any): v is VisualizeResult {
+    return v.visualizer && v.visualizer instanceof Visualizer;
+}
+
+export function visualize(arg: VisualizeOption | VisualizeResult): VisualizeResult {
+    let v: Visualizer;
+    let opt: VisualizeOption;
+    if (isVisualizeResult(arg)) {
+        v = arg.visualizer;
+        opt = arg.option;
+    } else {
+        opt = arg;
+        v = new Visualizer(arg);
+    }
     if (opt.loadData) {
         loadData(opt.loadData).then((d: any) => {
             v.data = { ...v.data, ...d };
@@ -35,5 +52,5 @@ export function visualize(opt: VisualizeOption): Visualizer {
         }
         if (opt.didRender) opt.didRender.call(v);
     }
-    return v;
+    return { visualizer: v, option: opt };
 }
