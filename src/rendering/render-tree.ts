@@ -141,6 +141,21 @@ export function updateTree(parent: Component<ComponentOption>, def?: ElementDef,
             elm.setStage(opt.props.stage, true);
         }
 
+        // ref
+        const ce = currElement(), ref = opt.props.ref;
+        if (ce && ref) {
+            if (ref.endsWith("[]")) {
+                const name = ref.substr(0, ref.length - 2), r = ce.$ref[name];
+                if (Array.isArray(r)) {
+                    r.push(elm);
+                } else {
+                    ce.$ref[name] = [elm];
+                }
+            } else {
+                ce.$ref[ref] = elm;
+            }
+        }
+
         if (!elm._firstRender) {
             if (isRenderable(elm)) {
                 if (!shouldUpdateElement(elm, opt)) return;
@@ -197,21 +212,6 @@ export function updateTree(parent: Component<ComponentOption>, def?: ElementDef,
 
     if (elm.prop.debug) {
         console.log(elm);
-    }
-
-    // ref
-    const ce = currElement(), ref = elm.prop.ref;
-    if (ce && ref) {
-        if (ref.endsWith("[]")) {
-            const name = ref.substr(0, ref.length - 2), r = ce.$ref[name];
-            if (Array.isArray(r)) {
-                r.push(elm);
-            } else {
-                ce.$ref[name] = [elm];
-            }
-        } else {
-            ce.$ref[ref] = elm;
-        }
     }
 
     elm.$callHook("__didLayout");
