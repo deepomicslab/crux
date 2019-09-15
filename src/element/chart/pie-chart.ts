@@ -41,7 +41,7 @@ export class PieChart extends Component<PieChartOption> {
                     @let start = _xScale(data._minValue)
                     @let end = _xScale(data.value + data._minValue)
                     @let color = _colorScheme.getColor(data.name)
-                    @let d = { start, end, data, index }
+                    @let d = { start, end, data, index, color }
                     Component {
                         key = index
                         height = 100%
