@@ -70,6 +70,8 @@ export class Brush extends Component<BrushOption> {
         return [this._brushScale(this.state.brushL), this._brushScale(this.state.brushR)];
     }
 
+    private _shouldUpdateRangeNextTime = false;
+
     private _inited = false;
     private _isMoving = false;
     private _moveType!: number; // 0: left, 1: right, 2: brush
@@ -104,10 +106,22 @@ export class Brush extends Component<BrushOption> {
         }
     }
 
+    public willRender() {
+        if (this._shouldUpdateRangeNextTime) {
+            this._brushScale.range(this.prop.range);
+            this._shouldUpdateRangeNextTime = false;
+        }
+    }
+
     private _setCurrentRange(l: number, r: number) {
         const i = this._brushScale.invert;
         this.state.brushL = i(l);
         this.state.brushR = i(r);
+    }
+
+    public reset() {
+        this._shouldUpdateRangeNextTime = true;
+        this._inited = false;
     }
 
     public setCurrentRange(l: number, r: number) {

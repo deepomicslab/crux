@@ -38,6 +38,7 @@ export class GeneArea extends Component<GeneAreaOption> {
 
         @for (genes, layer) in layers {
             @for (gene, index) in genes {
+                @let geneName = prop.labelText(gene)
                 Component {
                     context = gene
                     ref    = "genes[]"
@@ -68,6 +69,9 @@ export class GeneArea extends Component<GeneAreaOption> {
                         height = prop.intronHeight
                         fill   = prop.geneColor(gene)
                         @props prop.opt.intron
+                        behavior:tooltip {
+                            content = geneName + "<br>" + gene.most_left_pos + "-" + gene.most_right_pos
+                        }
                     }
                     @if prop.displayExon {
                         @for (exon, index) in gene.exons {
@@ -81,11 +85,14 @@ export class GeneArea extends Component<GeneAreaOption> {
                                 minWidth = 1
                                 fill     = prop.geneColor(gene)
                                 @props prop.opt.exon
+                                behavior:tooltip {
+                                    content = index + ": " + el + "-" + er
+                                }
                             }
                         }
                     }
                     Text {
-                        text = prop.labelText(gene)
+                        text = geneName
                         y = 50%
                         anchor = @anchor("left", "middle")
                         fontSize = prop.labelSize
