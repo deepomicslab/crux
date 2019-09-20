@@ -176,7 +176,7 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
                         }
                         return false;
                     }
-                    if (!shallowEqObjects) return false;
+                    if (!shallowEqObjects(p1, p2)) return false;
                     continue;
             }
         }

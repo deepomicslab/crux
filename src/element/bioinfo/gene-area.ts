@@ -86,7 +86,7 @@ export class GeneArea extends Component<GeneAreaOption> {
                                 fill     = prop.geneColor(gene)
                                 @props prop.opt.exon
                                 behavior:tooltip {
-                                    content = index + ": " + el + "-" + er
+                                    content = "Exon " + getExonIndex(gene, index) + ": " + el + "-" + er
                                 }
                             }
                         }
@@ -166,6 +166,11 @@ export class GeneArea extends Component<GeneAreaOption> {
     public get geneMaxPos(): number {
         if (this.prop.genes.length === 0) return 0;
         return d3.max(this.prop.genes, g => g.most_right_pos as number)!;
+    }
+
+    // @ts-ignore
+    public getExonIndex(gene: ScaledGeneData, index: number) {
+        return gene.strand === "-" ? gene.exon_number - index : index + 1;
     }
 
     // @ts-ignore
