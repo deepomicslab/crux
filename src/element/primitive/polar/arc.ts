@@ -13,6 +13,7 @@ export interface ArcOption extends BaseElementOption {
     x2: GeometryOptValue;
     r2: GeometryOptValue;
     pad: number;
+    rad: boolean;
 }
 
 export class Arc extends BaseElement<ArcOption> {
@@ -34,12 +35,14 @@ export class Arc extends BaseElement<ArcOption> {
     }
 
     private getPath() {
+        const x1 = this.prop.rad ? this.$geometry.x1 : toRad(this.$geometry.x1);
+        const x2 = this.prop.rad ? this.$geometry.x2 : toRad(this.$geometry.x2);
         return arc()
             .padAngle(this.prop.pad)({
                 innerRadius: this.$geometry.r1,
                 outerRadius: this.$geometry.r2,
-                startAngle: toRad(this.$geometry.x1),
-                endAngle: toRad(this.$geometry.x2),
+                startAngle: x1,
+                endAngle: x2,
             });
     }
 
