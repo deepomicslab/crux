@@ -12,12 +12,10 @@ type Range = [number, number];
 export class ScaleMixin {
     public _createScaleLinear(horizontal: boolean, domain: Range, range?: Range) {
         const self = (this as unknown as Component);
-        const size = horizontal ?
-            self.$polar ? 360 : self.$geometry.width :
-            self.$polar ? self.$polar.r : self.$geometry.height;
+        const size = self.boundaryForScale(horizontal);
         return d3.scaleLinear()
-            .domain(domain || [0, size])
-            .range(range || [0, size]);
+            .domain(domain || size)
+            .range(range || size);
     }
 
     public _createScaleOrdinal(domain: string[], range: number[]) {

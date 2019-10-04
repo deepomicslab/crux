@@ -1,6 +1,6 @@
 import { getFinalPosition } from "../../layout/layout";
 import { canvasFill, canvasStroke } from "../../rendering/canvas-helper";
-import { svgPropFillAndStroke, svgPropXAndY } from "../../rendering/svg-helper";
+import { svgPropFillAndStroke, svgPropXAndY, svgRotation } from "../../rendering/svg-helper";
 import { BaseElementOption } from "./base-elm-options";
 import { PrimitiveElement } from "./primitive";
 
@@ -16,6 +16,7 @@ export class Path extends PrimitiveElement<PathOption> {
     public svgAttrs(): any {
         const result = {
             ...svgPropFillAndStroke(this),
+            ...svgRotation(this),
             ...svgPropXAndY(this),
             d: this.prop.d,
         };

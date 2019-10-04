@@ -7,7 +7,7 @@ export function toRad(d: number) {
 }
 
 export function toCartesian(x: number, y: number, isRad: boolean = false): [number, number] {
-    const a = isRad ? x - 90 : (x - 90) / 180 * Math.PI;
+    const a = isRad ? x - 0.5 * Math.PI : (x - 90) / 180 * Math.PI;
     return [Math.cos(a) * y, Math.sin(a) * y];
 }
 

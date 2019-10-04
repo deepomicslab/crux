@@ -1,4 +1,5 @@
 import { Behavior } from "../behavior/behavior";
+import config from "../config";
 import { GeometryOptions, GeometryUnit, GeometryValue } from "../defs/geometry";
 import { CanvasRenderable } from "../rendering/canvas";
 import { SVGRenderable } from "../rendering/svg";
@@ -346,7 +347,7 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
 
     public translatePoint(x: number, y: number): [number, number] {
         if (this.inPolorCoordSystem) {
-            return toCartesian(x, y);
+            return toCartesian(x, y, config.rad);
         }
         return [x, y];
     }

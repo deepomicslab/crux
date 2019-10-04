@@ -245,6 +245,13 @@ export class Component<Option extends ComponentOption = ComponentOption>
 
     public _createScaleLinear!: (horizontal: boolean, domain: [number, number], range?: [number, number]) => d3.ScaleLinear<number, number>;
     public _createScaleOrdinal!: (domain: string[], range: number[]) => d3.ScaleOrdinal<string, number>;
+
+    public boundaryForScale(horizontal?: boolean): [number, number] {
+        const size = horizontal ?
+            this.$polar ? 360 : (this.$geometry as any).width :
+            this.$polar ? this.$polar.r : (this.$geometry as any).height;
+        return [0, size];
+    }
 }
 
 applyMixins(Component, [RenderMixin, ScaleMixin]);

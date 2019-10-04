@@ -1,18 +1,24 @@
-import * as algo from "./algo";
 import { Component } from "./element/component";
-import loadData from "./load-data";
+import { createComponent as component } from "./element/utils";
 import { template } from "./template/tag";
-import * as utils from "./utils";
 import { visualize } from "./visualizer";
+
+import * as algo from "./algo";
+import * as utils from "./utils";
+
+import config from "./config";
+import loadData from "./load-data";
 
 // tslint:disable-next-line: variable-name
 const Crux = {
     visualize,
     Component,
     template,
+    component,
     utils,
     algo,
     loadData,
+    config,
 };
 
 export default Crux;

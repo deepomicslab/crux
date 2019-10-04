@@ -142,7 +142,7 @@ function genNamedChildren(node: ASTNodeComp, uidGen: UIDGenerator) {
 }
 
 function gatherCondBlocks(node: ASTNode) {
-    if (node.type === "children") return;
+    // if (node.type === "children") return;
     if (node.type === "cond" || !node.children.some(c => c.type === "op-if")) {
         return;
     }
@@ -206,7 +206,10 @@ function genNodeComp(node: ASTNodeComp, uidGen: UIDGenerator) {
                 ].filter(s => s).join("\n")}
             },
             [ ${genChildren(node, uidGen)} ])`;
-    return hasLocalData ? wrappedWithLocalData(node, str) : str;
+    const wrapped = hasLocalData ? wrappedWithLocalData(node, str) : str;
+    return n.isLazy ?
+        `(function(){ return ${wrapped} })` :
+        wrapped;
 }
 
 function genNodeFor(node: ASTNodeFor, uidGen: UIDGenerator) {

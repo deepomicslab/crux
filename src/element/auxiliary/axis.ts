@@ -10,6 +10,7 @@ export interface AxisOption extends ComponentOption {
     orientation: "top" | "bottom" | "left" | "right";
     tickCount: number;
     tickInterval: number;
+    tickFormat: (d: any) => string;
     ticks: number[];
     includeEndTicks: boolean;
     roundEndTicks: boolean;
@@ -45,12 +46,12 @@ export class Axis extends Component<AxisOption> {
                 }
                 @yield label with tick default {
                     Text {
-                        text = prop.tickFormat ? prop.tickFormat(tick.value) : tick.value
+                        text = prop.tickFormat(tick.value)
                         x = isHorizontal ? 0 : offset
                         y = isHorizontal ? offset : 0
                         anchor = labelAnchor
                         fontSize = 10
-                        style:visibility = tick.show ? "visible" : "hidden"
+                        visible = tick.show
                         fill = prop.color
                         @props prop.opt.label
                     }
@@ -64,6 +65,7 @@ export class Axis extends Component<AxisOption> {
         return {
             orientation: "top",
             tickCount: 5,
+            tickFormat: (d: TickValue) => d.toString(),
             includeEndTicks: true,
             roundEndTicks: false,
             stroke: "#000",
@@ -115,8 +117,8 @@ export class Axis extends Component<AxisOption> {
     }
 
     // @ts-ignore
-    private get ticks(): any[] {
-        return getTicks(
+    private get ticks(): TickValue[] {
+        const ticks = getTicks(
             this.getScale(this.isHorizontal),
             this._tickValues || this.prop.ticks,
             this.prop.tickInterval,
@@ -125,10 +127,21 @@ export class Axis extends Component<AxisOption> {
             this.prop.roundEndTicks,
             this.isHorizontal,
         );
+        if (this.prop.includeEndTicks && !(this._tickValues || this.prop.ticks) && this.isHorizontal) {
+            const tf = this.prop.tickFormat;
+            if (isOverlap(ticks[0], ticks[1], tf)) {
+                ticks[1].show = false;
+            }
+            const last = ticks.length - 1;
+            if (isOverlap(ticks[last], ticks[last - 1], tf)) {
+                ticks[last - 1].show = false;
+            }
+        }
+        return ticks;
     }
 }
 
-export type TickValue = { value: string, pos: number, show: boolean };
+export type TickValue = { value: number, pos: number, show: boolean };
 
 export function getTicks(
     scale: any, providedTicks: any,
@@ -185,26 +198,19 @@ export function getTicks(
     }
 
     const tickValues = ticks.map(t => ({
-        value: t.toString(),
+        value: t,
         pos: scale(t),
         show: true,
     }));
 
-    if (includeEndTicks && !hasProvidedTicks && isHorizontal) {
-        // remove overlap
-        const FACTOR = 3;
-        if (Math.abs(tickValues[0].pos - tickValues[1].pos) <
-            FACTOR * (tickValues[0].value.length + tickValues[1].value.length)) {
-            tickValues[1].show = false;
-        }
-        const last = ticks.length - 1;
-        if (Math.abs(tickValues[last].pos - tickValues[last - 1].pos) <
-            3 * (tickValues[last].value.length + tickValues[last - 1].value.length)) {
-            tickValues[last - 1].show = false;
-        }
-    }
-
     return tickValues;
+}
+
+function isOverlap(a: TickValue, b: TickValue, tf: any) {
+    const aLabel = tf ? tf(a.value) : a.value;
+    const bLabel = tf ? tf(b.value) : b.value;
+    const FACTOR = 3;
+    return Math.abs(a.pos - b.pos) < FACTOR * (aLabel.length + bLabel.length);
 }
 
 function pretty(n: number): number {

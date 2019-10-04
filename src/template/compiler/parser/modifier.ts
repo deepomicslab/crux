@@ -8,6 +8,10 @@ const MODIFIERS = {
 
 export function parseModifiers(node: ASTNodeComp, str: string) {
     return str.split(".").filter(m => m).map(m => {
+        if (m === "lazy") {
+            node.isLazy = true;
+            return;
+        }
         const props = MODIFIERS[m];
         if (!props)
             throw new Error(`Unknown modifier: ${m}`);

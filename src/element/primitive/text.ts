@@ -1,6 +1,6 @@
 import { getFinalPosition } from "../../layout/layout";
 import { canvasFill, canvasStroke } from "../../rendering/canvas-helper";
-import { svgInnerHTML, svgPropFillAndStroke, svgPropPassthrough } from "../../rendering/svg-helper";
+import { svgInnerHTML, svgPropFillAndStroke, svgPropPassthrough, svgRotation } from "../../rendering/svg-helper";
 import { measuredTextSize } from "../../utils/text-size";
 import { BaseElementOption } from "./base-elm-options";
 import { PrimitiveElement } from "./primitive";
@@ -39,6 +39,7 @@ export class Text extends PrimitiveElement<TextOption> {
     public svgAttrs(): any {
         const [x, y] = getFinalPosition(this);
         return {
+            ...svgRotation(this),
             ...svgPropFillAndStroke(this),
             ...svgInnerHTML(this),
             ...svgPropPassthrough({

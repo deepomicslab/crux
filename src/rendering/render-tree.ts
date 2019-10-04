@@ -9,7 +9,7 @@ import { adjustByAnchor, layoutElement } from "../layout/layout";
 import shallowEqArrays from "shallow-equal/arrays";
 
 const INHERITED_PROPS = [
-    "x", "y", "width", "height", "anchor", "rotation",
+    "x", "y", "width", "height", "anchor", "rotation", "visible",
 ];
 
 export interface OptDict {
@@ -25,7 +25,7 @@ export interface OptDict {
 export interface ElementDef {
     tag: string;
     opt: OptDict;
-    children: ElementDef[];
+    children: (ElementDef | (() => ElementDef))[];
 }
 
 const currElements: Component<ComponentOption>[] = [];
@@ -73,17 +73,18 @@ function shouldUpdateElement(elm: ActualElement, opt: OptDict): boolean {
     return true;
 }
 
-export function updateTree(parent: Component<ComponentOption>, def?: ElementDef, order?: number) {
+export function updateTree(parent: Component<ComponentOption>, def_?: ElementDef | (() => ElementDef), order?: number) {
     let elm: ActualElement;
     let created: boolean;
     let xScaleChangeRoot = false, yScaleChangeRoot = false;
 
+    const def = typeof def_ === "function" ? def_() : def_;
     if (!def) {
         elm = parent;
     } else {
         const { tag, opt } = def;
         const key = typeof opt.props.key === "undefined" ? opt.id : opt.props.key;
-        [elm, created] = findComponent(parent, tag, key);
+        [elm, created] = findComponent(parent, opt.props.is || tag, key);
 
         if (order !== undefined) elm._order = order;
 
