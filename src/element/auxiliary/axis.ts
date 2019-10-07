@@ -218,6 +218,7 @@ function pretty(n: number): number {
 }
 
 function baseDigitOf(n: number): number {
+    if (n === 0) return 0;
     let count = 1;
     if (n > 1) {
         while (n / 10 >= 1) {

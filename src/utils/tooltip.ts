@@ -31,6 +31,8 @@ const conf: TooltipConfig = {
 
 export function config(c: Partial<TooltipConfig>) {
     if ("moveWithCursor" in c) conf.moveWithCursor = c.moveWithCursor!;
+    if ("xOffset" in c) conf.xOffset = c.xOffset!;
+    if ("yOffset" in c) conf.yOffset = c.yOffset!;
 }
 
 export function style(s: Record<string, string> = {}) {

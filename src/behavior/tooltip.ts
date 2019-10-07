@@ -4,6 +4,8 @@ import { Behavior } from "./behavior";
 
 export interface TooltipOption {
     content: string | [(...arg: any) => string, any];
+    xOffset: number;
+    yOffset: number;
 }
 
 export default class Tooltip extends Behavior {
@@ -17,6 +19,12 @@ export default class Tooltip extends Behavior {
             this.content = op.content;
         } else {
             throw new Error(`Tooltip: content must be provided.`);
+        }
+        if (op.xOffset) {
+            tooltip.config({ xOffset: op.xOffset });
+        }
+        if (op.yOffset) {
+            tooltip.config({ yOffset: op.yOffset });
         }
     }
 

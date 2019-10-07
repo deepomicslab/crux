@@ -204,6 +204,7 @@ export class Visualizer {
                 el.redraw();
             }
         }
+        this._changedElements.clear();
     }
 
     public appendDef(id: string, tag: string, attrs: Record<string, string> = {}, content: string = "") {
