@@ -22,6 +22,7 @@ export interface PolarCoordInfo {
     r: number;
     cx: number;
     cy: number;
+    rad: boolean;
 }
 
 export class Component<Option extends ComponentOption = ComponentOption>
@@ -180,7 +181,7 @@ export class Component<Option extends ComponentOption = ComponentOption>
             const r = Math.min($g.width, $g.height) * 0.5;
             const cx = $g.width * 0.5;
             const cy = $g.height * 0.5;
-            this.$polar = { r, cx, cy };
+            this.$polar = { r, cx, cy, rad: !!this.prop.coordUseRad };
             this.$geometry._xOffset.polor = cx;
             this.$geometry._yOffset.polor = cy;
         }
@@ -248,7 +249,9 @@ export class Component<Option extends ComponentOption = ComponentOption>
 
     public boundaryForScale(horizontal?: boolean): [number, number] {
         const size = horizontal ?
-            this.$polar ? 360 : (this.$geometry as any).width :
+            this.$polar ?
+                this.$polar.rad ? Math.PI * 2 : 360 :
+                (this.$geometry as any).width :
             this.$polar ? this.$polar.r : (this.$geometry as any).height;
         return [0, size];
     }

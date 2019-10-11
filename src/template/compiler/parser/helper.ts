@@ -9,6 +9,8 @@ const exprHelpers: Record<string, [string, boolean?]> = {
     "geo": [`_h.geo(`],
     "gradient": [`_h.gradient(this, `, true],
     "bind": [`this._bindMethod(`],
+    "rad": [`_h.toRad(`],
+    "deg": [`_h.toDeg(`],
 };
 
 export function transformHelper(name: string) {

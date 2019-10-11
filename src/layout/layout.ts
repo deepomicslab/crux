@@ -27,7 +27,7 @@ export function getParentSize(el: BaseElement) {
         el.logicalParent.parent : el.parent;
     let pWidth: number, pHeight: number;
     if (el.inPolorCoordSystem) {
-        pWidth = 360;
+        pWidth = el.$coord!.$polar!.rad ? Math.PI : 360;
         pHeight = el.$coord!.$polar!.r;
     } else {
         pWidth = isRoot ? el.$v.size.width : parent.$geometry.width;

@@ -5,8 +5,6 @@ import { toCartesian, toRad } from "../../../utils/math";
 import { BaseElement } from "../../base-element";
 import { BaseElementOption } from "../base-elm-options";
 
-import config from "../../../config";
-
 export interface ArcLineOption extends BaseElementOption {
     x1: GeometryOptValue;
     x2: GeometryOptValue;
@@ -39,7 +37,6 @@ export class ArcLine extends BaseElement<ArcLineOption> {
     public defaultProp() {
         return {
             stroke: "#000",
-            rad: config.rad,
         };
     }
 

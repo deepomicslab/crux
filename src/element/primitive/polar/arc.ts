@@ -5,8 +5,6 @@ import { toRad } from "../../../utils/math";
 import { BaseElement } from "../../base-element";
 import { BaseElementOption } from "../base-elm-options";
 
-import config from "../../../config";
-
 import { arc } from "d3-shape";
 
 export interface ArcOption extends BaseElementOption {
@@ -53,7 +51,6 @@ export class Arc extends BaseElement<ArcOption> {
             ...super.defaultProp(),
             fill: "#aaa",
             pad: 0,
-            rad: config.rad,
         };
     }
 

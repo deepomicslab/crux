@@ -6,7 +6,6 @@ import { visualize } from "./visualizer";
 import * as algo from "./algo";
 import * as utils from "./utils";
 
-import config from "./config";
 import loadData from "./load-data";
 
 // tslint:disable-next-line: variable-name
@@ -18,7 +17,6 @@ const Crux = {
     utils,
     algo,
     loadData,
-    config,
 };
 
 export default Crux;

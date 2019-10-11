@@ -4,6 +4,7 @@ import { parseExpr } from "./prop";
 const MODIFIERS = {
     "centered": { anchor: `@anchor("middle", "center")` },
     "full": { width: "100%", height: "100%" },
+    "rad": { rad: "true" },
 };
 
 export function parseModifiers(node: ASTNodeComp, str: string) {

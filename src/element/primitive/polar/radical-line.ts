@@ -5,8 +5,6 @@ import { toCartesian } from "../../../utils/math";
 import { BaseElement } from "../../base-element";
 import { BaseElementOption } from "../base-elm-options";
 
-import config from "../../../config";
-
 export interface RadicalLineOption extends BaseElementOption {
     r1: GeometryOptValue;
     r2: GeometryOptValue;
@@ -42,7 +40,6 @@ export class RadicalLine extends BaseElement<RadicalLineOption> {
     public defaultProp() {
         return {
             stroke: "#000",
-            rad: config.rad,
         };
     }
 
