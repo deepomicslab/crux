@@ -13,6 +13,10 @@ import { XYPlot } from "./plot";
 import { Arc, ArcLine, Circle, Line, Path, Polygon, Polyline, RadicalLine, Rect, Text } from "./primitive";
 
 import { GeneArea } from "./bioinfo";
+import { Circos, CircosChord, CircosContentArea,
+    CircosContentBar, CircosContentCytoband, CircosContentDot, CircosContentLine,
+    CircosContentRect, CircosContentStackedDot, CircosContentText, CircosContentTicks, CircosLayer,
+} from "./circos";
 import { Tree } from "./common";
 
 export function registerDefaultGlobalComponents() {
@@ -66,6 +70,9 @@ export function registerDefaultGlobalComponents() {
 export function registerDefaultBioInfoComponents() {
     registerGlobalComponent({
         GeneArea,
+        Circos, CircosChord, CircosLayer,
+        CircosContentArea, CircosContentBar, CircosContentCytoband, CircosContentDot,
+        CircosContentLine, CircosContentRect, CircosContentStackedDot, CircosContentText, CircosContentTicks,
     });
 }
 
