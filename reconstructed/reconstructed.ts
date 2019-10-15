@@ -25,8 +25,8 @@ export class Reconstructed extends Component<ReconstructedOption> {
                 ref = "depth"
                 y = 180
                 height = 120
-                xScale = @scale-linear(state.scaledL, state.scaledR)
-                yScale = @scale-linear(prop.depthMax, 0)
+                xScale = @scaleLinear(state.scaledL, state.scaledR)
+                yScale = @scaleLinear(prop.depthMax, 0)
 
                 on:mouseenter = depthAreaMouseMove
                 on:mousemove = depthAreaMouseMove
@@ -56,21 +56,21 @@ export class Reconstructed extends Component<ReconstructedOption> {
                 @if state.mousePos >= 0 {
                     Component {
                         height = 100%
-                        x = @scaled-x(state.mousePos)
+                        x = @scaledX(state.mousePos)
                         style:pointer-events = "none"
 
                         @let depth = prop.depth[state.mousePos]
 
                         Line {
                             x1 = 0; x2 = 0
-                            y1 = @scaled-y(depth)
+                            y1 = @scaledY(depth)
                             y2 = 100%
                             stroke = "#000"
                             dashArray = "4,4"
                         }
                         Text {
                             fill = "#000"
-                            y = @scaled-y(depth)
+                            y = @scaledY(depth)
                             anchor = @anchor("bottom", "center")
                             text = depth
                         }
@@ -83,7 +83,7 @@ export class Reconstructed extends Component<ReconstructedOption> {
             }
             Component {
                 height = 100%
-                xScale = @scale-linear(state.scaledL, state.scaledR)
+                xScale = @scaleLinear(state.scaledL, state.scaledR)
 
                 @let mutations = layoutMut(prop.mutations)
                 @for mut in mutations {
@@ -98,7 +98,7 @@ export class Reconstructed extends Component<ReconstructedOption> {
             ref = "geneAreaContainer"
             width = 100%
             padding-y = 10
-            xScale = @scale-linear(state.scaledL, state.scaledR)
+            xScale = @scaleLinear(state.scaledL, state.scaledR)
 
             Rect {
                 width = 100%; height = 100%;
@@ -127,8 +127,8 @@ export class Reconstructed extends Component<ReconstructedOption> {
                 Area {
                     height = 100%
                     data = prop.depth
-                    xScale = @scale-linear(1, prop.virus.orig_len)
-                    yScale = @scale-linear(prop.depthMax, 0)
+                    xScale = @scaleLinear(1, prop.virus.orig_len)
+                    yScale = @scaleLinear(prop.depthMax, 0)
                     fill = "#aaa"
                 }
             }
@@ -193,7 +193,7 @@ class MutPoint extends Component {
         Component {
             @let mut = prop.mut
 
-            x = @scaled-x(mut.pos)
+            x = @scaledX(mut.pos)
             width = 0
             height = 100%
             style:cursor = "pointer"

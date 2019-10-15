@@ -5,27 +5,27 @@ Each `Component` can also define its own scaled coordinate system.
 ## Scale
 
 `Component` can also set up a local scale system. They accept two scale props, `xScale` and `yScale`,
-and values for them should be `@scale-` helpers such as `@scale-linear`.
+and values for them should be `@scale-` helpers such as `@scaleLinear`.
 This is especially useful when we need to map some raw data to the actual sizes of graph components.
 
-- Supplying no argument to the helper, such as `@scale-linear()`, will make it return the identical scale with domain and range both being [0, width].
-- Supplying 2 arguments to the helper, such as `@scale-linear(0, 1000)`, makes it sets the domain to [0, 1000] and the range will be [0, width].
+- Supplying no argument to the helper, such as `@scaleLinear()`, will make it return the identical scale with domain and range both being [0, width].
+- Supplying 2 arguments to the helper, such as `@scaleLinear(0, 1000)`, makes it sets the domain to [0, 1000] and the range will be [0, width].
 - Supplying 4 arguments to the helper sets both the domain and range.
 
-Scalings are not applied automatically. Corresponding helpers `@scaled-x` and `@scaled-y` must be used together.
+Scalings are not applied automatically. Corresponding helpers `@scaledX` and `@scaledY` must be used together.
 
 <div class="demo" data-height="250">
 Component {
     @let data = [
         [150, 490], [420, 830], [800, 260], [600, 80]
     ]
-    xScale = @scale-linear(0, 1000)
-    yScale = @scale-linear(0, 1000)
+    xScale = @scaleLinear(0, 1000)
+    yScale = @scaleLinear(0, 1000)
     @for (item, index) in data {
         Circle.centered {
             key = index
-            x = @scaled-x(item[0])
-            y = @scaled-y(item[1])
+            x = @scaledX(item[0])
+            y = @scaledY(item[1])
             r = 4
             fill = "red"
         }
@@ -48,13 +48,13 @@ Component {
     Component {
         x = 20; y = 20
         width = 100%-40; height = 100%-40
-        xScale = @scale-linear(0, 1000)
-        yScale = @scale-linear(0, 1000)
+        xScale = @scaleLinear(0, 1000)
+        yScale = @scaleLinear(0, 1000)
         @for (item, index) in data {
             Circle.centered {
                 key = index
-                x = @scaled-x(item[0])
-                y = @scaled-y(item[1])
+                x = @scaledX(item[0])
+                y = @scaledY(item[1])
                 r = 4
                 fill = "red"
             }
@@ -159,8 +159,8 @@ Component {
     @let data = [
         [150, 490], [420, 830], [800, 260], [600, 80]
     ]
-    xScale = @scale-linear(0, 1000)
-    yScale = @scale-linear(0, 1000)
+    xScale = @scaleLinear(0, 1000)
+    yScale = @scaleLinear(0, 1000)
     coord = "polar"
     Circle.centered {
         r = 100; fill = "#ddd"
@@ -172,8 +172,8 @@ Component {
         @for (item, index) in data {
             Circle.centered {
                 key = index
-                x = @scaled-x(item[0])
-                y = @scaled-y(item[1])
+                x = @scaledX(item[0])
+                y = @scaledY(item[1])
                 r = 4
                 fill = "green"
             }

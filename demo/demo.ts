@@ -344,11 +344,11 @@ svg {
                 @let max = bins[bins.length - 1]
                 UnequalBins {
                     bins = bins
-                    xScale = @scale-linear(min, max)
+                    xScale = @scaleLinear(min, max)
                 }
                 Axis("bottom") {
                     y = 100%
-                    xScale = @scale-linear(min, max)
+                    xScale = @scaleLinear(min, max)
                 }
                 Axis("left") {}
                 Text {
@@ -383,13 +383,13 @@ svg {
                 invertValueAxis = true
                 UnequalBins {
                     bins = bins
-                    yScale = @scale-linear(min, max)
+                    yScale = @scaleLinear(min, max)
                 }
                 Axis("bottom") {
                     y = 100%
                 }
                 Axis("left") {
-                    yScale = @scale-linear(min, max)
+                    yScale = @scaleLinear(min, max)
                 }
                 Text {
                     text = "Age"
@@ -506,8 +506,8 @@ svg {
                 @for (data, i) in side_by_side {
                     @let values = data.values
                     Line {
-                        x1 = @scaled-x(data.key)
-                        x2 = @scaled-x(data.key)
+                        x1 = @scaledX(data.key)
+                        x2 = @scaledX(data.key)
                         dashArray = "2, 2"
                         y1 = @scaled(data.max)
                         y2 = @scaled(data.min)
@@ -516,7 +516,7 @@ svg {
                     @for (d, j) in values {
                         Rect {
                             key = i * 2 + j * 10
-                            x = @scaled-x(data.key)
+                            x = @scaledX(data.key)
                             y = @scaled(d.pos)
                             width = d.value * 260 / 3
                             height = @scaled(data.max - data.gap)
@@ -566,13 +566,13 @@ svg {
                         }
                     }
                     Axis {
-                        xScale = @scale-linear(0, dataLength, 0, 200)
+                        xScale = @scaleLinear(0, dataLength, 0, 200)
                         orientation = "bottom"
                         y = 100%-20
                         x = 40
                     }
                     Axis {
-                        yScale = @scale-linear(0, dataLength, 260, 0)
+                        yScale = @scaleLinear(0, dataLength, 260, 0)
                         orientation = "left"
                         y = 20
                         x = 40

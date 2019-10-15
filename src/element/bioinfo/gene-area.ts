@@ -79,8 +79,8 @@ export class GeneArea extends Component<GeneAreaOption> {
                             @let er = exon.most_left_pos + exon.length
                             Rect {
                                 key      = "ex" + index
-                                x        = @scaled-x(el) - gene._x0
-                                width    = Math.max(@scaled-x(er) - @scaled-x(el), 1)
+                                x        = @scaledX(el) - gene._x0
+                                width    = Math.max(@scaledX(er) - @scaledX(el), 1)
                                 height   = 100%
                                 minWidth = 1
                                 fill     = prop.geneColor(gene)

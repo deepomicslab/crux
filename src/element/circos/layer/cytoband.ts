@@ -11,8 +11,8 @@ export class CircosContentCytoband extends CircosContent<CircosContentCytobandOp
         @for band in prop.data {
             Arc.rad {
                 key = band.cytoband
-                x1 = @scaled-x(band.startPos)
-                x2 = @scaled-x(band.endPos)
+                x1 = @scaledX(band.startPos)
+                x2 = @scaledX(band.endPos)
                 r1 = layer.innerR
                 r2 = layer.outerR
                 fill = bandColor[band.color]

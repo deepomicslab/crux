@@ -6,7 +6,7 @@ svg {
         coord = "polar"
         width = 800
         height = 800
-        yScale = @scale-linear(0, 100)
+        yScale = @scaleLinear(0, 100)
         Arc {
             x1 = 0; r2 = 40
             y1 = 10; r2 = 50

@@ -16,7 +16,17 @@ interface RectOption extends BaseElementOption {
 export class Rect extends PrimitiveElement<RectOption> {
 
     public svgAttrs(): any {
-        const [x, y] = getFinalPosition(this as any);
+        let [x, y] = getFinalPosition(this as any);
+        let width = this._widthWithMin();
+        let height = this._heightWithMin();
+        if (width < 0) {
+            x += width;
+            width = -width;
+        }
+        if (height < 0) {
+            y -= height;
+            height = -height;
+        }
         return {
             ...svgPropFillAndStroke(this),
             ...svgPropPassthrough({
@@ -24,8 +34,8 @@ export class Rect extends PrimitiveElement<RectOption> {
                 ry: "cornerRadius",
             })(this),
             x, y,
-            width: this._widthWithMin(),
-            height: this._heightWithMin(),
+            width,
+            height,
         };
     }
 

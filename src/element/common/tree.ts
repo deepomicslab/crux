@@ -39,14 +39,14 @@ export class Tree extends Component<TreeOption> {
                     key = "l" + i
                     stroke = "#aaa"
                     fill = "none"
-                    d = getPath(link.source.x, @scaled-y(getR(link.source)), link.target.x, @scaled-y(getR(link.target)))
+                    d = getPath(link.source.x, @scaledY(getR(link.source)), link.target.x, @scaledY(getR(link.target)))
                     @props prop.opt.link
                 }
             }
             @for (node, i) in _nodes {
                 Circle.centered {
                     key = "c" + i
-                    x = node.x; y = @scaled-y(getR(node));
+                    x = node.x; y = @scaledY(getR(node));
                     r = 2
                     fill = "red"
                 }

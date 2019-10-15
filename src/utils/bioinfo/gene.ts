@@ -35,6 +35,7 @@ export interface GeneData {
     exon_number: number;
     exons: { most_left_pos: number, length: number }[];
     CDS_region: string;
+    cdsRegions: { start: number, end: number, length: number}[];
     color?: string;
 }
 
@@ -47,10 +48,19 @@ export function toGeneData(rawData: GeneRawData): GeneData {
     const lenArray = toNumArray(rawData.exon_length);
     const leftArray = toNumArray(rawData.exon_most_left_pos);
     for (let i = 0; i < rawData.exon_number; i++) {
-        exons[i] = { most_left_pos: leftArray[i], length: lenArray[i] };
+        exons[i] = {
+            most_left_pos: leftArray[i],
+            length: lenArray[i],
+        };
     }
+    const cdsRegions = rawData.CDS_region.split(",").slice(0, -1).map(s => {
+        const [start, length] = s.slice(0, -1).split("(").map(x => parseInt(x));
+        const end = start + length;
+        return { start, end, length };
+    });
     return {
         ...rawData,
         exons,
+        cdsRegions,
     };
 }

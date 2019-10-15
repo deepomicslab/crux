@@ -31,8 +31,8 @@ export class RadarChart extends Component<RadarsOption> {
                 width = 100%
                 height = 100%
                 coord = "polar"
-                xScale = @scale-linear(0, _categoryCount)
-                yScale = @scale-linear(0, _maxValue)
+                xScale = @scaleLinear(0, _categoryCount)
+                yScale = @scaleLinear(0, _maxValue)
                 @let numOfItem = prop.data.length
                 Circle.centered {
                     r = 100%
@@ -45,7 +45,7 @@ export class RadarChart extends Component<RadarsOption> {
                 @for c in _categoryCount {
                     RadicalLine {
                         key = c
-                        x = @scaled-x(c)
+                        x = @scaledX(c)
                         r1 = 0
                         r2 = 100%
                         stroke = prop.stroke || "#aaa"
@@ -53,7 +53,7 @@ export class RadarChart extends Component<RadarsOption> {
                     Text.centered {
                         key = c
                         text = prop.categories ? prop.categories[c] : c
-                        x = @scaled-x(c)
+                        x = @scaledX(c)
                         y = 100%
                     }
                 }

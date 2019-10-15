@@ -102,7 +102,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const residualData = confidenceBand(scatterData);
     window.$v = visualize({
         el: "#canvas",
-        template: box,
+        template: t1,
         loadData: { data4: { content: "1" }},
         data: {
             array: [1, 3, 8, 6, 5, 4, 2, 7, 3],
@@ -117,7 +117,7 @@ document.addEventListener("DOMContentLoaded", () => {
             residual_data: residualData,
         },
         components: { Clock },
-    });
+    }).visualizer;
 
     // // demo linear regression
     // const regressionData = simpleLinearRegression(scatterData).data;

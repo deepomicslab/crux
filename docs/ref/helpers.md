@@ -55,21 +55,21 @@ Return the geometry value `percentage`% + `offset`.
 
 `horizontal` controls the X (`true`) or Y (`false`) direction.
 
-## @scaled-x()
+## @scaledX()
 
-> @scaled-x(`value:number`)
+> @scaledX(`value:number`)
 
 Equivalent to `@scaled(value, true)`.
 
-## @scaled-y()
+## @scaledY()
 
-> @scaled-y(`value:number`)
+> @scaledY(`value:number`)
 
 Equivalent to `@scaled(value, false)`.
 
-## @scale-linear()
+## @scaleLinear()
 
-> @scale-linear(`domainMin?:number`, `domainMax?:number`, `rangeMin?:number`, `rangeMax?:number`)
+> @scaleLinear(`domainMin?:number`, `domainMax?:number`, `rangeMin?:number`, `rangeMax?:number`)
 
 **Can only be used with `xScale` or `yScale` prop.**
 
