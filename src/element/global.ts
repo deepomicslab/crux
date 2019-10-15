@@ -20,7 +20,7 @@ import { Circos, CircosChord, CircosContentArea,
 import { Tree } from "./common";
 
 export function registerDefaultGlobalComponents() {
-    registerGlobalComponent({
+    registerComponent({
         Component,
         Circle,
         Rect,
@@ -68,7 +68,7 @@ export function registerDefaultGlobalComponents() {
 }
 
 export function registerDefaultBioInfoComponents() {
-    registerGlobalComponent({
+    registerComponent({
         GeneArea,
         Circos, CircosChord, CircosLayer,
         CircosContentArea, CircosContentBar, CircosContentCytoband, CircosContentDot,
@@ -76,7 +76,7 @@ export function registerDefaultBioInfoComponents() {
     });
 }
 
-export function registerGlobalComponent(components: { [name: string]: any}) {
+export function registerComponent(components: { [name: string]: any}) {
     Object.keys(components).forEach(name => {
         componentList[name] = components[name];
     });

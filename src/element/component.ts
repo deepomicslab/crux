@@ -5,7 +5,7 @@ import helperMixin from "../rendering/helper-mixin";
 import { RenderMixin } from "../rendering/render-mixin";
 import { ElementDef, updateTree } from "../rendering/render-tree";
 import { svgPropClip } from "../rendering/svg-helper";
-import { Renderer } from "../template/compiler";
+import { compile, Renderer } from "../template/compiler";
 import { toRad } from "../utils/math";
 import { applyMixins } from "../utils/mixin";
 import { BaseElement } from "./base-element";
@@ -100,7 +100,7 @@ export class Component<Option extends ComponentOption = ComponentOption>
         node.parent = this as any;
     }
 
-    public render?: () => ElementDef;
+    public render?(): ElementDef;
 
     public renderTree() {
         updateTree(this as any);
@@ -145,6 +145,9 @@ export class Component<Option extends ComponentOption = ComponentOption>
         }
         if (transform) {
             attrs.transform = transform;
+        }
+        if ("opacity" in this.prop) {
+            attrs.opacity = this.prop.opacity;
         }
         return attrs;
     }
@@ -216,6 +219,15 @@ export class Component<Option extends ComponentOption = ComponentOption>
         return !this.prop.height || (this._inheritedHeight && this.parent._defaultedHeight);
     }
 
+    public boundaryForScale(horizontal?: boolean): [number, number] {
+        const size = horizontal ?
+            this.$polar ?
+                this.$polar.rad ? Math.PI * 2 : 360 :
+                (this.$geometry as any).width :
+            this.$polar ? this.$polar.r : (this.$geometry as any).height;
+        return [0, size];
+    }
+
     // hooks
     public willInsertChildren?(children: ElementDef[]): void;
 
@@ -240,6 +252,8 @@ export class Component<Option extends ComponentOption = ComponentOption>
         return typeof scale === "function" ? scale(val) : val;
     }
 
+    // placeholders for mixins
+
     public _c!: () => ElementDef;
     public _l!: () => ElementDef[];
     public _h = helperMixin;
@@ -247,14 +261,23 @@ export class Component<Option extends ComponentOption = ComponentOption>
     public _createScaleLinear!: (horizontal: boolean, domain: [number, number], range?: [number, number]) => d3.ScaleLinear<number, number>;
     public _createScaleOrdinal!: (domain: string[], range: number[]) => d3.ScaleOrdinal<string, number>;
 
-    public boundaryForScale(horizontal?: boolean): [number, number] {
-        const size = horizontal ?
-            this.$polar ?
-                this.$polar.rad ? Math.PI * 2 : 360 :
-                (this.$geometry as any).width :
-            this.$polar ? this.$polar.r : (this.$geometry as any).height;
-        return [0, size];
+    protected t!: (t: TemplateStringsArray) => ElementDef;
+}
+
+const kCachedrenderFunc = Symbol("CachedRenderFunction");
+
+class TemplateMixin {
+    // @ts-ignore
+    private t(t: TemplateStringsArray): ElementDef {
+        const p = this.constructor.prototype;
+        const cached = p[kCachedrenderFunc];
+        if (cached) {
+            return cached.call(this);
+        }
+        const renderFunc = compile(t[0])[0];
+        p[kCachedrenderFunc] = renderFunc;
+        return renderFunc.call(this as any);
     }
 }
 
-applyMixins(Component, [RenderMixin, ScaleMixin]);
+applyMixins(Component, [RenderMixin, ScaleMixin, TemplateMixin]);

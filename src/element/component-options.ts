@@ -4,6 +4,7 @@ import { BaseOption } from "./base-options";
 export interface ComponentOption extends BaseOption {
     width?: GeometryOptValue;
     height?: GeometryOptValue;
+    opacity?: number;
 
     xScale?: any;
     yScale?: any;

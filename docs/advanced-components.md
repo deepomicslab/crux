@@ -155,7 +155,7 @@ class MousePos extends Crux.Component {
         this.setState({ x, y });
     }
 }
-MousePos.prototype.render = Crux.template`
+MousePos.prototype.render = Crux.t`
 Component {
     on:mousemove = mouseMoved
     Rect.full { fill = "#ccc" }
@@ -167,7 +167,7 @@ Component {
     }
 }
 `
-MousePos
+{ component: { MousePos: MousePos }}
 </div>
 
 !> Never write to `this.state` directly. Use `this.setState()` instead.
@@ -217,7 +217,7 @@ TwoRects {
 <div class="bvd-code">
 class TwoRects extends Crux.Component {
 }
-TwoRects.prototype.render = Crux.template`
+TwoRects.prototype.render = Crux.t`
 Component {
     Rect {
         width = prop.rectWidth
@@ -272,7 +272,7 @@ TwoRects {
 <div class="bvd-code">
 class TwoRects extends Crux.Component {
 }
-TwoRects.prototype.render = Crux.template`
+TwoRects.prototype.render = Crux.t`
 Component {
     Rect {
         @props prop.opt.rect1
@@ -357,7 +357,7 @@ TwoSlots {
 </div>
 <div class="bvd-code">
 class TwoSlots extends Crux.Component {}
-TwoSlots.prototype.render = Crux.template`
+TwoSlots.prototype.render = Crux.t`
 Rows {
     Container {
         Text("This is the 'a' slot:");
@@ -411,7 +411,7 @@ Wrapper {
 </div>
 <div class="bvd-code">
 class Wrapper extends Crux.Component {}
-Wrapper.prototype.render = Crux.template`
+Wrapper.prototype.render = Crux.t`
 Component {
     x = 10; y = 10; width = 100%-20; height = 100%-20
     Rect {
@@ -468,7 +468,7 @@ MultipleSlots {
 </div>
 <div class="bvd-code">
 class MultipleSlots extends Crux.Component {}
-MultipleSlots.prototype.render = Crux.template`
+MultipleSlots.prototype.render = Crux.t`
 Component {
     @let data = [1, 2, 3, 4]
     @for (item, index) in data {
@@ -524,7 +524,7 @@ Wrapper {
 </div>
 <div class="bvd-code">
 class Wrapper extends Crux.Component {}
-Wrapper.prototype.render = Crux.template`
+Wrapper.prototype.render = Crux.t`
 Component {
     x = 10; y = 10; width = 100%-20; height = 100%-20
     Rect {

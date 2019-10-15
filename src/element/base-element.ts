@@ -242,11 +242,10 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
         this._activeState = null;
     }
 
-    protected setState(s: Record<string, any>, noUpdate = false) {
+    protected setState(s: Record<string, any>) {
         Object.keys(s).forEach(k => {
             this.state[k] = s[k];
         });
-        if (noUpdate) return;
 
         let elm: BaseElement<any> | null = null;
         if (this instanceof Component) {
@@ -264,8 +263,8 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
         }
     }
 
-    public setStage(s: string, noUpdate = false) {
-        this.setState({ stage: s }, noUpdate);
+    public setStage(s: string) {
+        this.setState({ stage: s });
     }
 
     public get stage(): string | null | undefined {

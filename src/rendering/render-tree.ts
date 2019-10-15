@@ -139,7 +139,7 @@ export function updateTree(parent: Component<ComponentOption>, def_?: ElementDef
         }
 
         if ("stage" in opt.props) {
-            elm.setStage(opt.props.stage, true);
+            (elm as any).state.stage = opt.props.stage;
         }
 
         // ref

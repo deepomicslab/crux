@@ -1,7 +1,7 @@
 import Crux from "../../../src";
 
 export default class Clock extends Crux.Component {
-    public render = Crux.template`
+    public render = Crux.t`
     Component {
         Component {
             width = 100%

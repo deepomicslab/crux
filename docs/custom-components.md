@@ -1,22 +1,32 @@
 # Custom Components
 
-The need of writing your own components emerges when your visualization grows more and more complicated.
+The need for writing your own components emerges when your visualization grows more and more complicated.
 You might face some situations such as:
 
 - Some part of your visualization needs to be reused;
-- There are some complex interaction logics;
-- You need to add hooks during the lifetime of a component and do some extra work.
+- There are some complex interaction logic;
+- You need to add hooks during the lifetime of a component to do some extra work.
 
-Similar to the default components the framework provides, your custom component will handle props and have a custom render function.
-It can also have members, methods and internal states.
+Similar to the default components the framework provides, your custom component handles props and renders its content.
+It can also have members, methods, and internal states.
 
 ## Extending the Component Class
 
 You start defining a custom component by extending the `Component` class.
-In TypeScript, the component also requires a generic type argument which declares accepted props.
 
-The component should have a render function. Rather than writing a `function` manually,
-the framework provides a convenient tag `template` to compile a template into a render function.
+```js
+import Oviz from "Oviz"
+
+class MyComponent extends Oviz.Component {
+    public render = Oviz.template`
+    Component {
+        // ...
+    }
+    `;
+}
+```
+
+In TypeScript, the component also requires a type argument that declares its accepted props.
 
 ```js
 interface MyComponentOption extends ComponentOption {
@@ -32,11 +42,17 @@ class MyComponent extends Component<MyComponentOption> {
 }
 ```
 
+The component should have a `render` function. Rather than writing a `function` manually,
+the framework provides a convenient tag `template` to compile a template into a render function.
+
+
 ?> The template's root component should be a `Component` or a custom component. If you only need to render a primitive element,
 simply wrap it in a `Component`. However, creating a custom component just to render a primitive element is not quite useful.
 You may want to create a new primitive component instead.
 
 ?> The template should not have `svg` or `canvas` definition because it is for a component rather than the whole visualization.
+
+## Registering New Components
 
 ## Accessing Props
 
@@ -69,7 +85,7 @@ Greetings {
 </div>
 <div class="bvd-code">
 class Greetings extends Crux.Component {}
-Greetings.prototype.render = Crux.template`
+Greetings.prototype.render = Crux.t`
 Container {
     Text {
         text = "Hello, " + prop.name
@@ -120,7 +136,7 @@ class Greetings extends Crux.Component {
         }
     }
 }
-Greetings.prototype.render = Crux.template`
+Greetings.prototype.render = Crux.t`
 Container {
     Text {
         text = "Hello, " + prop.name
@@ -167,7 +183,7 @@ RectWith50PxWidth {
 </div>
 <div class="bvd-code">
 class RectWith50PxWidth extends Crux.Component {}
-RectWith50PxWidth.prototype.render = Crux.template`
+RectWith50PxWidth.prototype.render = Crux.t`
 Component {
     width = 50
     Rect.full;

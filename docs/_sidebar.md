@@ -1,24 +1,29 @@
 - [Home](/)
 - [Getting Started](get-started.md)
-- **TUTORIAL**
-    - [Template](template.md)
-    - [Template Continued](template-contd.md)
-    - [Coordinate System](coord-system.md)
-    - [Advanced Layout](advanced-layout.md)
-    - [Usage in Browser](usage.md)
-    - [Custom Components](custom-components.md)
-    - [Advanced Components](advanced-components.md)
+---
+- **PART I: TEMPLATE**
+- [Basic Concepts](concepts.md)
+- [Layout](layout.md)
+- [More Concepts](more-concepts.md)
+- [Customizing Components](sockets.md)
+- [Interactions](interactions.md)
+- [Advanced Layout](advanced-layout.md)
+---
+- **PART II: COMPONENTS**
+- [Custom Components](custom-components.md)
+- [Advanced Components](advanced-components.md)
+---
 - **PLOTS AND CHARTS**
-    - [XYPlot](plot/xy-plot.md)
-    - [XYPlot Charts](plot/xy-plot-charts.md)
-    - [Radical Charts](plot/radical.md)
+- [XYPlot](plot/xy-plot.md)
+- [XYPlot Charts](plot/xy-plot-charts.md)
+- [Radical Charts](plot/radical.md)
 - **REFERENCE**
-    - [Visualizer](ref/visualizer.md)
-    - [Commands](ref/commands.md)
-    - [Helpers](ref/helpers.md)
-    - [Modifiers](ref/modifiers.md)
-    - [Elements and Components](ref/elements.md)
-    - [Hooks](ref/hooks.md)
+- [Visualizer](ref/visualizer.md)
+- [Commands](ref/commands.md)
+- [Helpers](ref/helpers.md)
+- [Modifiers](ref/modifiers.md)
+- [Elements and Components](ref/elements.md)
+- [Hooks](ref/hooks.md)
 - **COMPONENT REFERENCE**
     - [Primitive Elements](component/primitive.md)
     - *Auxiliaries*

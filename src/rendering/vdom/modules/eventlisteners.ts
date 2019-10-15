@@ -1,6 +1,8 @@
 import { VNode, VNodeData } from "../vnode";
 import { Module } from "./module";
 
+import { currentEventContext } from "../../../event";
+
 export type On = {
     [N in keyof HTMLElementEventMap]?: (ev: HTMLElementEventMap[N]) => void
 } & {
@@ -10,20 +12,29 @@ export type On = {
 function invokeHandler(handler: any, vnode?: VNode, event?: Event): void {
     if (typeof handler === "function") {
         // call function handler
+        currentEventContext.event = event;
+        currentEventContext.elm = vnode!.data!._elm;
+        currentEventContext.vnode = vnode;
         handler.call(null, event, vnode!.data!._elm, vnode);
+        currentEventContext.event = undefined;
+        currentEventContext.elm = undefined;
+        currentEventContext.vnode = undefined;
     } else if (typeof handler === "object") {
         // call handler with arguments
         if (typeof handler[0] === "function") {
             // special case for single argument for performance
+            currentEventContext.event = event;
+            currentEventContext.elm = vnode!.data!._elm;
+            currentEventContext.vnode = vnode;
             if (handler.length === 2) {
-                handler[0].call(null, handler[1], event, vnode!.data!._elm, vnode);
+                handler[0].call(null, handler[1]);
             } else {
                 const args = handler.slice(1);
-                args.push(event);
-                args.push(vnode!.data!._elm);
-                args.push(vnode);
                 handler[0].apply(null, args);
             }
+            currentEventContext.event = undefined;
+            currentEventContext.elm = undefined;
+            currentEventContext.vnode = undefined;
         } else {
             // call multiple handlers
             for (let i = 1; i < handler.length; i++) {
