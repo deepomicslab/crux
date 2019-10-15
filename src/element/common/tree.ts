@@ -168,7 +168,7 @@ export class Tree extends Component<TreeOption> {
     }
 
     public getLinks(node: d3.HierarchyPointNode<TreeData>) {
-        console.log(node.links())
+        console.log(node.links());
     }
 
     // @ts-ignore
