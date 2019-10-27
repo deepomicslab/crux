@@ -180,7 +180,7 @@
         "unified-signatures": true,
         "use-isnan": true,
         "variable-name": [
-            true,
+            false,
             "ban-keywords",
             "check-format",
             "allow-leading-underscore",

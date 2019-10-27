@@ -12,6 +12,9 @@ export default function(el: BaseElement, event: MouseEvent|CanvasMouseEvent): [n
         return [point.x, point.y];
     }
 
+    while (!el.vnode) {
+        el = (el as Component).children[0];
+    }
     const node = el.vnode!.elm! as SVGGraphicsElement;
     const svg: SVGSVGElement = node.ownerSVGElement || node as any;
 
@@ -30,8 +33,8 @@ export default function(el: BaseElement, event: MouseEvent|CanvasMouseEvent): [n
 function compose(el: BaseElement): Matrix {
     if (!el) return new Matrix();
     let m = compose(el.parent);
-    if ((el as Component)._cachedTransform) {
-        const [x, y, r] = (el as Component)._cachedTransform!;
+    if ((el as Component).$_cachedTransform) {
+        const [x, y, r] = (el as Component).$_cachedTransform!;
         if (x !== 0 || y !== 0) m = m.transform(Matrix.translate(x, y));
         if (r !== 0) m = m.transform(Matrix.rotate(r));
     }

@@ -6,6 +6,7 @@ import { scaleLinear } from "d3-scale";
 
 export interface BrushOption extends ComponentOption {
     range: [number, number];
+    initialRange: [number, number];
     currentRange: [number, number];
     cornerRadius: number;
     onBrushEnd: () => void;
@@ -53,6 +54,7 @@ export class Brush extends Component<BrushOption> {
             fill = "rgba(0,0,0,0)"
             cursor = "ew-resize"
             on:mousedown = (ev) => handleDown(ev, 0)
+            @props prop.opt.leftHandle
         }
         Rect {
             ref = "rightHandle"
@@ -62,6 +64,7 @@ export class Brush extends Component<BrushOption> {
             fill = "rgba(0,0,0,0)"
             cursor = "ew-resize"
             on:mousedown = (ev) => handleDown(ev, 1)
+            @props prop.opt.rightHandle
         }
     }
     `;
@@ -96,19 +99,24 @@ export class Brush extends Component<BrushOption> {
         if (!this._inited) {
             const w = this.$geometry.width;
             this._brushScale.domain([0, w]);
-            if (this.prop.currentRange) {
-                this._setCurrentRange.apply(this, this.prop.currentRange);
+            if (this.prop.initialRange) {
+                this._setCurrentRange.apply(this, this.prop.initialRange);
             } else {
                 this.state.brushL = 0;
                 this.state.brushR = w;
             }
             this._inited = true;
         }
+        if (this.prop.currentRange) {
+            this._setCurrentRange.apply(this, this.prop.currentRange);
+        }
     }
 
     public willRender() {
         if (this._shouldUpdateRangeNextTime) {
             this._brushScale.range(this.prop.range);
+            this.state.brushL = 0;
+            this.state.brushR = this._brushScale.domain()[1];
             this._shouldUpdateRangeNextTime = false;
         }
     }

@@ -1,4 +1,3 @@
-import { BaseElement } from "../element/base-element";
 import mouse from "../utils/mouse";
 import { Behavior } from "./behavior";
 
@@ -13,14 +12,15 @@ export interface ZoomOption {
     onZoom?: (range: [number, number]) => void;
 }
 
-export default class Zoom extends Behavior {
-    public rangeX: [number, number];
-    public rangeY: [number, number];
-    public currRangeX: [number, number];
-    public currRangeY: [number, number];
+export default class Zoom extends Behavior<ZoomOption> {
+    private direction!: "x" | "y" | "xy" | "native";
+    public rangeX!: [number, number];
+    public rangeY!: [number, number];
+    public currRangeX!: [number, number];
+    public currRangeY!: [number, number];
     public sizeX?: [number, number];
     public sizeY?: [number, number];
-    public minResolution: number;
+    public minResolution!: number;
     public factor = 1;
 
     public handler?: (range: [number, number]) => void;
@@ -28,13 +28,23 @@ export default class Zoom extends Behavior {
     private isMoving = false;
     private mousePos: [number, number] = [0, 0];
 
-    constructor(public el: BaseElement, op: ZoomOption) {
-        super();
-        if (typeof op !== "object")
-            throw new Error(`Zoom: option must be an object`);
-
-        this.rangeX = this.currRangeX = op.rangeX;
-        this.rangeY = this.currRangeY = op.rangeY;
+    public init(op: ZoomOption) {
+        this.direction = op.direction || "x";
+        switch (this.direction) {
+            case "x":
+                this.rangeX = this.currRangeX = op.rangeX;
+                break;
+            case "y":
+                this.rangeY = this.currRangeY = op.rangeY;
+                break;
+            case "xy":
+                this.rangeX = this.currRangeX = op.rangeX;
+                this.rangeY = this.currRangeY = op.rangeY;
+                break;
+        }
+        if (this.direction !== "native" && !this.rangeX && !this.rangeY) {
+            throw Error(`Zoom: range expected`);
+        }
         this.minResolution = op.minResolution || 1;
         this.handler = op.onZoom;
         this.factor = op.factor || 1;

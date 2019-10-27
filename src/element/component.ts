@@ -46,7 +46,8 @@ export class Component<Option extends ComponentOption = ComponentOption>
     public _defaultedWidth?: boolean;
     public _defaultedHeight?: boolean;
 
-    public _cachedTransform?: [number, number, number, number, number];
+    public $_extraTransforms: Record<string, string> = {};
+    public $_cachedTransform?: [number, number, number, number, number];
 
     constructor(id: number, renderer?: Renderer) {
         super(id);
@@ -144,7 +145,7 @@ export class Component<Option extends ComponentOption = ComponentOption>
             }
         }
         if (transform) {
-            attrs.transform = transform;
+            attrs.transform = transform + Object.values(this.$_extraTransforms).reduce((p, c) => `${p} ${c}`, "");
         }
         if ("opacity" in this.prop) {
             attrs.opacity = this.prop.opacity;
@@ -154,7 +155,7 @@ export class Component<Option extends ComponentOption = ComponentOption>
 
     // canvas
     public renderToCanvas(ctx: CanvasRenderingContext2D) {
-        const t = this._cachedTransform = this._getTransformation();
+        const t = this.$_cachedTransform = this._getTransformation();
         const [x, y, rc, rx, ry] = t;
         const rotateAfterTranslate = this.prop.rotateAfterTranslate;
         const needTranslate = (x !== 0 || y !== 0);

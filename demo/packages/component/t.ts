@@ -1,6 +1,10 @@
 export default `//bvt
 svg {
     height = 400
-    MyComponent;
+    MyComponent {
+        behavior:zoom {
+            rangeX = [0, 100]
+        }
+    }
 }
 `;

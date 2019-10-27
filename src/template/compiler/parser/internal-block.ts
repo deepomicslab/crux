@@ -13,9 +13,8 @@ export function parseBehaviorBlock(p: ParserStream): { name: string, args: { nam
 
     while (true) {
         p.skipSpaces(true);
-        parseProp(p, node);
-        p.skipSpaces(true);
         if (p.peek() === "}") break;
+        parseProp(p, node);
     }
 
     p.expect("}");
@@ -34,9 +33,8 @@ export function parseStageBlock(p: ParserStream): { name: string, args: { name: 
 
     while (true) {
         p.skipSpaces(true);
-        parseProp(p, node);
-        p.skipSpaces(true);
         if (p.peek() === "}") break;
+        parseProp(p, node);
     }
 
     p.expect("}");

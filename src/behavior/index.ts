@@ -1,13 +1,5 @@
-import Tooltip from "./tooltip";
-import Zoom from "./zoom";
+export * from "./behavior";
+export * from "./tooltip";
+export * from "./zoom";
 
-const behavoirs = {
-    "zoom": Zoom,
-    "tooltip": Tooltip,
-};
-
-export {
-    behavoirs,
-    Zoom,
-    Tooltip,
-};
+export * from "./global";

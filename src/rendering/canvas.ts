@@ -143,8 +143,8 @@ function findElement(ctx: CanvasRenderingContext2D, el: BaseElement<any>, x: num
             return findElement(ctx, el.children[0], x, y);
         } else {
             ctx.save();
-            if (!el._cachedTransform) return null;
-            const [tx, ty, rc] = el._cachedTransform;
+            if (!el.$_cachedTransform) return null;
+            const [tx, ty, rc] = el.$_cachedTransform;
             if (tx !== 0 || ty !== 0) {
                 ctx.translate(tx, ty);
             }

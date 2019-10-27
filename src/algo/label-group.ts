@@ -58,7 +58,7 @@ export class LabelGroup<T> {
             pi = this.data[i - 1];
             di._adjustedX = di._displayX = this._displayX(di);
             di._offsetX = 0;
-            di._displayed = di._displayX >= 0 && di._displayX <= this._maxWidth;
+            di._displayed = di._displayX >= this._minWidth && di._displayX <= this._maxWidth;
             if (i === 0) { continue; }
             this._distance[i] = di._displayX - pi._displayX!;
         }
@@ -80,7 +80,7 @@ export class LabelGroup<T> {
         if (group.min > 0) {  // if not the first mut point
             const prev = group.min - 1;
             const leftElX = this.data[prev]._displayX!;
-            if (leftElX >= 0 && leftEdge - leftElX < this._minGap) {
+            if (leftElX >= this._minWidth && leftEdge - leftElX < this._minGap) {
                 // add left element to group
                 if (this._groupOf[prev]) {  // if left already belongs to a group, need merge
                     const leftGroup = this._groupOf[prev];
@@ -101,7 +101,7 @@ export class LabelGroup<T> {
             }
         }
 
-        // check if need to add left element to group
+        // check if need to add right element to group
         if (group.max < this.data.length - 1) {
             const next = group.max + 1;
             const rightElX = this.data[next]._displayX!;
@@ -132,7 +132,7 @@ export class LabelGroup<T> {
         // do grouping
         for (let i = 1; i < this._distance.length; i++) {
             const curr = this._distance[i];
-            if (curr < this._minGap && !this._groupOf[i] && this.data[i]._displayX! <= this._maxWidth) {
+            if (curr < this._minGap && !this._groupOf[i] && this.data[i]._displayed) {
                 // group two close elements
                 const group = {min: i - 1, max: i};
                 this._groups.push(group);

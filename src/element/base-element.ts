@@ -1,3 +1,4 @@
+import { getBehavior } from "../behavior";
 import { Behavior } from "../behavior/behavior";
 import { GeometryOptions, GeometryUnit, GeometryValue } from "../defs/geometry";
 import { CanvasRenderable } from "../rendering/canvas";
@@ -13,7 +14,6 @@ import { Component } from "./component";
 import shallowEqArrays from "shallow-equal/arrays";
 // @ts-ignore
 import shallowEqObjects from "shallow-equal/objects";
-import { behavoirs } from "../behavior";
 
 interface State {
     stage?: string | null | undefined;
@@ -206,7 +206,7 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
 
     public setBehaviors(s: Record<string, Record<string, any>>) {
         Object.keys(s).forEach(k => {
-            const behavior = behavoirs[k];
+            const behavior = getBehavior(k);
             if (!behavior) {
                 throw new Error(`Unknown behavior: ${k}`);
             }

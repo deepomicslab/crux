@@ -1,4 +1,3 @@
-import { BaseElement } from "../element";
 import { tooltip } from "../utils";
 import { Behavior } from "./behavior";
 
@@ -8,13 +7,12 @@ export interface TooltipOption {
     yOffset: number;
 }
 
-export default class Tooltip extends Behavior {
+export default class Tooltip extends Behavior<TooltipOption> {
     public events = ["mouseenter", "mouseleave"];
 
-    private content: string | [(...arg: any) => string, any];
+    private content!: string | [(...arg: any) => string, any];
 
-    constructor(public el: BaseElement, op: Partial<TooltipOption>) {
-        super();
+    public init(op: Partial<TooltipOption>) {
         if (op.content) {
             this.content = op.content;
         } else {

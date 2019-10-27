@@ -31,6 +31,8 @@ export function parseBlockBody(p: ParserStream, node: ASTNode) {
     while (!stop) {
         p.skipSpaces(true);
 
+        if (p.peek() === "}") stop = true;
+
         let noMatch = false;
         let testResult: RegExpMatchArray;
         if (testResult = p.test("@([a-z][a-z_\\-]*)")) {

@@ -32,7 +32,11 @@ export function svgRotation(elm: BaseElement<BaseElementOption>) {
     const result = {} as any;
     let v: any;
 
-    if (v = elm.prop.rotation) result.transform = `rotate(${v[0]},${v[1]},${v[2]})`;
+    if (v = elm.prop.rotation) {
+        const v1 = v[1] === "_" ? elm.$geometry.x : v[1];
+        const v2 = v[2] === "_" ? elm.$geometry.y : v[2];
+        result.transform = `rotate(${v[0]},${v1},${v2})`;
+    }
     return result;
 }
 
