@@ -84,16 +84,13 @@ export function updateTree(parent: Component<ComponentOption>, def_?: ElementDef
     } else {
         const { tag, opt } = def;
         const key = typeof opt.props.key === "undefined" ? opt.id : opt.props.key;
-        [elm, created] = findComponent(parent, opt.props.is || tag, key);
+        [elm, created] = findComponent(parent, tag, key);
 
         if (order !== undefined) elm._order = order;
 
         if (opt.props.debug) {
             console.log("Rendering component:");
         }
-        // if (!created && (isRenderable(elm) || isPrimitive(elm)) && eq(elm.prop, opt.props)) {
-        //     return;
-        // }
 
         // inherit props
         if (currElementInheriting) {
@@ -215,7 +212,6 @@ export function updateTree(parent: Component<ComponentOption>, def_?: ElementDef
         console.log(elm);
     }
 
-    elm.$callHook("__didLayout");
     elm.$callHook("didLayout");
 
     elm.parseInternalProps();

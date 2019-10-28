@@ -81,6 +81,9 @@ function genAttrs(node: ASTNodeComp) {
     if (hasDelegate) {
         attrStrings.push(`opt: ${serialize(delegates)}`);
     }
+    if (node.initArg && node.name !== "Component") {
+        attrStrings.push(`_initArg: ${node.initArg}`);
+    }
     return `props: { ${attrStrings.join(",")} },`;
 }
 
@@ -190,10 +193,11 @@ function genChildren(node: ASTNode, uidGen: UIDGenerator): string {
 function genNodeComp(node: ASTNodeComp, uidGen: UIDGenerator) {
     const hasLocalData = node.localData.length > 0;
     const n = node as ASTNodeComp;
+    const tag = n.name === "Component" && n.initArg ? n.initArg : `"${n.name}"`;
     const str = isRootElement(node) ?
         genChildren(node, uidGen) :
         stripIndent`
-        _c("${n.name}",
+        _c(${tag},
             {
                 id: ${uidGen.gen()},
                 ${[

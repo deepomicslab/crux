@@ -10,7 +10,7 @@ export function parseBlock(p: ParserStream): ASTNode {
     const node = newCompNode(name);
 
     if (initArg) {
-        node.props.push({ name: "_initArg", expr: initArg });
+        node.initArg = initArg;
     }
     if (modifiers) {
         parseModifiers(node, modifiers);

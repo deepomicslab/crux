@@ -59,7 +59,7 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
     public $behavior: Record<string, Behavior> = {};
     public $stages: Record<string, Record<string, any>> = {};
     public $geometry: GeometryOptions<Option>;
-    public $defaultProp: Partial<Option>;
+    public $defaultProp: Partial<Option> = {};
 
     public $detached = false;
 
@@ -86,7 +86,6 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
             _xOffset: {},
             _yOffset: {},
         } as any;
-        this.$defaultProp = this.defaultProp();
         this._prop = {} as Option;
         this.setupPropProxy();
         this.init();
@@ -95,6 +94,10 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
     public init() { /* empty */ }
 
     public static propNameForInitializer(): string | null { return null; }
+
+    public __didCreate() {
+        this.$defaultProp = this.defaultProp();
+    }
 
     /* properties */
 
@@ -110,7 +113,10 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
                 if (this._activeState && (s = this.$stages[this._activeState]) && (p in s)) {
                     return s[p];
                 }
-                return target[p];
+                if (p in target) {
+                    return target[p];
+                }
+                return this.$defaultProp[p];
             },
             set: (target, p, value) => {
                 console.warn("this.prop is readonly.");
@@ -138,12 +144,6 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
         // modifier
         Object.keys(propsWithMods).forEach(m => {
             this._setPropsWithModifier(m, propsWithMods[m]);
-        });
-
-        // add default props
-        Object.keys(this.$defaultProp).forEach(k => {
-            if (!(k in this._prop))
-                this._prop[k] = this.$defaultProp[k];
         });
     }
 
@@ -395,8 +395,9 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
     /* Hooks */
 
     public $callHook(name: HookNames) {
-        if (this[name])
-            this[name].call(this);
+        let hook: any;
+        if (hook = this[`__${name}`]) hook.call(this);
+        if (hook = this[name]) hook.call(this);
     }
 
     public didCreate?(): void;
@@ -416,5 +417,4 @@ type HookNames = "didCreate" |
     "willUpdate" | "didUpdate" |
     "willRender" | "didRender" |
     "didLayout" | "didLayoutSubTree" | "willAdjustAnchor" |
-    "didMount" | "didPatch" | "didUnmount" |
-    "__didLayout";
+    "didMount" | "didPatch" | "didUnmount";

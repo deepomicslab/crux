@@ -14,6 +14,6 @@ export class RenderMixin {
         } else if (typeof data === "object") {
             return Object.keys(data).map(k => iter(data[k], k));
         }
-        throw Error(`The data to be iterate through is not an array or a object`);
+        throw Error(`The data to be iterate through should be an array or object, not ${data}`);
     }
 }
