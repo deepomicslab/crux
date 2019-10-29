@@ -49,7 +49,7 @@ export class Component<Option extends ComponentOption = ComponentOption>
     public $_extraTransforms: Record<string, string> = {};
     public $_cachedTransform?: [number, number, number, number, number];
 
-    constructor(id: number, renderer?: Renderer) {
+    constructor(id: number | string, renderer?: Renderer) {
         super(id);
         if (renderer) {
             this.render = renderer;

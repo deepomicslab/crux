@@ -24,6 +24,7 @@ export interface OptDict {
 
 export interface ElementDef {
     tag: string;
+    id: string;
     opt: OptDict;
     children: (ElementDef | (() => ElementDef))[];
 }
@@ -40,7 +41,7 @@ const currCoordSystem = () => currCoordSystems[currCoordSystems.length - 1];
 let xScaleSystemChanged = false;
 let yScaleSystemChanged = false;
 
-function findComponent(component: Component, name: string, id: number): [ActualElement, boolean] {
+function findComponent(component: Component, name: string, id: number | string): [ActualElement, boolean] {
     const ctor = getComponent(isRenderable(component) ? component : (component as any).$parent, name);
     const comp = component.children.find(c => c instanceof ctor && c.id === id);
     if (comp) {
@@ -83,8 +84,7 @@ export function updateTree(parent: Component<ComponentOption>, def_?: ElementDef
         elm = parent;
     } else {
         const { tag, opt } = def;
-        const key = typeof opt.props.key === "undefined" ? opt.id : opt.props.key;
-        [elm, created] = findComponent(parent, tag, key);
+        [elm, created] = findComponent(parent, tag, def.id);
 
         if (order !== undefined) elm._order = order;
 

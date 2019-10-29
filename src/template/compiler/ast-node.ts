@@ -15,6 +15,7 @@ export interface ASTNodeFor extends ASTNode {
 export interface ASTNodeComp extends ASTNode {
     type: "comp";
     name: string;
+    key?: string;
     isLazy?: boolean;
     initArg?: string;
     props: { delegate?: string, name: string, expr: string }[];

@@ -194,12 +194,15 @@ function genNodeComp(node: ASTNodeComp, uidGen: UIDGenerator) {
     const hasLocalData = node.localData.length > 0;
     const n = node as ASTNodeComp;
     const tag = n.name === "Component" && n.initArg ? n.initArg : `"${n.name}"`;
+    const noKey = n.key === undefined;
+    const key = noKey ? `'${uidGen.gen()}$'` : n.key;
+    const useAutoKey = noKey && uidGen.inList();
+    uidGen.enterComponent();
     const str = isRootElement(node) ?
         genChildren(node, uidGen) :
         stripIndent`
-        _c(${tag},
+        _c(${tag}, ${key},
             {
-                id: ${uidGen.gen()},
                 ${[
                     genAttrs(n),
                     genEventHdl(n),
@@ -209,8 +212,9 @@ function genNodeComp(node: ASTNodeComp, uidGen: UIDGenerator) {
                     genNamedChildren(n, uidGen),
                 ].filter(s => s).join("\n")}
             },
-            [ ${genChildren(node, uidGen)} ])`;
+            [ ${genChildren(node, uidGen)} ], ${useAutoKey})`;
     const wrapped = hasLocalData ? wrappedWithLocalData(node, str) : str;
+    uidGen.exitComponent();
     return n.isLazy ?
         `(function(){ return ${wrapped} })` :
         wrapped;
@@ -220,11 +224,15 @@ function genNodeFor(node: ASTNodeFor, uidGen: UIDGenerator) {
     const hasLocalData = node.localData.length > 0;
     const { forName, forIndex, expr } = node;
     const args = forIndex ? `${forName}, ${forIndex}` : forName;
-    return stripIndent`
+    const notInLoop = !uidGen.inList();
+    uidGen.enterLoop();
+    const result = stripIndent`
     _l(${expr}, function(${args}) {
         ${hasLocalData ? genLocalData(node) : ""}
         return [ ${genChildren(node, uidGen)} ];
-    })`;
+    }, ${notInLoop})`;
+    uidGen.exitLoop();
+    return result;
 }
 
 function genNodeCond(node: ASTNodeCondition, uidGen: UIDGenerator) {

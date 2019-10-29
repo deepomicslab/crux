@@ -58,13 +58,15 @@ export function parseExpr(node: ASTNodeComp, name: string, expr: string) {
         if (name.indexOf(".") > 0) {
             const [delegateName, propName] = name.split(".");
             node.props.push({ delegate: delegateName, name: propName, expr });
+        } else if (name === "key") {
+            node.key = expr;
         } else {
             node.props.push({ name, expr });
         }
     }
 }
 
-function replaceHelpers(expr: string) {
+export function replaceHelpers(expr: string) {
     let lazy = false;
     const replaced = expr.replace(/@([\w\d_\-]*)\(/g, (str, name) => {
         const [t, lazy_] = transformHelper(name);

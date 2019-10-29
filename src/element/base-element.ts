@@ -26,7 +26,7 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
     implements SVGRenderable, CanvasRenderable {
 
     public _name!: string;
-    public id: number;
+    public id: number | string;
     public uid: number;
 
     public isRoot = false;
@@ -79,7 +79,7 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
     // tslint:disable-next-line: variable-name
     public __updateHook: any;
 
-    constructor(id: number) {
+    constructor(id: number | string) {
         this.id = id;
         this.uid = defaultUIDGenerator.gen();
         this.$geometry = {
