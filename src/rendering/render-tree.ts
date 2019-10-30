@@ -4,6 +4,7 @@ import { ComponentOption } from "../element/component-options";
 import { getComponent } from "../element/get-component";
 import { isRenderable } from "../element/is";
 import { adjustByAnchor, layoutElement } from "../layout/layout";
+import { ElementDef, kLazyElement, OptDict, NormalElementDef } from "./element-def";
 
 // @ts-ignore
 import shallowEqArrays from "shallow-equal/arrays";
@@ -11,23 +12,6 @@ import shallowEqArrays from "shallow-equal/arrays";
 const INHERITED_PROPS = [
     "x", "y", "width", "height", "anchor", "rotation", "visible",
 ];
-
-export interface OptDict {
-    props: Record<string, any>;
-    on: Record<string, any>;
-    id: number;
-    styles: Record<string, string>;
-    behaviors: Record<string, Record<string, any>>;
-    stages: Record<string, Record<string, any>>;
-    namedChildren: Record<string, () => any>;
-}
-
-export interface ElementDef {
-    tag: string;
-    id: string;
-    opt: OptDict;
-    children: (ElementDef | (() => ElementDef))[];
-}
 
 const currElements: Component<ComponentOption>[] = [];
 const currElement = () => currElements[currElements.length - 1];
@@ -74,17 +58,19 @@ function shouldUpdateElement(elm: ActualElement, opt: OptDict): boolean {
     return true;
 }
 
-export function updateTree(parent: Component<ComponentOption>, def_?: ElementDef | (() => ElementDef), order?: number) {
+export function updateTree(parent: Component<ComponentOption>, def_?: ElementDef, order?: number) {
     let elm: ActualElement;
     let created: boolean;
     let xScaleChangeRoot = false, yScaleChangeRoot = false;
 
-    const def = typeof def_ === "function" ? def_() : def_;
-    if (!def) {
+    let def: NormalElementDef;
+    if (!def_) {
         elm = parent;
     } else {
-        const { tag, opt } = def;
-        [elm, created] = findComponent(parent, tag, def.id);
+        [elm, created] = findComponent(parent, def_.tag, def_.id);
+
+        def = def_[kLazyElement] ? (def_ as any).unfold(elm) : def_;
+        const { opt } = def;
 
         if (order !== undefined) elm._order = order;
 

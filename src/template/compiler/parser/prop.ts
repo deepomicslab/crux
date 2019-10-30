@@ -53,7 +53,7 @@ export function parseExpr(node: ASTNodeComp, name: string, expr: string) {
         node.styles.push({ name: styleName, expr });
     } else {
         if (expr.indexOf("@") >= 0) {
-            expr = replaceHelpers(expr);
+            expr = replacePropHelpers(expr);
         }
         if (name.indexOf(".") > 0) {
             const [delegateName, propName] = name.split(".");
@@ -66,17 +66,22 @@ export function parseExpr(node: ASTNodeComp, name: string, expr: string) {
     }
 }
 
-export function replaceHelpers(expr: string) {
+function replacePropHelpers(expr: string) {
+    const [replaced, lazy] = replaceHelpers(expr);
+    return lazy ?
+    oneLineTrim`(function() {
+        var f = function() { return ${replaced} };
+        f.__internal__ = true; return f;
+    })()` :
+    replaced;
+}
+
+export function replaceHelpers(expr: string): [string, boolean] {
     let lazy = false;
     const replaced = expr.replace(/@([\w\d_\-]*)\(/g, (str, name) => {
         const [t, lazy_] = transformHelper(name);
         if (lazy_) lazy = true;
         return t;
     });
-    return lazy ?
-        oneLineTrim`(function() {
-            var f = function() { return ${replaced} };
-            f.__internal__ = true; return f;
-        })()` :
-        replaced;
+    return [replaced, lazy];
 }

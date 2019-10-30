@@ -53,7 +53,7 @@ export function parseBlockBody(p: ParserStream, node: ASTNode) {
                     node.children.push(parseFor(p));
                     break;
                 case "let":
-                    node.localData.push(parseLet(p));
+                    node.localData.push(parseLet(p, node));
                     break;
                 case "expr":
                     node.localData.push(parseExpr(p));

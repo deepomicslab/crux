@@ -1,3 +1,4 @@
+import { getThemeColor } from "../../color";
 import { GeometryOptValue } from "../../defs/geometry";
 import { canvasStroke } from "../../rendering/canvas-helper";
 import { svgPropFillAndStroke, svgPropPassthrough } from "../../rendering/svg-helper";
@@ -48,7 +49,7 @@ export class Line extends PrimitiveElement<LineOption> {
 
     public defaultProp() {
         return {
-            stroke: "#000",
+            stroke: getThemeColor(this.$v.theme, "line"),
         };
     }
 

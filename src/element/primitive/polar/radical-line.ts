@@ -1,3 +1,4 @@
+import { getThemeColor } from "../../../color";
 import { GeometryOptValue } from "../../../defs/geometry";
 import { canvasStroke } from "../../../rendering/canvas-helper";
 import { svgPropFillAndStroke } from "../../../rendering/svg-helper";
@@ -39,7 +40,7 @@ export class RadicalLine extends BaseElement<RadicalLineOption> {
 
     public defaultProp() {
         return {
-            stroke: "#000",
+            stroke: getThemeColor(this.$v.theme, "line"),
         };
     }
 

@@ -1,3 +1,4 @@
+import { getThemeColor } from "../../color";
 import { GeometryOptValue } from "../../defs/geometry";
 import { getFinalPosition } from "../../layout/layout";
 import { canvasFill, canvasStroke } from "../../rendering/canvas-helper";
@@ -74,7 +75,7 @@ export class Rect extends PrimitiveElement<RectOption> {
 
     public defaultProp() {
         return {
-            fill: "#aaa",
+            fill: getThemeColor(this.$v.theme, "theme"),
         };
     }
 

@@ -1,3 +1,4 @@
+import { getThemeColor } from "../../color";
 import { getFinalPosition } from "../../layout/layout";
 import { canvasFill, canvasStroke } from "../../rendering/canvas-helper";
 import { svgInnerHTML, svgPropFillAndStroke, svgPropPassthrough, svgRotation } from "../../rendering/svg-helper";
@@ -19,7 +20,10 @@ export class Text extends PrimitiveElement<TextOption> {
     public static propNameForInitializer(): string { return "text"; }
 
     public defaultProp(): any {
-        return { fontSize: 12 };
+        return {
+            fontSize: 12,
+            fill: getThemeColor(this.$v.theme, "text"),
+        };
     }
 
     public willAdjustAnchor() {

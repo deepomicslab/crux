@@ -5,7 +5,7 @@ import Crux from "../../../src";
 
 const numberOfBins = 30;
 const columns = Object.keys(data[0]);
-const colors = Crux.utils.ColorSchemeCategory.create(columns).colors;
+const colors = Crux.color.schemeCategoryAuto(columns).colors;
 const max = Math.max.apply(null, columns.map(s => Math.max.apply(null, data.map(d => parseFloat(d[s])))));
 const min = Math.min.apply(null, columns.map(s => Math.min.apply(null, data.map(d => parseFloat(d[s])))));
 const gap = (max - min) / numberOfBins;

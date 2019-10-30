@@ -2,8 +2,8 @@ import * as d3c from "d3-contour";
 import * as d3g from "d3-geo";
 import * as d3s from "d3-scale";
 
+import { ColorSchemeGradient, schemeGradient } from "../../color";
 import { template } from "../../template/tag";
-import { ColorSchemeGradient } from "../../utils/color/gradient";
 import { extent } from "../../utils/math";
 import { BaseChart, BaseChartOption } from "./base-chart";
 
@@ -45,7 +45,7 @@ export class ContourDensity extends BaseChart<ContourDensityOption> {
         const densityRange = extent(this._contours.map((d: { value: any }) => d.value).flat());
         this._vScale = this.prop.colorScale === "linear" ? d3s.scaleLinear() : d3s.scaleLog();
         this._vScale.domain(densityRange).range([0, 1]);
-        this._colorScheme = ColorSchemeGradient.create(this.prop.startColor, this.prop.endColor);
+        this._colorScheme = schemeGradient(this.prop.startColor, this.prop.endColor);
     }
 
     private getContourDensity() {
@@ -66,7 +66,7 @@ export class ContourDensity extends BaseChart<ContourDensityOption> {
 
     // @ts-ignore
     private getColor(d) {
-        return this.prop.withColor ? this._colorScheme.getColor(this._vScale(d)) : "none";
+        return this.prop.withColor ? this._colorScheme.get(this._vScale(d)) : "none";
     }
 
     public defaultProp() {

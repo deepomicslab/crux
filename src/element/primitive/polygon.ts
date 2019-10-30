@@ -1,3 +1,4 @@
+import { getThemeColor } from "../../color";
 import { canvasFill, canvasStroke } from "../../rendering/canvas-helper";
 import { svgPropFillAndStroke, svgPropPassthrough } from "../../rendering/svg-helper";
 import { BaseElementOption } from "./base-elm-options";
@@ -44,8 +45,8 @@ export class Polygon extends PrimitiveElement<PolygonOption> {
 
     public defaultProp() {
         return {
-            stroke: "#000",
-            fill: "none",
+            stroke: "none",
+            fill: getThemeColor(this.$v.theme, "theme"),
         };
     }
 

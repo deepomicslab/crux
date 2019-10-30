@@ -198,26 +198,32 @@ function genNodeComp(node: ASTNodeComp, uidGen: UIDGenerator) {
     const key = noKey ? `'${uidGen.gen()}$'` : n.key;
     const useAutoKey = noKey && uidGen.inList();
     uidGen.enterComponent();
-    const str = isRootElement(node) ?
-        genChildren(node, uidGen) :
-        stripIndent`
-        _c(${tag}, ${key},
-            {
-                ${[
-                    genAttrs(n),
-                    genEventHdl(n),
-                    genStyle(n),
-                    genBehavior(n),
-                    genStage(n),
-                    genNamedChildren(n, uidGen),
-                ].filter(s => s).join("\n")}
-            },
-            [ ${genChildren(node, uidGen)} ], ${useAutoKey})`;
-    const wrapped = hasLocalData ? wrappedWithLocalData(node, str) : str;
+    let str: string;
+    if (isRootElement(node)) {
+        str = genChildren(node, uidGen);
+    } else {
+        const i = stripIndent`
+        {
+            ${[
+                genAttrs(n),
+                genEventHdl(n),
+                genStyle(n),
+                genBehavior(n),
+                genStage(n),
+                genNamedChildren(n, uidGen),
+            ].filter(s => s).join("\n")}
+        }, [ ${genChildren(node, uidGen)} ]`;
+        if (n.isLazy) {
+            str = `_z(${tag}, ${key}, function() {
+                ${genLocalData(node)}
+                return [${i}];
+            }, ${useAutoKey})`;
+        } else {
+            str = `_c(${tag}, ${key}, ${i}, ${useAutoKey})`;
+        }
+    }
     uidGen.exitComponent();
-    return n.isLazy ?
-        `(function(){ return ${wrapped} })` :
-        wrapped;
+    return hasLocalData && !node.isLazy ? wrappedWithLocalData(node, str) : str;
 }
 
 function genNodeFor(node: ASTNodeFor, uidGen: UIDGenerator) {

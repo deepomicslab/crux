@@ -5,6 +5,7 @@
 - [Basic Concepts](concepts.md)
 - [Layout](layout.md)
 - [More Concepts](more-concepts.md)
+- [Colors and Themes](theme.md)
 - [Customizing Components](sockets.md)
 - [Interactions](interactions.md)
 - [Advanced Layout](advanced-layout.md)

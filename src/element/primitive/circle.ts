@@ -1,3 +1,4 @@
+import { getThemeColor } from "../../color";
 import { GeometryOptValue } from "../../defs/geometry";
 import { getFinalPosition } from "../../layout/layout";
 import { canvasFill, canvasStroke } from "../../rendering/canvas-helper";
@@ -37,6 +38,13 @@ export class Circle extends PrimitiveElement<CircleOption> {
     public static geometryProps() {
         const { h, v } = super.geometryProps();
         return { h, v: [...v, "r"]};
+    }
+
+    public defaultProp() {
+        return {
+            r: 5,
+            fill: getThemeColor(this.$v.theme, "theme"),
+        };
     }
 
     public get maxX() {

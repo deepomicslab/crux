@@ -2,7 +2,7 @@ import * as d3 from "d3-array";
 import * as _ from "lodash";
 
 import { GeometryValue } from "../../defs/geometry";
-import { ElementDef } from "../../rendering/render-tree";
+import { ElementDef } from "../../rendering/element-def";
 import { template } from "../../template/tag";
 import { ChartPaddingOptions, getPaddings } from "../chart/utils/option-padding";
 import { Component } from "../component";
@@ -132,11 +132,14 @@ export class XYPlot extends Component<XYPlotOption> {
     }
 
     public handleChildren(children: ElementDef[]) {
-        children.forEach(c => {
+        for (const c of children) {
             if (c.tag === "Legend") return;
-            if (!("width" in c.opt.props)) c.opt.props.width = GeometryValue.fullSize;
-            if (!("height" in c.opt.props)) c.opt.props.height = GeometryValue.fullSize;
-        });
+            if ("opt" in c) {
+                const props = c.opt.props;
+                if (!("width" in props)) props.width = GeometryValue.fullSize;
+                if (!("height" in props)) props.height = GeometryValue.fullSize;
+            }
+        }
         return children;
     }
 

@@ -1,8 +1,13 @@
-import { ElementDef, OptDict } from "./render-tree";
+import { ElementDef, LazyElementDef, OptDict } from "./element-def";
 
 const indices = [0];
 
 export class RenderMixin {
+    public _z(tag: string, id: string, block: () => [OptDict, any[]], _useAutoKey = false): ElementDef {
+        if (_useAutoKey) id = `${id}-${indices[indices.length - 1]}`;
+        return new LazyElementDef(tag, id, block);
+    }
+
     public _c(tag: string, id: string, opt: OptDict, rawChildren: any[], _useAutoKey = false): ElementDef {
         if (_useAutoKey) id = `${id}-${indices[indices.length - 1]}`;
         const children = rawChildren.flat(8).filter(x => x);

@@ -19,6 +19,7 @@ export interface VisualizerOption {
     renderer?: "canvas" | "svg";
     width?: number | "auto";
     height?: number | "auto";
+    theme?: string;
 }
 
 export class Visualizer {
@@ -35,6 +36,9 @@ export class Visualizer {
     public renderer: RenderFunc;
     public svg?: SVGElement;
     public ctx?: CanvasRenderingContext2D;
+
+    public theme: string;
+
     public _registeredEvents: Set<string>;
     public _focusedElements: Set<BaseElement> = new Set();
     public _currentCursor: string | null = null;
@@ -87,8 +91,8 @@ export class Visualizer {
         this._createDataProxy();
 
         this.components = opt.components || {};
-
         this.rendererType = opt.renderer!;
+        this.theme = opt.theme || "light";
 
         let size: { width: number, height: number };
         if (opt.template) {

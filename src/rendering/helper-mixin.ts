@@ -1,3 +1,4 @@
+import { ColorSchemeCategory, getThemeColor, getThemeScheme } from "../color";
 import { Anchor, GeometryUnit, GeometryValue } from "../defs/geometry";
 import { toDeg } from "../utils/math";
 
@@ -84,6 +85,26 @@ export default {
         } else {
             return self.$v._gradients[name];
         }
+    },
+    color(self: any, name: string | number) {
+        if (typeof name === "number") {
+            return getThemeScheme(self.$v.theme, "main")[name];
+        }
+        return getThemeColor(self.$v.theme, name);
+    },
+    colorMap(self: any, k: number | (string | number)[], scheme: string[] | string = "main") {
+        const colors = typeof scheme === "string" ? getThemeScheme(self.$v.theme, scheme) : scheme;
+        return ColorSchemeCategory.create(k, colors);
+    },
+    themeColor(theme: string, name: string | string = "theme") {
+        if (typeof name === "number") {
+            return getThemeScheme(theme, "main")[name];
+        }
+        return getThemeColor(theme, name);
+    },
+    themeColorScheme(theme: string, k: number | (string | number)[], scheme: string = "main") {
+        const colors = getThemeScheme(theme, scheme);
+        return ColorSchemeCategory.create(k, colors);
     },
     ANCHOR,
 };

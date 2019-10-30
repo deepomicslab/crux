@@ -92,7 +92,7 @@ Component {
 
 **Commands** bring advanced control when rendering complicated components. They can appear anywhere inside a block.
 
-#### @let
+### @let
 
 `@let` declares a variable that is available in the current block scope (including all child blocks).
 The value can be any JavaScript expression.
@@ -108,7 +108,7 @@ Component {
 
 !> Variables declared by `@let` finally become JavaScript variables, so their names should follow all JavaScript's conventions.
 
-#### @expr
+### @expr
 
 `@expr` executes an arbitrary JavaScript expression.
 
@@ -161,7 +161,7 @@ Therefore `x` and `y` for this component are all `40`, and the `Text` element re
 It is recommended that **`@let` and `@expr` should always stay at the top of the block** to avoid ambiguity.
 You should also write all commands at first, then all props, and all declarations of child components at the end, without mixing them up.
 
-#### @if
+### @if
 
 `@if` only renders its content when a JavaScript expression evaluates to true.
 
@@ -180,7 +180,7 @@ Component {
 
 It is possible to have multiple children inside one `@if` block.
 
-#### @elsif and @else
+### @elsif and @else
 
 `@else` / `@elsif` are also available.
 
@@ -196,7 +196,7 @@ It is possible to have multiple children inside one `@if` block.
 }
 ```
 
-#### @for
+### @for
 
 `@for` loops through data and renders its content for multiple times.
 
@@ -223,15 +223,11 @@ It is also possible to refer the index in the loop:
 - A number _n_, in this case, it is treated as _range(n)_, i.e., an array with length equals to _n_.
   `item` is the index, from 0 to _n-1_. `index` here is identical to `item`.
 
-!> The prop `key` must be supplied when using the `@for` command.
-`key` is used to distinguish different copies of the same component within a loop.
-
 <div class="demo" data-height="150">
 Component {
     @let data = [1, 2, 3, 4]
     @for (item, index) in data {
         Rect {
-            key = index
             y = index * 20
             height = 18
             width = item * 20
@@ -240,30 +236,25 @@ Component {
 }
 </div>
 
-As mentioned above, you must supply a unique `key` for **each component of the same kind** in each loop.
-In other words, it is possible to supply the same key for components that are of different kinds, but the key
-must be **unique** 1) _for this kind of component_ and 2) _in each iteration_.
+?> It's possible to use certain JavaScript expressions for the data, such as `foo.bar` or `foo[bar]`, but complicated expressions, such as arbitrary JavaScript object or array literals are not supported.
+If you indeed need it, you can declare it using `@let` first.
+
+### Keys
+
+The prop `key` is used to distinguish different copies of the same component within a loop.
+Oviz will assign an auto-generated key to each component in a loop, but it's recommended to _supply a key based on your data_ for better performance.
+
+The index can be used as the key when there is no other choice.
 
 ```bvt
-@for (item, index) in data {
-    Component {
-        key = index
-    }
-    // OK to supply same key to different kind of elements
+@for (item, index) in array {
     Rect {
         key = index
-    }
-    // Need to supply different key if there are multiple elements of the same kind
-    Circle {
-        key = index + "-c1"
-    }
-    Circle {
-        key = index + "-c2"
     }
 }
 ```
 
-The index can be used as the key when there is no other choice. Better choices include any property in the data, usually `id` or `key`, which can be used to identify the data item. For example:
+Better choices include any property in the data, usually `id` or `key`, which can be used to identify the data item. For example:
 
 ```js
 let data = [{ id: 1, name: "John" }, { id: 7, name: "Kenneth" }, { id: 19, name: "Mary" }]
@@ -277,10 +268,46 @@ let data = [{ id: 1, name: "John" }, { id: 7, name: "Kenneth" }, { id: 19, name:
 }
 ```
 
-?> It's possible to use certain JavaScript expressions for the data, such as `foo.bar` or `foo[bar]`, but complicated expressions, such as arbitrary JavaScript object or array literals are not supported.
-If you indeed need it, you can declare it using `@let` first.
+When supplying key manually, you must supply a unique `key` for **each component of the same kind in the same level**.
+In other words, it's possible to supply the same key for components that are of different kinds, but the key
+must be **unique** 1) _for this kind of component_ and 2) _in each block level_.
 
-#### @props
+```bvt
+Component {
+    @for i in 5 {
+        Rect {
+            key = i // 1: OK
+        }
+        Circle {
+            key = i // 2: OK
+        }
+    }
+    @for j in 8 {
+        Rect {
+            key = j // 3: Error
+        }
+    }
+}
+```
+
+Keys at position 1 and 2 can be the same since they are different components.
+However, using `j` for the key at position 3 will result in an error, because `Rect`s in both loop all belong to the same parent, i.e., they are at the same level. `i` ranges from 0 to 4 and `j` ranges from 0 to 7, producing duplicated keys.
+
+Another case is nested loops:
+
+```bvt
+@for i in 5 {
+    @for j in 8 {
+        Rect {
+            key = i + "-" + j
+        }
+    }
+}
+```
+
+The `Rect` in the internal loop must use both indices for its key to guarantee uniqueness.
+
+### @props
 
 Sometimes it might be more precise and expressive if we can customize not only the prop values but also the names.
 
@@ -302,7 +329,8 @@ Again, values for `@props` can be simple JavaScript expressions, such as an arra
 
 ## Helpers
 
-**Helpers** are special built-in functions that can be used in prop values. They act quite like a regular JavaScript function but are prefixed with `@`.
+**Helpers** are special built-in functions that can be used in prop values and `@let` commands.
+They act quite like a regular JavaScript function but are prefixed with `@`.
 In general, they look like `@helper-name(arg, arg2)`.
 
 For example, we have `@rad()`, which converts a value in radian to value in degree, and its counterpart `@deg()`.

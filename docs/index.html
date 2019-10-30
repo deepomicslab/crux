@@ -56,7 +56,7 @@
       return `svg { width = auto; height = ${height}; \n ${str} \n }`;
     }
     document.addEventListener("DOMContentLoaded", () => {
-      Crux.register.defaultBioInfoComponents();
+      Crux.use.defaultBioInfoComponents();
     })
     window.$docsify = {
       name: 'crux',
@@ -75,10 +75,13 @@
               var sib = el.nextElementSibling;
               var components = {};
               var data = {};
+              var theme = "light";
+
               if (sib && sib.className.indexOf("bvd-code") >= 0) {
-                var extraComp = eval(sib.textContent.replace(/<\/?p>/g, ""));
-                components[extraComp.name] = extraComp;
-                data = Object.assign(data, extraComp.data)
+                var extraInfo = eval(sib.textContent.replace(/<\/?p>/g, ""));
+                if (extraInfo.name) components[extraInfo.name] = extraInfo;
+                if (extraInfo.data) data = Object.assign(data, extraInfo.data)
+                if (extraInfo.theme) theme = extraInfo.theme;
                 sib.style.display = "none";
               }
 
@@ -116,14 +119,14 @@
                 toolbar.appendChild(button)
                 button.onclick = function () {
                   try {
-                    Crux.visualize({ el: canvas, template: t(height, editor.value), components: components, data: data })
+                    Crux.visualize({ el: canvas, template: t(height, editor.value), components: components, data: data, theme })
                   } catch (e) {
                     canvas.innerHTML = `<div class="bvd-error">Error: ${e.message}</div>`;
                   }
                 }
               }
               try {
-                Crux.visualize({ el: canvas, template: t(height, template), components: components, data: data })
+                Crux.visualize({ el: canvas, template: t(height, template), components: components, data: data, theme })
               } catch (e) {
                   canvas.innerHTML = `<div class="bvd-error">Error: ${e.message}</div>`;
               }

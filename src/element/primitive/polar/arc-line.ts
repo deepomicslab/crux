@@ -1,3 +1,4 @@
+import { getThemeColor } from "../../../color";
 import { GeometryOptValue } from "../../../defs/geometry";
 import { canvasFill, canvasStroke } from "../../../rendering/canvas-helper";
 import { svgPropFillAndStroke } from "../../../rendering/svg-helper";
@@ -36,7 +37,7 @@ export class ArcLine extends BaseElement<ArcLineOption> {
 
     public defaultProp() {
         return {
-            stroke: "#000",
+            stroke: getThemeColor(this.$v.theme, "line"),
         };
     }
 

@@ -1,9 +1,10 @@
 import { GeometryOptions, GeometryValue } from "../defs/geometry";
 import { getFinalPosition } from "../layout/layout";
 import { canvasClip } from "../rendering/canvas-helper";
+import { ElementDef } from "../rendering/element-def";
 import helperMixin from "../rendering/helper-mixin";
 import { RenderMixin } from "../rendering/render-mixin";
-import { ElementDef, updateTree } from "../rendering/render-tree";
+import { updateTree } from "../rendering/render-tree";
 import { svgPropClip } from "../rendering/svg-helper";
 import { compile, Renderer } from "../template/compiler";
 import { toRad } from "../utils/math";
@@ -255,6 +256,7 @@ export class Component<Option extends ComponentOption = ComponentOption>
 
     // placeholders for mixins
 
+    public _z!: () => ElementDef;
     public _c!: () => ElementDef;
     public _l!: () => ElementDef[];
     public _h = helperMixin;

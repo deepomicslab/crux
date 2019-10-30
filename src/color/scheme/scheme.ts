@@ -1,4 +1,4 @@
 export interface ColorScheme {
-    getColor(category: number|string): string;
+    get(category: number|string): string;
     legendData(): any;
 }

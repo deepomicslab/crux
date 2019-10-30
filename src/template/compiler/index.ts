@@ -1,6 +1,6 @@
 import { BaseElement } from "../../element/base-element";
 import { BaseOption } from "../../element/base-options";
-import { ElementDef } from "../../rendering/render-tree";
+import { ElementDef } from "../../rendering/element-def";
 import { gencode } from "./codegen";
 import { parse } from "./parser";
 
@@ -11,6 +11,7 @@ export type Renderer<
 export interface TemplateMetaData {
     width?: string;
     height?: string;
+    theme?: string;
     rootComponent: string;
     renderer?: string;
 }

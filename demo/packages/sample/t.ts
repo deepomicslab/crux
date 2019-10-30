@@ -1,5 +1,5 @@
 export default `//bvt
-canvas {
+svg {
     width = auto
     height = 800
 
@@ -22,7 +22,6 @@ canvas {
         Rect {
             x = 20
             y = 20
-            fill = "red"
             fillOpacity = "1"
             stroke = "blue"
             strokeWidth = 2
@@ -38,6 +37,7 @@ canvas {
                 stroke = "blue"
             }
             Line {
+                debug = true
                 x1 = 0
                 y1 = 0
                 x2 = 150

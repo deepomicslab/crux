@@ -68,7 +68,7 @@ export function adjustByAnchor(el: BaseElement<BaseOption>) {
     }
 }
 
-export function getFinalPosition(el: BaseElement<BaseOption>): [number, number] {
+export function getFinalPosition(el: BaseElement<any>): [number, number] {
     return [
         el.$geometry._x + Object.values(el.$geometry._xOffset).reduce((p, c) => p + c, 0),
         el.$geometry._y + Object.values(el.$geometry._yOffset).reduce((p, c) => p + c, 0),

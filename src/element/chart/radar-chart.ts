@@ -1,5 +1,5 @@
+import { ColorSchemeCategory, schemeCategory } from "../../color";
 import { template } from "../../template/tag";
-import { ColorSchemeCategory } from "../../utils/color";
 import { Component } from "../component";
 import { ComponentOption } from "../component-options";
 import { ChartPaddingOptions, getPaddings } from "./utils/option-padding";
@@ -58,7 +58,7 @@ export class RadarChart extends Component<RadarsOption> {
                     }
                 }
                 @for (d, index) in prop.data {
-                    @let color = _colorScheme.getColor(d.key)
+                    @let color = _colorScheme.get(d.key)
                     Polygon {
                         key = index
                         points = @scaled(d.values.map((v, i) => [i, v]))
@@ -86,7 +86,7 @@ export class RadarChart extends Component<RadarsOption> {
             for (const d of entry.values)
                 if (this._maxValue < d) this._maxValue = d;
         const categories = this.prop.data.map(d => d.key);
-        this._colorScheme = ColorSchemeCategory.create(categories);
+        this._colorScheme = schemeCategory(this.$v.theme, categories);
     }
 
     public defaultProp() {

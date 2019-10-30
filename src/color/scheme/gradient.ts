@@ -1,6 +1,6 @@
 import { interpolateHsl } from "d3-interpolate";
 import { scaleLinear, scaleLog, scaleQuantize, scaleThreshold } from "d3-scale";
-import { ColorScheme } from "./color-scheme";
+import { ColorScheme } from "./scheme";
 
 export type ColorSchemeGradientOptions = {
     type: "linear";
@@ -65,7 +65,7 @@ export class ColorSchemeGradient implements ColorScheme {
         }
     }
 
-    public getColor(c: number) {
+    public get(c: number) {
         return this.scale(this.numberScale ? this.numberScale(c) : c);
     }
 

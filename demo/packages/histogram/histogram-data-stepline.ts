@@ -7,7 +7,7 @@ const startingPoint = [0, 1, 2, 3];
 const endPoint = [4, 4, 4, 9];
 const columns = Object.keys(data[0]);
 const length = data.length;
-const colors = Crux.utils.ColorSchemeCategory.create(columns).colors;
+const colors = Crux.color.schemeCategoryAuto(columns).colors;
 
 export const steplineData = {};
 columns.forEach((k, i) => {

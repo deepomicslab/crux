@@ -1,3 +1,4 @@
+import { getThemeColor } from "../../color";
 import { canvasFill, canvasStroke } from "../../rendering/canvas-helper";
 import { svgPropFillAndStroke, svgPropPassthrough } from "../../rendering/svg-helper";
 import { BaseElementOption } from "./base-elm-options";
@@ -43,7 +44,7 @@ export class Polyline extends PrimitiveElement<PolylineOption> {
 
     public defaultProp() {
         return {
-            stroke: "#000",
+            stroke: getThemeColor(this.$v.theme, "line"),
             fill: "none",
         };
     }

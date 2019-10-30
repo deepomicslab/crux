@@ -5,6 +5,7 @@ import { template as t } from "./template/tag";
 import { visualize } from "./visualizer";
 
 import * as algo from "./algo";
+import * as color from "./color";
 import * as use from "./ext/use";
 import * as utils from "./utils";
 
@@ -20,8 +21,11 @@ const Crux = {
     t,
     c,
     use,
+
     utils,
     algo,
+    color,
+
     loadData,
     event: currentEventContext,
 };

@@ -1,5 +1,6 @@
+import { ColorSchemeCategory, schemeCategory } from "../../color";
 import { Anchor } from "../../defs/geometry";
-import { template } from "../../template/tag";
+import { template as t } from "../../template/tag";
 import { XYPlot } from "../plot";
 import { BaseChart, BaseChartOption } from "./base-chart";
 
@@ -8,7 +9,7 @@ export interface GroupedBarsOption extends BaseChartOption {
 }
 
 export class GroupedBars extends BaseChart<GroupedBarsOption> {
-    public render = template`
+    public render = t`
     Component {
         @let fk = prop.data[0]
         @let gWidth = getWidth()
@@ -43,9 +44,12 @@ export class GroupedBars extends BaseChart<GroupedBarsOption> {
                         width = flipped ? height : width
                         height = flipped ? width : height
 
-                        @let dd = { data: d, key: key }
+                        @let dd = { data: d, key: key, scheme: _scheme }
                         @yield children with dd default {
-                            Rect.full { fill = "#aaa" }
+                            Rect.full {
+                                fill = _scheme.get(key)
+                                @props prop.opt.bar
+                            }
                         }
                     }
                 }
@@ -53,6 +57,10 @@ export class GroupedBars extends BaseChart<GroupedBarsOption> {
         }
     }
     `;
+
+    // @ts-ignore
+    private _scheme!: ColorSchemeCategory<any>;
+
     protected getAnchor() {
         return this.flipped ?
             (this.inverted ? Anchor.Left : Anchor.Right) | Anchor.Top :
@@ -74,5 +82,6 @@ export class GroupedBars extends BaseChart<GroupedBarsOption> {
             });
         });
         this.data = data;
+        this._scheme = schemeCategory(this.$v.theme, this.prop.data);
     }
 }

@@ -1,7 +1,7 @@
 // @ts-ignore
 import * as venn from "venn.js";
+import { ColorSchemeCategory, schemeCategory } from "../../color";
 import { template } from "../../template/tag";
-import { ColorSchemeCategory } from "../../utils/color";
 import { Component } from "../component";
 import { ComponentOption } from "../component-options";
 
@@ -37,7 +37,7 @@ export class VennDiagram extends Component<VennOption> {
     Component {
         @if (_data !== null) {
             @for (c, k) in _data.circles {
-                @let color = _colorScheme.getColor(k)
+                @let color = _colorScheme.get(k)
                 Component {
                     key = "c" + k
                     Circle.centered {
@@ -102,7 +102,7 @@ export class VennDiagram extends Component<VennOption> {
         } catch (e) {
             data = [];
         }
-        this._colorScheme = ColorSchemeCategory.create([...baseCategories.values()]);
+        this._colorScheme = schemeCategory(this.$v.theme, [...baseCategories.values()]);
         this._data = this.getChartData(data);
     }
 

@@ -1,3 +1,4 @@
+import { getThemeColor } from "../../../color";
 import { GeometryOptValue } from "../../../defs/geometry";
 import { canvasFill, canvasStroke } from "../../../rendering/canvas-helper";
 import { svgPropFillAndStroke } from "../../../rendering/svg-helper";
@@ -49,7 +50,7 @@ export class Arc extends BaseElement<ArcOption> {
     public defaultProp() {
         return {
             ...super.defaultProp(),
-            fill: "#aaa",
+            fill: getThemeColor(this.$v.theme, "theme"),
             pad: 0,
         };
     }

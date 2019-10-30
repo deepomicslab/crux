@@ -1,7 +1,7 @@
 import * as d3 from "d3-scale";
 
+import { ColorSchemeGradient, schemeGradient } from "../../color";
 import { template } from "../../template/tag";
-import { ColorSchemeGradient } from "../../utils/color/gradient";
 import { extent } from "../../utils/math";
 import { Component } from "../component";
 import { ComponentOption } from "../component-options";
@@ -36,7 +36,7 @@ export class HeatMap extends Component<HeatMapOption> {
                         y = y
                         width = _xSize
                         height = _ySize
-                        fill = _colorScheme.getColor(_vScale(data))
+                        fill = _colorScheme.get(_vScale(data))
                         @props prop.rectOptions
                     }
                 }
@@ -62,7 +62,7 @@ export class HeatMap extends Component<HeatMapOption> {
         this._ySize = (this.$geometry.height - p[0] - p[2]) / this.prop.data.length;
         const dataRange = this.prop.dataRange || extent(this.prop.data.flat());
         this._vScale = d3.scaleLinear().domain(dataRange).range([0, 1]);
-        this._colorScheme = ColorSchemeGradient.create(this.prop.startColor, this.prop.endColor);
+        this._colorScheme = schemeGradient(this.prop.startColor, this.prop.endColor);
     }
 
     public defaultProp() {
