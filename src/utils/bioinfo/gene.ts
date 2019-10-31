@@ -53,12 +53,14 @@ export function toGeneData(rawData: GeneRawData): GeneData {
             length: lenArray[i],
         };
     }
-    const cdsRegions = rawData.CDS_region.split(",").slice(0, -1).map(s => {
-        const [start_, length] = s.slice(0, -1).split("(").map(x => parseInt(x));
-        const start = start_ + 1;
-        const end = start + length;
-        return { start, end, length };
-    });
+    const cdsRegions = rawData.CDS_region.split(",").slice(0, -1)
+        .filter(s => s)
+        .map(s => {
+            const [start_, length] = s.slice(0, -1).split("(").map(x => parseInt(x));
+            const start = start_ + 1;
+            const end = start + length;
+            return { start, end, length };
+        });
     return {
         ...rawData,
         most_left_pos: rawData.most_left_pos + 1,
