@@ -49,17 +49,19 @@ export function toGeneData(rawData: GeneRawData): GeneData {
     const leftArray = toNumArray(rawData.exon_most_left_pos);
     for (let i = 0; i < rawData.exon_number; i++) {
         exons[i] = {
-            most_left_pos: leftArray[i],
+            most_left_pos: leftArray[i] + 1,
             length: lenArray[i],
         };
     }
     const cdsRegions = rawData.CDS_region.split(",").slice(0, -1).map(s => {
-        const [start, length] = s.slice(0, -1).split("(").map(x => parseInt(x));
+        const [start_, length] = s.slice(0, -1).split("(").map(x => parseInt(x));
+        const start = start_ + 1;
         const end = start + length;
         return { start, end, length };
     });
     return {
         ...rawData,
+        most_left_pos: rawData.most_left_pos + 1,
         exons,
         cdsRegions,
     };
