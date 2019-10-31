@@ -104,7 +104,7 @@ export class DataLoader<T extends Record<string, any> = Record<string, any>> {
             const paths = await axios.get(window.gon.urls.chosen_file_paths);
             this.selectedFiles = paths.data;
             Object.entries(this.selectedFiles).forEach(([k, d]) => {
-                if (!(d instanceof Array)) {
+                if (d && !(d instanceof Array)) {
                     d.id = ids.data[k];
                 }
             });
