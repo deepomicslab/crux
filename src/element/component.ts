@@ -264,20 +264,27 @@ export class Component<Option extends ComponentOption = ComponentOption>
     public _createScaleLinear!: (horizontal: boolean, domain: [number, number], range?: [number, number]) => d3.ScaleLinear<number, number>;
     public _createScaleOrdinal!: (domain: string[], range: number[]) => d3.ScaleOrdinal<string, number>;
 
-    protected t!: (t: TemplateStringsArray) => ElementDef;
+    protected t!: (t: TemplateStringsArray, ...placeholders: string[]) => ElementDef;
 }
 
 const kCachedrenderFunc = Symbol("CachedRenderFunction");
 
 class TemplateMixin {
     // @ts-ignore
-    private t(t: TemplateStringsArray): ElementDef {
+    private t(t: TemplateStringsArray, ...placeholders: string[]): ElementDef {
+        let template = "";
+        for (let i = 0; i < placeholders.length; i++) {
+            template += t[i];
+            template += placeholders[i];
+        }
+        template += t[t.length - 1];
+
         const p = this.constructor.prototype;
         const cached = p[kCachedrenderFunc];
         if (cached) {
             return cached.call(this);
         }
-        const renderFunc = compile(t[0])[0];
+        const renderFunc = compile(template)[0];
         p[kCachedrenderFunc] = renderFunc;
         return renderFunc.call(this as any);
     }
