@@ -204,11 +204,11 @@ export class Brush extends Component<BrushOption> {
         this.$v.transaction(() => {
             switch (this._moveType) {
                 case 0:
-                    if (l < 0) return;
+                    if (l < 0 || l >= this.state.brushR) return;
                     this.setState({ brushL: l });
                     break;
                 case 1:
-                    if (r > this.$geometry.width) return;
+                    if (r <= this.state.brushL || r > this.$geometry.width) return;
                     this.setState({ brushR: r });
                     break;
                 case 2:
