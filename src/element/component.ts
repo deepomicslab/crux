@@ -86,8 +86,9 @@ export class Component<Option extends ComponentOption = ComponentOption>
             this[k] = null;
         } else if (typeof s === "object" && s.__scale__) {
             if (this[k] && s.type === "linear") {
-                if (s.domain) (this[k] as Scale).domain(s.domain);
-                if (s.range) (this[k] as Scale).range(s.range);
+                const scale = this[k] as Scale;
+                scale.domain(s.domain === null ? [0, 1] : s.domain);
+                scale.range(s.range === null ? this.boundaryForScale(horizontal) : s.range);
             } else {
                 this[k] = this._createScaleLinear(horizontal, s.domain, s.range);
             }
