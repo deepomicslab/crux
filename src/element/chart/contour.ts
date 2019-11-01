@@ -4,7 +4,7 @@ import * as d3s from "d3-scale";
 
 import { ColorSchemeGradient, schemeGradient } from "../../color";
 import { template } from "../../template/tag";
-import { extent } from "../../utils/math";
+import { minmax } from "../../utils/math";
 import { BaseChart, BaseChartOption } from "./base-chart";
 
 export interface ContourOption extends BaseChartOption {
@@ -46,7 +46,7 @@ export class Contour extends BaseChart<ContourOption> {
             throw new Error(`Contour: please provide contour size`);
         }
         super.willRender();
-        const dataRange = this.prop.valueRange || extent(this.data.raw.flat());
+        const dataRange = this.prop.valueRange || minmax(this.data.raw.flat());
         this._vScale = this.prop.colorScale === "linear" ? d3s.scaleLinear() : d3s.scaleLog();
         this._vScale.domain(dataRange).range([0, 1]);
         this._colorScheme = schemeGradient(this.prop.startColor, this.prop.endColor);

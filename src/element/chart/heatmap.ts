@@ -2,7 +2,7 @@ import * as d3 from "d3-scale";
 
 import { ColorSchemeGradient, schemeGradient } from "../../color";
 import { template } from "../../template/tag";
-import { extent } from "../../utils/math";
+import { minmax } from "../../utils/math";
 import { Component } from "../component";
 import { ComponentOption } from "../component-options";
 import { ChartPaddingOptions, getPaddings } from "./utils/option-padding";
@@ -60,7 +60,7 @@ export class HeatMap extends Component<HeatMapOption> {
         const p = this._paddings = getPaddings(this);
         this._xSize = (this.$geometry.width - p[1] - p[3]) / this.prop.data[0].length;
         this._ySize = (this.$geometry.height - p[0] - p[2]) / this.prop.data.length;
-        const dataRange = this.prop.dataRange || extent(this.prop.data.flat());
+        const dataRange = this.prop.dataRange || minmax(this.prop.data.flat());
         this._vScale = d3.scaleLinear().domain(dataRange).range([0, 1]);
         this._colorScheme = schemeGradient(this.prop.startColor, this.prop.endColor);
     }

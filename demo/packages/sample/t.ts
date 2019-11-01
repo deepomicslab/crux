@@ -1,5 +1,5 @@
 export default `//bvt
-svg {
+canvas {
     width = auto
     height = 800
 
@@ -38,9 +38,10 @@ svg {
             }
             Line {
                 debug = true
-                x1 = 0
+                x = 100
+                // x1 = 0
                 y1 = 0
-                x2 = 150
+                // x2 = 150
                 y2 = 200
                 strokeWidth = 2
                 dashArray = "4,4"

@@ -11,13 +11,40 @@ export function toCartesian(x: number, y: number, isRad: boolean = false): [numb
     return [Math.cos(a) * y, Math.sin(a) * y];
 }
 
-export function extent(data: any[], iter?: (d: any) => number): [number, number] {
+export function minmax<T>(data: T[], getter?: string | ((d: T) => number)): [number, number] {
     let max = Number.MIN_VALUE;
     let min = Number.MAX_VALUE;
+    const iter = typeof getter === "string" ? ((d: T) => d[getter]) : getter;
+    for (const d of data) {
+        const value = iter ? iter(d) : d;
+        let vmin, vmax;
+        if (Array.isArray(value)) {
+            [vmin, vmax] = value;
+        } else {
+            vmin = vmax = value;
+        }
+        if (vmin < min) min = vmin;
+        else if (vmax > max) max = vmax;
+    }
+    return [min, max];
+}
+
+export function min<T>(data: T[], getter?: string | ((d: T) => number)): number {
+    let min = Number.MAX_VALUE;
+    const iter = typeof getter === "string" ? ((d: T) => d[getter]) : getter;
     for (const d of data) {
         const value = iter ? iter(d) : d;
         if (value < min) min = value;
-        else if (value > max) max = value;
     }
-    return [min, max];
+    return min;
+}
+
+export function max<T>(data: T[], getter?: string | ((d: T) => number)): number {
+    let max = Number.MIN_VALUE;
+    const iter = typeof getter === "string" ? ((d: T) => d[getter]) : getter;
+    for (const d of data) {
+        const value = iter ? iter(d) : d;
+        if (value > max) max = value;
+    }
+    return max;
 }

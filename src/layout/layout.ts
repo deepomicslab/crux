@@ -10,10 +10,10 @@ function updateGeometryProps(el: BaseElement, propName: string, parentSize: numb
         val = val.call(el);
     }
 
-    if (typeof val === "undefined") {
-        el.$geometry[propName] = 0;
-    } else if (typeof val === "number") {
+    if (typeof val === "number") {
         el.$geometry[propName] = val;
+    } else if (!val) {
+        el.$geometry[propName] = (propName === "x" || propName === "y") ? 0 : null;
     } else if ("value" in val) {
         el.$geometry[propName] = GeometryValue.cal(val, parentSize);
     } else {

@@ -1,4 +1,4 @@
-import { template } from "../../template/tag";
+import { useTemplate } from "../../ext/decorator";
 import { BaseChart, BaseChartOption } from "./base-chart";
 
 const a1: number[] = [];
@@ -13,18 +13,17 @@ export interface AreaOption extends BaseChartOption {
     pathOptions: any;
 }
 
-export class Area extends BaseChart<AreaOption> {
-    public render = template`
-    Component {
-        Path {
-            d = $v.isSVG ? getPath() : getCanvasPath.bind(this)
-            fill = prop.fill || "#aaa"
-            stroke = prop.stroke
-            @props prop.pathOptions
-        }
+@useTemplate(`
+Component {
+    Path {
+        d = $v.isSVG ? getPath() : getCanvasPath.bind(this)
+        fill = prop.fill || "#aaa"
+        stroke = prop.stroke
+        @props prop.pathOptions
     }
-    `;
-
+}
+`)
+export class Area extends BaseChart<AreaOption> {
     private _hasMinValue = false;
 
     private updateData() {

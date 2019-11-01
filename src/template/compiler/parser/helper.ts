@@ -15,6 +15,9 @@ const exprHelpers: Record<string, [string, boolean?]> = {
     "bind": [`this._bindMethod(`],
     "rad": [`_h.toRad(`],
     "deg": [`_h.toDeg(`],
+    "min": [`_h.min(`],
+    "max": [`_h.max(`],
+    "minmax": [`_h.minmax(`],
 };
 
 export function transformHelper(name: string) {

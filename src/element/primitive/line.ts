@@ -17,15 +17,16 @@ export interface LineOption extends BaseElementOption {
 export class Line extends PrimitiveElement<LineOption> {
 
     public svgAttrs(): any {
+        const { x, y, x1, x2, y1, y2 } = this.$geometry;
         return {
             ...svgPropFillAndStroke(this),
             ...svgPropPassthrough({
                 "shape-rendering": "shapeRendering",
             })(this),
-            x1: this.$geometry.x1,
-            x2: this.$geometry.x2,
-            y1: this.$geometry.y1,
-            y2: this.$geometry.y2,
+            x1: x1 === null ? x : x1,
+            x2: x2 === null ? x : x2,
+            y1: y1 === null ? y : y1,
+            y2: y2 === null ? y : y2,
         };
     }
 
@@ -33,9 +34,16 @@ export class Line extends PrimitiveElement<LineOption> {
     public svgTextContent() { return null; }
 
     public renderToCanvas(ctx: CanvasRenderingContext2D) {
+        const { x, y, x1, x2, y1, y2 } = this.$geometry;
         this.path = new Path2D();
-        this.path.moveTo(this.$geometry.x1, this.$geometry.y1);
-        this.path.lineTo(this.$geometry.x2, this.$geometry.y2);
+        this.path.moveTo(
+            x1 === null ? x : x1,
+            y1 === null ? y : y1,
+        );
+        this.path.lineTo(
+            x2 === null ? x : x2,
+            y2 === null ? y : y2,
+        );
         canvasStroke(ctx, this);
     }
 

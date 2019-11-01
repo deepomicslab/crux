@@ -1,6 +1,6 @@
 import { ColorSchemeCategory, getThemeColor, getThemeScheme } from "../color";
 import { Anchor, GeometryUnit, GeometryValue } from "../defs/geometry";
-import { toDeg } from "../utils/math";
+import { max, min, minmax, toDeg } from "../utils/math";
 
 const ANCHOR = {
     top: Anchor.Top,
@@ -105,6 +105,15 @@ export default {
     themeColorScheme(theme: string, k: number | (string | number)[], scheme: string = "main") {
         const colors = getThemeScheme(theme, scheme);
         return ColorSchemeCategory.create(k, colors);
+    },
+    min(data: any[], iter: string | ((d: any) => number)) {
+        return min(data, iter);
+    },
+    max(data: any[], iter: string | ((d: any) => number)) {
+        return max(data, iter);
+    },
+    minmax(data: any[], iter: string | ((d: any) => number)) {
+        return minmax(data, iter);
     },
     ANCHOR,
 };

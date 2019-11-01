@@ -4,7 +4,7 @@ import * as d3s from "d3-scale";
 
 import { ColorSchemeGradient, schemeGradient } from "../../color";
 import { template } from "../../template/tag";
-import { extent } from "../../utils/math";
+import { minmax } from "../../utils/math";
 import { BaseChart, BaseChartOption } from "./base-chart";
 
 // XP-Plot version
@@ -42,7 +42,7 @@ export class ContourDensity extends BaseChart<ContourDensityOption> {
     public willRender() {
         super.willRender();
         this._contours = this.getContourDensity();
-        const densityRange = extent(this._contours.map((d: { value: any }) => d.value).flat());
+        const densityRange = minmax(this._contours.map((d: { value: any }) => d.value).flat());
         this._vScale = this.prop.colorScale === "linear" ? d3s.scaleLinear() : d3s.scaleLog();
         this._vScale.domain(densityRange).range([0, 1]);
         this._colorScheme = schemeGradient(this.prop.startColor, this.prop.endColor);
