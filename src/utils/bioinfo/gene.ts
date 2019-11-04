@@ -58,7 +58,7 @@ export function toGeneData(rawData: GeneRawData): GeneData {
         .map(s => {
             const [start_, length] = s.slice(0, -1).split("(").map(x => parseInt(x));
             const start = start_ + 1;
-            const end = start + length;
+            const end = start_ + length;
             return { start, end, length };
         });
     return {

@@ -67,7 +67,7 @@ export class Rect extends PrimitiveElement<RectOption> {
         canvasStroke(ctx, this);
     }
 
-    public static geometryProps() {
+    public geometryProps() {
         const { h, v } = super.geometryProps();
         return {
             h: [...h, "width", "xEnd"],
@@ -105,7 +105,7 @@ export class Rect extends PrimitiveElement<RectOption> {
         if (gh === null && gy2 === null)
             throw new Error(`Rect: height not defined`);
         const height = gh === null ? gy2 - y : gh;
-        return "minHeight" in this.prop && this.prop.minWidth > 0 ?
+        return "minHeight" in this.prop && this.prop.minHeight > 0 ?
             Math.max(height, this.prop.minHeight) : height;
     }
 }

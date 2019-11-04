@@ -80,12 +80,13 @@ export function svgInnerHTML(elm: BaseElement<BaseElementOption & { html: string
 export function svgPropPassthrough(props: Record<string, string>) {
     return (elm: BaseElement<BaseElementOption>) => {
         const result = {};
-        Object.keys(props).forEach(k => {
+        for (const k of Object.keys(props)) {
             const v = props[k];
-            if (v in elm.prop) {
-                result[k] = elm.prop[v];
+            const value = elm.prop[v];
+            if (value !== null && value !== undefined) {
+                result[k] = value;
             }
-        });
+        }
         return result;
     };
 }

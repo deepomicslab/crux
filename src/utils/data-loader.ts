@@ -73,7 +73,7 @@ export class DataLoader<T extends Record<string, any> = Record<string, any>> {
 
     protected dataTypes: string[];
     protected dataSources: { [key in keyof T]: DataSource<T, T[key]> };
-    protected selectedFiles: { [key: string]: { url: string, metadata: any, id: number } | Array<{ url: string, metadata: any }> } = {};
+    public selectedFiles: { [key: string]: { url: string, metadata: any, id: number } | Array<{ url: string, metadata: any }> } = {};
 
     private debugMode: boolean;
 
@@ -274,11 +274,11 @@ export class DataLoader<T extends Record<string, any> = Record<string, any>> {
         }
     }
 
-    protected apiPathMultiple(type: string): string[] | null {
+    public apiPathMultiple(type: string): string[] | null {
         return this._apiPath(type, null, true);
     }
 
-    protected apiPath(type: string, options= null): string | null {
+    public apiPath(type: string, options= null): string | null {
         return this._apiPath(type, options);
     }
 
@@ -291,29 +291,33 @@ export class DataLoader<T extends Record<string, any> = Record<string, any>> {
         } else if (typeof def.url === "function") {
             return def.url.call(this, this);
         } else if (typeof def.fileKey === "string") {
-            if ((window as any).BVD_CUSTOM_DATA_PROVIDER) {
-                const dataList: any[] = (window as any).BVD_CUSTOM_DATA_PROVIDER;
-                return dataList.find(d => d.fileKey === def.fileKey).url;
-            }
-            if (!(def.fileKey in this.selectedFiles)) {
-                throw new Error("DataLoader: File key misconfigured. The visualization module required a key that is not available in this analysis.");
-            }
-            const info = this.selectedFiles[def.fileKey];
-            if (!info) return null;
-            if (multiple) {
-                if (info instanceof Array) {
-                    return info.map(x => x.url);
-                } else {
-                    console.error(`DataLoader: multiple = true for file key "${type}", but this key doesn't accept multiple files.`);
-                }
-            } else {
-                if (info instanceof Array) {
-                    throw new Error(`DataLoader: multiple = false for file key "${type}", but this key accepts multiple files.`);
-                } else {
-                    return info.url;
-                }
-            }
+            return this.apiPathForFileKey(def.fileKey, multiple);
         }
         throw new Error(`DataLoader: Data source is invalid for type ${type}.`);
+    }
+
+    public apiPathForFileKey(key: string, multiple = false) {
+        if ((window as any).BVD_CUSTOM_DATA_PROVIDER) {
+            const dataList: any[] = (window as any).BVD_CUSTOM_DATA_PROVIDER;
+            return dataList.find(d => d.fileKey === key).url;
+        }
+        if (!(key in this.selectedFiles)) {
+            throw new Error("DataLoader: File key misconfigured. The visualization module required a key that is not available in this analysis.");
+        }
+        const info = this.selectedFiles[key];
+        if (!info) return null;
+        if (multiple) {
+            if (info instanceof Array) {
+                return info.map(x => x.url);
+            } else {
+                console.error(`DataLoader: multiple = true for file key "${key}", but this key doesn't accept multiple files.`);
+            }
+        } else {
+            if (info instanceof Array) {
+                throw new Error(`DataLoader: multiple = false for file key "${key}", but this key accepts multiple files.`);
+            } else {
+                return info.url;
+            }
+        }
     }
 }

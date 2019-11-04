@@ -55,7 +55,7 @@ export class Arc extends BaseElement<ArcOption> {
         };
     }
 
-    public static geometryProps() {
+    public geometryProps() {
         const { h, v } = super.geometryProps();
         return {
             h: [...h, "x1", "x2"],

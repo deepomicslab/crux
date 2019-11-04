@@ -38,7 +38,7 @@ export function getParentSize(el: BaseElement) {
 
 export function layoutElement(el: BaseElement, skipFixed = false) {
     const [pWidth, pHeight] = getParentSize(el);
-    let [hProps, vProps] = (el.constructor as typeof BaseElement).$geometryProps;
+    let [hProps, vProps] = el.$geometryProps;
     if (skipFixed) {
         hProps = hProps.filter(p => !isFixed(el.prop[p]));
         vProps = vProps.filter(p => !isFixed(el.prop[p]));

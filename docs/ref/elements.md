@@ -103,7 +103,7 @@ Returns the text content, if any. Otherwise return `null`.
 
 ### geometryProps()
 
-> `static geometryProps(): { h: string[], v: string[] }`
+> `geometryProps(): { h: string[], v: string[] }`
 
 Returns the props that represents geometry value, for example `r` in `Circle`, and `x1` `x2` in `Line`.
 

@@ -35,7 +35,7 @@ export class Circle extends PrimitiveElement<CircleOption> {
         canvasStroke(ctx, this);
     }
 
-    public static geometryProps() {
+    public geometryProps() {
         const { h, v } = super.geometryProps();
         return { h, v: [...v, "r"]};
     }

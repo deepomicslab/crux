@@ -4,7 +4,7 @@ import { svgPropFillAndStroke, svgPropXAndY, svgRotation } from "../../rendering
 import { BaseElementOption } from "./base-elm-options";
 import { PrimitiveElement } from "./primitive";
 
-type PathCustomRenderer = (ctx: Path2D) => void;
+export type PathCustomRenderer = (ctx: Path2D) => void;
 
 export interface PathOption extends BaseElementOption {
     d: string | PathCustomRenderer;
@@ -21,7 +21,8 @@ export class Path extends PrimitiveElement<PathOption> {
             d: this.prop.d,
         };
         if (this.$geometry.x !== 0 || this.$geometry.y !== 0) {
-            result.transform = `translate(${this.$geometry.x},${this.$geometry.y})`;
+            if (!result.transform) result.transform = "";
+            result.transform += `translate(${this.$geometry.x},${this.$geometry.y})`;
         }
         return result;
     }

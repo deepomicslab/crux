@@ -44,7 +44,7 @@ export class RadicalLine extends BaseElement<RadicalLineOption> {
         };
     }
 
-    public static geometryProps() {
+    public geometryProps() {
         const { h, v } = super.geometryProps();
         return { h, v: [...v, "r1", "r2"]};
     }

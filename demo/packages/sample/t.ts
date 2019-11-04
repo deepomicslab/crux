@@ -1,5 +1,5 @@
 export default `//bvt
-canvas {
+svg {
     width = auto
     height = 800
 
@@ -37,7 +37,6 @@ canvas {
                 stroke = "blue"
             }
             Line {
-                debug = true
                 x = 100
                 // x1 = 0
                 y1 = 0
@@ -46,6 +45,16 @@ canvas {
                 strokeWidth = 2
                 dashArray = "4,4"
             }
+            Triangle {
+                x = 100; y = 0
+            }
+        }
+        Arrow {
+            x = 100
+            y = 20
+            x2 = 160
+            y2 = 0
+            line.dashArray = "2,2"
         }
     }
 }

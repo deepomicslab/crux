@@ -60,20 +60,11 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
     public $stages: Record<string, Record<string, any>> = {};
     public $geometry: GeometryOptions<Option>;
     public $defaultProp: Partial<Option> = {};
+    public $geometryProps: [string[], string[]] = [[], []];
 
     public $detached = false;
 
-    private static _geometryProps: [string[], string[]];
-    public static get $geometryProps(): [string[], string[]] {
-        if (!this._geometryProps) {
-            const { h, v } = this.geometryProps();
-            this._geometryProps = [h, v];
-        }
-        return this._geometryProps;
-    }
-
     public $v!: Visualizer;
-
     // tslint:disable-next-line: variable-name
     public __insertHook: any;
     // tslint:disable-next-line: variable-name
@@ -97,6 +88,8 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
 
     public __didCreate() {
         this.$defaultProp = this.defaultProp();
+        const { h, v } = this.geometryProps();
+        this.$geometryProps = [h, v];
     }
 
     /* properties */
@@ -380,7 +373,7 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
     /* canvas */
     public abstract renderToCanvas(ctx: CanvasRenderingContext2D): void;
 
-    public static geometryProps(): { h: string[], v: string[] } {
+    public geometryProps(): { h: string[], v: string[] } {
         return {
             h: ["x"],
             v: ["y"],

@@ -109,7 +109,7 @@ export class Component<Option extends ComponentOption = ComponentOption>
         updateTree(this as any);
     }
 
-    private _getTransformation(): [number, number, number, number, number] {
+    protected _getTransformation(): [number, number, number, number, number] {
         let v: any;
         let x = 0, y = 0;
         if (!(this.$coord && this.$coord.$polar && !this.$isCoordRoot)) {
@@ -198,7 +198,7 @@ export class Component<Option extends ComponentOption = ComponentOption>
             (this.parent ? this.parent.getScale(horizontal) : null);
     }
 
-    public static geometryProps() {
+    public geometryProps() {
         const { h, v } = super.geometryProps();
         return {
             h: [...h, "width"],

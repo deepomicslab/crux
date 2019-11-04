@@ -1,7 +1,7 @@
 import * as _ from "lodash";
 
 import { Anchor, GeometryValue } from "../../defs/geometry";
-import { template } from "../../template/tag";
+import { useTemplate } from "../../ext/decorator";
 import { Component } from "../component";
 import { ComponentOption } from "../component-options";
 import { XYPlot } from "../plot";
@@ -17,50 +17,49 @@ export interface AxisOption extends ComponentOption {
     color: string;
 }
 
-export class Axis extends Component<AxisOption> {
-    public render = template`
-    Component {
-        width = isHorizontal ? prop.width : 0
-        height = isHorizontal ? 0 : prop.height
-        Line {
-            x1 = 0; x2 = getX()
-            y1 = 0; y2 = getY()
-            shapeRendering = "crispEdges"
-            stroke = prop.color
-            @props prop.opt.line
-        }
-        @let offset = isInner ? -4 : 4
-        @let labelAnchor = getLabelAnchor
-        @for (tick, index) in ticks {
-            Component {
-                key = index
-                x = isHorizontal ? tick.pos : 0
-                y = isHorizontal ? 0 : tick.pos
-                Line {
-                    x1 = 0
-                    x2 = isHorizontal ? 0 : offset
-                    y1 = 0
-                    y2 = isHorizontal ? offset : 0
-                    stroke = prop.color
-                    @props prop.opt.tick
-                }
-                @yield label with tick default {
-                    Text {
-                        text = prop.tickFormat(tick.value)
-                        x = isHorizontal ? 0 : offset
-                        y = isHorizontal ? offset : 0
-                        anchor = labelAnchor
-                        fontSize = 10
-                        visible = tick.show
-                        fill = prop.color
-                        @props prop.opt.label
-                    }
+@useTemplate(`
+Component {
+    width = isHorizontal ? prop.width : 0
+    height = isHorizontal ? 0 : prop.height
+    Line {
+        x1 = 0; x2 = getX()
+        y1 = 0; y2 = getY()
+        shapeRendering = "crispEdges"
+        stroke = prop.color
+        @props prop.opt.line
+    }
+    @let offset = isInner ? -4 : 4
+    @let labelAnchor = getLabelAnchor
+    @for (tick, index) in ticks {
+        Component {
+            key = index
+            x = isHorizontal ? tick.pos : 0
+            y = isHorizontal ? 0 : tick.pos
+            Line {
+                x1 = 0
+                x2 = isHorizontal ? 0 : offset
+                y1 = 0
+                y2 = isHorizontal ? offset : 0
+                stroke = prop.color
+                @props prop.opt.tick
+            }
+            @yield label with tick default {
+                Text {
+                    text = prop.tickFormat(tick.value)
+                    x = isHorizontal ? 0 : offset
+                    y = isHorizontal ? offset : 0
+                    anchor = labelAnchor
+                    fontSize = 10
+                    visible = tick.show
+                    fill = prop.color
+                    @props prop.opt.label
                 }
             }
         }
     }
-    `;
-
+}
+`)
+export class Axis extends Component<AxisOption> {
     public defaultProp() {
         return {
             orientation: "top",

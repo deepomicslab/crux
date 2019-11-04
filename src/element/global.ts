@@ -1,6 +1,6 @@
 import { componentList } from "./get-component";
 
-import { Axis, AxisBackground, AxisRadical, Legend } from "./auxiliary";
+import { Arrow, Axis, AxisBackground, AxisRadical, Legend } from "./auxiliary";
 
 import {
     Area, Bars, Boxes, Contour, ContourDensity, Dots, GroupedBars, HeatMap, PieChart, RadarChart,
@@ -10,7 +10,7 @@ import { Component } from "./component";
 import { Brush } from "./interaction";
 import { Columns, Container, Rows } from "./layout";
 import { XYPlot } from "./plot";
-import { Arc, ArcLine, Circle, Line, Path, Polygon, Polyline, RadicalLine, Rect, Text } from "./primitive";
+import { Arc, ArcLine, Circle, Line, Path, Polygon, Polyline, RadicalLine, Rect, Text, Triangle } from "./primitive";
 
 import { GeneArea } from "./bioinfo";
 import { Circos, CircosChord, CircosContentArea,
@@ -27,6 +27,7 @@ export function registerDefaultGlobalComponents() {
         Text,
         Path,
         Line,
+        Triangle,
         Arc,
         ArcLine,
         RadicalLine,
@@ -60,6 +61,7 @@ export function registerDefaultGlobalComponents() {
         Columns,
         Brush,
         // other
+        Arrow,
         Axis,
         AxisBackground,
         AxisRadical,

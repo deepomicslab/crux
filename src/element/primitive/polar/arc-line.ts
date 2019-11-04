@@ -41,7 +41,7 @@ export class ArcLine extends BaseElement<ArcLineOption> {
         };
     }
 
-    public static geometryProps() {
+    public geometryProps() {
         const { h, v } = super.geometryProps();
         return { h: [...h, "x1", "x2"], v: [...v, "r"]};
     }
