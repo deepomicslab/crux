@@ -20,9 +20,9 @@ export class Path extends PrimitiveElement<PathOption> {
             ...svgPropXAndY(this),
             d: this.prop.d,
         };
-        if (this.$geometry.x !== 0 || this.$geometry.y !== 0) {
+        if (this.$geometry._x !== 0 || this.$geometry._y !== 0) {
             if (!result.transform) result.transform = "";
-            result.transform += `translate(${this.$geometry.x},${this.$geometry.y})`;
+            result.transform += `translate(${this.$geometry._x},${this.$geometry._y})`;
         }
         return result;
     }

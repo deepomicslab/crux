@@ -13,14 +13,15 @@ Component {
     Line {
         x2 = _x2
         y2 = _y2
-        @props prop.opt.line
+        @props prop.opt.shaft
     }
     Triangle {
+        anchor = @anchor("bottom", "center")
         x = _x2
         y = _y2
         fill = @color("line")
         rotation = @rotate(_angle)
-        @props prop.opt.arrow
+        @props prop.opt.head
     }
 }
 `)

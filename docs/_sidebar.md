@@ -3,15 +3,18 @@
 ---
 - **PART I: TEMPLATE**
 - [Basic Concepts](concepts.md)
-- [Layout](layout.md)
+- [Basic Layout](layout.md)
 - [More Concepts](more-concepts.md)
+- [Component Library](primitives.md)
 - [Colors and Themes](theme.md)
+- [Incorporating Data](data.md)
 - [Customizing Components](sockets.md)
 - [Interactions](interactions.md)
 - [Advanced Layout](advanced-layout.md)
 ---
 - **PART II: COMPONENTS**
 - [Custom Components](custom-components.md)
+- [Lifetime and Hooks](lifetime.md)
 - [Advanced Components](advanced-components.md)
 ---
 - **PLOTS AND CHARTS**

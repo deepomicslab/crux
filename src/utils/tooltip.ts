@@ -14,7 +14,7 @@ const tStyle: Record<string, string> = {
     background: "rgba(0,0,0,.75)",
     color: "#fff",
     padding: "4px",
-    transition: "top 0.02s left 0.02s",
+    transition: "top 0.02s, left 0.02s",
     "border-radius": "3px",
     "font-size": "11px",
     "font-family": "Arial",

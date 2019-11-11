@@ -88,7 +88,7 @@ Component {
 
 ?> That said, when your expression starts with a bracket but does not end with another one, such as writing an arrow function like `(a) => a + 1`, you must add an extra pair of surrounding brackets: `((a) => a + 1)`.
 
-## Commands
+## Commands: Assignments
 
 **Commands** bring advanced control when rendering complicated components. They can appear anywhere inside a block.
 
@@ -161,6 +161,8 @@ Therefore `x` and `y` for this component are all `40`, and the `Text` element re
 It is recommended that **`@let` and `@expr` should always stay at the top of the block** to avoid ambiguity.
 You should also write all commands at first, then all props, and all declarations of child components at the end, without mixing them up.
 
+## Commands: Controls
+
 ### @if
 
 `@if` only renders its content when a JavaScript expression evaluates to true.
@@ -172,7 +174,6 @@ Component {
     @if a > 2 && b < 5 {
         Rect {
             width = 20; height = 20
-            fill = "red"
         }
     }
 }
@@ -238,74 +239,6 @@ Component {
 
 ?> It's possible to use certain JavaScript expressions for the data, such as `foo.bar` or `foo[bar]`, but complicated expressions, such as arbitrary JavaScript object or array literals are not supported.
 If you indeed need it, you can declare it using `@let` first.
-
-### Keys
-
-The prop `key` is used to distinguish different copies of the same component within a loop.
-Oviz will assign an auto-generated key to each component in a loop, but it's recommended to _supply a key based on your data_ for better performance.
-
-The index can be used as the key when there is no other choice.
-
-```bvt
-@for (item, index) in array {
-    Rect {
-        key = index
-    }
-}
-```
-
-Better choices include any property in the data, usually `id` or `key`, which can be used to identify the data item. For example:
-
-```js
-let data = [{ id: 1, name: "John" }, { id: 7, name: "Kenneth" }, { id: 19, name: "Mary" }]
-```
-```bvt
-@for item in data {
-    Component {
-        key = data.id
-        Text { text = data.name }
-    }
-}
-```
-
-When supplying key manually, you must supply a unique `key` for **each component of the same kind in the same level**.
-In other words, it's possible to supply the same key for components that are of different kinds, but the key
-must be **unique** 1) _for this kind of component_ and 2) _in each block level_.
-
-```bvt
-Component {
-    @for i in 5 {
-        Rect {
-            key = i // 1: OK
-        }
-        Circle {
-            key = i // 2: OK
-        }
-    }
-    @for j in 8 {
-        Rect {
-            key = j // 3: Error
-        }
-    }
-}
-```
-
-Keys at position 1 and 2 can be the same since they are different components.
-However, using `j` for the key at position 3 will result in an error, because `Rect`s in both loop all belong to the same parent, i.e., they are at the same level. `i` ranges from 0 to 4 and `j` ranges from 0 to 7, producing duplicated keys.
-
-Another case is nested loops:
-
-```bvt
-@for i in 5 {
-    @for j in 8 {
-        Rect {
-            key = i + "-" + j
-        }
-    }
-}
-```
-
-The `Rect` in the internal loop must use both indices for its key to guarantee uniqueness.
 
 ### @props
 

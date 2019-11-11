@@ -80,10 +80,27 @@ However, this usage is discouraged and is for demonstration only since we alread
 
 ## Dynamic Component Name
 
-Sometimes the type of a component is not determined until runtime. In this case, you can use a simple `Component` and provide its `is` prop:
+Sometimes the type of a component is not determined until runtime. In this case, you can use a simple `Component` and provide its initializer:
 
 ```bvt
-Component {
-    is = data > 0 ? "Rect" : "Circle"
+Component("Axis");
+
+Component(data > 0 ? "Rect" : "Circle") {
+    fill = "red"
 }
 ```
+
+<div class="demo" data-height="150">
+Component {
+    @for item in 10 {
+        Component(item % 2 ? "Rect" : "Circle") {
+            x = item * 20 + 20
+            y = 20
+            width = 10
+            height = 10
+            anchor = @anchor("center", "middle")
+            r = 5
+        }
+    }
+}
+</div>

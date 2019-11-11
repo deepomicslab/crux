@@ -8,15 +8,14 @@ That said, each child component's position starts translation from the origin po
 <div class="demo" data-height="220">
 Component {
     x = 50; y =50;
-    width = 200; height = 200
+    width = 500; height = 500
     Rect {
         width = 100%; height = 100%
-        fill = "none"; stroke = "#000"
+        fill = "rgba(0,0,0,.1)"; stroke = "#abc"
     }
     Rect {
         x = 20; y = 20
         width = 40; height = 60
-        fill = "red"
     }
 }
 </div>
@@ -33,6 +32,8 @@ The default anchor for all components is `(top, left)`.
 
 You use a helper `@anchor` to denote an anchor.
 It accepts two arguments, one for the vertical position and the other for horizontal position, and the order doesn't matter. You should specify the names directly as strings.
+
+![Anchor](anchor.png)
 
 The following example shows how the anchor affects a component's position.
 The blue dot indicates the original position (defined by `x` and `y`) of the `Rect`.
@@ -83,17 +84,18 @@ Component {
     width = 200; height = 200
     Rect {
         width = 100%; height = 100%
-        fill = "none"; stroke = "#000"
+        fill = "#abc"
     }
     Rect {
         x = 10; y = 10
         width = 100%-20; height = 100%-20
-        fill = "red"
     }
 }
 </div>
 
 ?> By default, a `Component` has `width = 100%` and `height = 0`.
+
+### Dynamic geometry values
 
 Other than literals, you can also supply the value for geometry props using the `@geo(percantage, offset)` helper.
 For example, `@geo(100, -5)` is equivalent to `100%-5`, and therefore you can use _dynamic_ values for geometry props, such as `@geo(width, x * 2)`.
@@ -101,15 +103,12 @@ For example, `@geo(100, -5)` is equivalent to `100%-5`, and therefore you can us
 <div class="demo" data-height="220">
 Component {
     @let widths = [25, 50, 75, 100]
-    Rows {
-    width = 100%
-        @for (width, index) in widths {
-            Component {
-                key = index
-                width = @geo(width, 0)
-                height = 25
-                Rect.full;
-            }
+    @for (width, i) in widths {
+        Rect {
+            y = i * 30
+            width = @geo(width, 0)
+            height = 25
+            fill = "#fb5"
         }
     }
 }
@@ -136,6 +135,8 @@ It sets the domain to [0, 1000], and the range will automatically be [0, _size_]
 
 Supplying 4 arguments to the helper sets both the domain and range explicitly.
 Supplying no argument to the helper, such as `@scaleLinear()`, makes it return the identical scale with domain and range both being [0, width].
+
+![Scales](scale.png)
 
 Scaling is not applied automatically. You must use the corresponding helpers `@scaledX` and `@scaledY` together.
 

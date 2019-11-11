@@ -1,32 +1,73 @@
 # Custom Components
 
-The need for writing your own components emerges when your visualization grows more and more complicated.
-You might face some situations such as:
+The best feature that Oviz provides is the ability to create custom components.
+The need for writing your own components emerges when your visualization grows more and more complicated, and you might face some situations such as:
 
-- Some part of your visualization needs to be reused;
-- There are some complex interaction logic;
-- You need to add hooks during the lifetime of a component to do some extra work.
+_You want to reuse some part of your visualization._
+It can be a generalization of several similar code segments for the sake of the DRY principle, or a full-featured component that can be used across projects or even released for everyone.
 
-Similar to the default components the framework provides, your custom component handles props and renders its content.
-It can also have members, methods, and internal states.
+_You need to store some states to handle interactions._
+For example, your visualization renders a list of items, and the one that the user's cursor hovers should be highlighted. Therefore, you must keep track of the index of the currently highlighted item, and update it on `mouseenter` or `mouseleave` events.
 
-## Extending the Component Class
+Similar to the built-in components, your custom component mainly has two responsibilities: externally, it handles props and renders its content; internally, it maintains its state and handles interaction with the user.
 
-You start defining a custom component by extending the `Component` class.
+## The Render Function
+
+Components are JavaScript classes.
+
+A component renders its content through a render function: a method `render()` should be defined for each component class. When called, the render function returns a tree of element definitions in the form of JavaScript objects. In OViz, you don't write the render function directly; instead, you write the template.
+
+Each template will be compiled to a render function, even for the template you supplied to `Oviz.visualize`: it becomes the render function of the root component.
+
+Although a function (can also be used as a string tag) `Oviz.t` is provided to compile a template string to a render function directly, it's not recommended to do it manually. Oviz provides two more elegant ways to create components.
+
+## Creating Components
+
+#### From the Template
+
+If your custom component contains the template only, i.e., it doesn't have any properties and methods, the easiest way to create a component is by using `Oviz.c`:
 
 ```js
-import Oviz from "Oviz"
-
-class MyComponent extends Oviz.Component {
-    public render = Oviz.template`
-    Component {
-        // ...
+const Greetings = Oviz.c(`Component {
+    Text {
+        text = "Hello, " + prop.name
+        fill = prop.color
     }
-    `;
+}`);
+```
+
+<div class="demo" data-height="100">
+Greetings {
+    name = "Alex"
+    color = "blue"
+}
+</div>
+<div class="bvd-code">
+Crux.c(`Component {
+    Text {
+        text = "Hello, " + prop.name
+        fill = prop.color
+    }
+}`, "Greetings");
+</div>
+
+
+#### Using a Class
+
+Otherwise, for an orthodox approach, you can extend the `Oviz.Component` class and define the `render` method.
+In this method, you return the template tagged with `this.t`, which will handle all the compiling stuff:
+
+```js
+class MyComponent extends Oviz.Component {
+    render() {
+        return this.t`Component {
+            // ...
+        }`;
+    }
 }
 ```
 
-In TypeScript, the component also requires a type argument that declares its accepted props.
+In TypeScript, the component also requires a type argument that declares its props.
 
 ```js
 interface MyComponentOption extends ComponentOption {
@@ -34,25 +75,23 @@ interface MyComponentOption extends ComponentOption {
 }
 
 class MyComponent extends Component<MyComponentOption> {
-    public render = template`
-    Component {
-        // ...
-    }
-    `;
+
 }
 ```
 
-The component should have a `render` function. Rather than writing a `function` manually,
-the framework provides a convenient tag `template` to compile a template into a render function.
+#### Writing the template
 
-
-?> The template's root component should be a `Component` or a custom component. If you only need to render a primitive element,
-simply wrap it in a `Component`. However, creating a custom component just to render a primitive element is not quite useful.
-You may want to create a new primitive component instead.
+The template's _root component_ should be a `Component` or a custom component rather than a primitive. If you only need to render a primitive element,
+such as `Rect` or `Text`, simply wrap it in a `Component`.
+However,  it usually makes little sense to write a custom component just to render a primitive element. You may want to _create a new primitive_ instead.
 
 ?> The template should not have `svg` or `canvas` definition because it is for a component rather than the whole visualization.
 
-## Registering New Components
+## Registering Components
+
+```js
+Oviz.use.component({ Greetings });
+```
 
 ## Accessing Props
 
@@ -242,3 +281,5 @@ class MyComponent extends Component {
     }
 }
 ```
+
+### refs

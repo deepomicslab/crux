@@ -6,35 +6,46 @@ However, it's not easy to make a component flexible and extensible enough.
 
 ## Delegated Props
 
-Say we have a component `BarChart` which renders a bar chart.
-Typically, we have bars and labels in it, and they should change according to the input data.
-Props are the most obvious and essential way to control them, and the `BarChart` probably has such properties as `data`.
-However, how about if we want to control the appearance, such as the fill color of bars and labels?
+Oviz provides a built-in component `Arrow` that renders an arrow.
 
-One solution would be defining more props on `BarChart`, such as `barFill`, `barStroke`, `barStrokeWidth`, and so on.
+<div class="demo" data-height="100">
+Arrow {
+    x = 0; y = 50; x2 = 190; y2 = 50
+}
+</div>
+
+An arrow consists of a `Line` as the shaft and a `Triangle` as the head.
+Here comes the question: how to control the appearance of them, such as fill color of the arrow head, or stroke width of the shaft?
+
+One solution would be defining more props on `Arrow`, such as `headFill`, `headStroke`, `shaftStrokeWidth`, and so on.
 A significant disadvantage is that such props can hardly be exhaustive.
-Numerous props must be added to provide sufficient elasticity and meet the need for fully controlling the bars,
-which in return result in inflexibility of `BarChart` and repeated work.
+We must add numerous props to provide sufficient elasticity and meet the need for fully controlling the components inside,
+which in return result in inflexibility of `Arrow` and repeated work.
 
 To solve this problem, we have **delegated props**.
-It is a mechanism which let custom components to expose certain children, and users can thus supply any prop for them.
+It is a mechanism which let custom components to _expose certain inner components with names_, and users can thus supply any prop for them.
 
-Rather than having dedicated props on `BarChart`, we now supply props _directly_ to the bars inside. Delegated props look like:
+Delegated props look like:
 
 ```bvt
 element.prop = value
 ```
 
-And the template for using a `BarChart` that supports delegated props may look like:
+`Arrow` exposes the `Line` with name "shaft" and `Triangle` named "head".
+Rather than having dedicated props on `Arrow`, we now supply props _directly_ to the `Triangle` and `Line` inside.
+And the template for rendering a customized `Arrow` may look like:
 
-```bvt
-BarChart {
-    data = data
-    bar.fill = "#000"
-    bar.stroke = "#66c"
-    label.fontSize = 12
+<div class="demo" data-height="150">
+Arrow {
+    x = 0; y = 50; x2 = 190; y2 = 50
+    shaft.strokeWidth = 6
+    shaft.stroke = @color(1)
+    shaft.dashArray = "4,4"
+    head.width = 18
+    head.height = 18
+    head.fill = @color(0)
 }
-```
+</div>
 
 See the documentation of each component for their supported delegated props.
 We will also cover later on how to add support for delegated props when writing a new component.

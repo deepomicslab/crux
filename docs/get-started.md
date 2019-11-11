@@ -18,9 +18,9 @@ Component {
 }
 ```
 
-Oviz renders visualizations via SVG or Canvas. Typically SVG is the best choice, but if you have too many components to render, such as more than 100,000 points in a scatter chart, you may consider using Canvas for better performance.
+Oviz renders visualizations to SVG or Canvas. Typically SVG is the best choice, but if you have too many components to render, such as more than 100,000 points in a scatter chart, you may consider using Canvas for better performance.
 
-!> Note that rendering to Canvas is experimental at the current stage.
+!> Note that rendering to Canvas is currently at an experimental stage.
 
 ## Usage
 

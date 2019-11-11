@@ -78,6 +78,8 @@ export class Rect extends PrimitiveElement<RectOption> {
     public defaultProp() {
         return {
             fill: getThemeColor(this.$v.theme, "theme"),
+            width: 20,
+            height: 20,
         };
     }
 
