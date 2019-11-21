@@ -1,4 +1,4 @@
-import { interpolateHsl } from "d3-interpolate";
+import { interpolateRgb } from "d3-interpolate";
 import { scaleLinear, scaleLog, scaleQuantize, scaleThreshold } from "d3-scale";
 import { ColorScheme } from "./scheme";
 
@@ -30,7 +30,7 @@ export class ColorSchemeGradient implements ColorScheme {
     private bounds?: number[];
 
     constructor(public startColor: string, public endColor: string, options?: ColorSchemeGradientOptions) {
-        this.scale = interpolateHsl(startColor, endColor);
+        this.scale = interpolateRgb(startColor, endColor);
         if (options) {
             this.type = options.type;
             switch (options.type) {
