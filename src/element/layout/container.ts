@@ -52,7 +52,7 @@ export class Container extends Component<ContainerOption> {
                     e.$geometry._xOffset.container = pl;
                 }
             });
-            const maxX = Math.max(...realChildren.map(c => c.maxX));
+            const maxX = Math.max.apply(null, [0, ...realChildren.map(c => c.maxX)]);
             this.$geometry.width = maxX + pl + pr;
         }
         if (this.heightIsNotDefined) {
@@ -65,7 +65,7 @@ export class Container extends Component<ContainerOption> {
                     e.$geometry._yOffset.container = pt;
                 }
             });
-            const maxY = Math.max(...realChildren.map(c => c.maxY));
+            const maxY = Math.max.apply(null, [0, ...realChildren.map(c => c.maxY)]);
             this.$geometry.height = maxY + pt + pb;
         }
 
