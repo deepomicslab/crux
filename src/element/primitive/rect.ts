@@ -94,9 +94,7 @@ export class Rect extends PrimitiveElement<RectOption> {
     private _widthWithMin(x: number): number {
         const gw = this.$geometry.width;
         const gx2 = this.$geometry.xEnd;
-        if (gw === null && gx2 === null)
-            throw new Error(`Rect: width not defined`);
-        const width = gw === null ? gx2 - x : gw;
+        const width = gx2 !== null ? gx2 - x : gw;
         return "minWidth" in this.prop && this.prop.minWidth > 0 ?
             Math.max(width, this.prop.minWidth) : width;
     }
@@ -104,9 +102,7 @@ export class Rect extends PrimitiveElement<RectOption> {
     private _heightWithMin(y: number): number {
         const gh = this.$geometry.height;
         const gy2 = this.$geometry.yEnd;
-        if (gh === null && gy2 === null)
-            throw new Error(`Rect: height not defined`);
-        const height = gh === null ? gy2 - y : gh;
+        const height = gy2 !== null ? gy2 - y : gh;
         return "minHeight" in this.prop && this.prop.minHeight > 0 ?
             Math.max(height, this.prop.minHeight) : height;
     }
