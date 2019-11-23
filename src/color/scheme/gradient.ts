@@ -35,10 +35,10 @@ export class ColorSchemeGradient implements ColorScheme {
             this.type = options.type;
             switch (options.type) {
                 case "linear":
-                    this.numberScale = scaleLinear().range([0, 1]).domain(options.domain);
+                    this.numberScale = scaleLinear().range([0, 1]).domain(options.domain).clamp(true);
                     break;
                 case "log":
-                    this.numberScale = scaleLog().range([0, 1]).domain(options.domain);
+                    this.numberScale = scaleLog().range([0, 1]).domain(options.domain).clamp(true);
                     if (options.base) this.numberScale.base(options.base);
                     break;
                 case "threshold":
