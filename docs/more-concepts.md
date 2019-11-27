@@ -1,11 +1,11 @@
 # More Concepts
 
-Oviz has several syntactic sugars in the template system to reduce some trivial and tedious work.
+Oviz has several syntactic sugars in the template system to reduce trivial and tedious work.
 
 ## Initializers
 
-**Initializer** is an optional modifier that can be provided immediately after a component name.
-For example, the initializer of `Text` should be a string, which is the text content, i.e., the value for the `text` prop.
+A **initializer** is an optional "argument" that can be provided immediately after a component name.
+For example, the initializer of `Text` is a string, which is the text content, i.e., the value for the `text` prop.
 
 <div class="demo" data-height="50">
 Text("Hello!") {}
@@ -31,7 +31,7 @@ Text("Hello!");
 
 ## Modifiers
 
-**Modifiers** can be added after a component name to serve as a shortcut to a set of predefined props.
+**Modifiers** can be added after a component tag to serve as a shortcut to a set of predefined props.
 For example, `.full` is the combination of `width = 100%` and `height = 100%`:
 
 <div class="demo" data-height="150">

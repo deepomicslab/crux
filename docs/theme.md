@@ -41,7 +41,7 @@ All parameters range from 0 to 100 for those methods.
 ## Themes
 
 Oviz has an extendable theming system. A **theme** comprises a set of named _colors_ and _color schemes_.
-Named colors can be referenced freely in the template, while some of them are also used as default fill or stroke color for components.
+Named colors can be referenced by their name in the template, while some of them are also used as default fill or stroke color for components.
 Color schemes are simply arrays of colors that can be either used as primary colors for individual components or mapped to data categories.
 
 The following example uses the default color scheme of the default theme:
@@ -79,7 +79,7 @@ Oviz.use.theme("myTheme", {
 });
 ```
 
-It defines a theme called "myTheme" and registers the theme globally to make it available globally.
+It defines a theme called "myTheme" and makes it available globally.
 
 As said above, several color names are required by Oviz internally:
 - `theme` is the default fill color for shapes such as `Rect`, `Circle`, and `Path`;
@@ -89,7 +89,7 @@ As said above, several color names are required by Oviz internally:
 A color scheme named `main` is the default color scheme. It's also required by some internal components such as `GroupedBars`.
 Therefore, those names must appear in your theme definition.
 
-In definitions for color schemes, you can reference a color name using a string starting with `$`, such as `$theme`.
+In the definitions for color schemes, you can reference a color name using a string starting with `$`, such as `$theme`.
 
 When we apply this theme to the example above, it changes its appearance without modifying any part of the template.
 
@@ -126,7 +126,7 @@ return { theme: "myTheme" };
 
 ### Default themes
 
-By default, Oviz ships with two themes: `light` and `dark`, which are intended to be used with light and dark backgrounds, respectively.
+By default, Oviz ships with two themes, `light` and `dark`, which are intended to be used with light and dark backgrounds, respectively.
 Each of them contains a default color scheme (i.e., the color scheme named `main`) of 12 colors, as shown in the following example.
 
 <div class="demo no-editor" data-height="200">
@@ -162,7 +162,7 @@ Text and line colors are black in the `light` theme and white in the `dark` them
 
 If you only need to change a small part of an existing theme, you can also _extend_ a theme.
 Adding the `extends` key with a theme name to indicate that the current theme is an extension of a base theme.
-All colors and schemes from the base theme are available in the definition, so you can reference colors using `$` from the base theme.
+All colors and schemes from the base theme are available in the definition in the new theme, so you can reference colors using `$` from the base theme.
 If the current theme redefines a color or a scheme, it overwrites the one in the base theme.
 
 You can also _extend a color scheme_ when extending a theme.
@@ -225,9 +225,10 @@ The `@color` helper can accept a color name as string, or a number indicating us
 When you have a set of data categories and need to assign a color for each of them, another helper `@colorMap` would be useful.
 It creates a mapping between a series of keys and colors, and you can get the corresponding color by a key.
 
-The first argument is the categories. It can be a number, indicating the count of the categories, or an array of string, specifying each key explicitly.
+The first argument of `@colorMap` represents the categories. It can be a number, indicating the count of the categories, or an array of string, specifying each key explicitly.
 
-The second argument is the color scheme to be used. If omitted, it uses the default color scheme of the current theme; and you can also designate a scheme name. If you already have an array of predefined colors, you can also use it directly.
+The second argument is the color scheme to be used. If omitted, it uses the default color scheme of the current theme; and you can also designate a scheme name.
+If you already have an array of predefined colors, you can also use it directly.
 
 ```bvt
 @colorMap(10)
@@ -236,7 +237,7 @@ The second argument is the color scheme to be used. If omitted, it uses the defa
 @colorMap(10, ["#aaa", "#bbb", "#ccc"])
 ```
 
-When a color mapping is created, calling the `get()` method on it would return the corresponding color.
+When a color mapping is created, the `get()` method would return the corresponding color.
 
 ```bvt
 @let map = @colorMap(10)

@@ -1,8 +1,10 @@
 # Component Library
 
-This section briefly lists all primitives and some commonly-used components provided by Oviz, so you can have a grasp of what basic graphical elements can be used to construct your visualization.
+This section briefly lists all primitives and some commonly used components provided by Oviz, so you can have a grasp of what basic graphical elements can be used to construct your visualization.
 
-!> Note that this is not a comprehensive list, and it doesn't mean that all Oviz provides are these built-in components. **The real value of Oviz reveals when creating primitives and components by yourself.**
+!> Note that this is not a comprehensive list.
+
+!> It doesn't mean that all Oviz provides are these built-in components: **the real value of Oviz reveals when creating primitives and components by yourself.**
 
 ## Rect
 
@@ -138,6 +140,63 @@ Props available:
 |`fontSize`|`number`|The font size.|12|
 |`fontFamily`|`string`|The font family.|N/A|
 
+## Arc
+
+`Arc` renders an arc with thickness.
+
+It is not required to be put in a polar coordinate syetem, although recommended.
+
+<div class="demo" data-height="150">
+Component {
+    coord = "polar"
+    Circle.centered { r = 2; fill = "red" }
+    Arc {
+        x1 = 45
+        x2 = 135
+        r1 = 30
+        r2 = 70
+    }
+}
+</div>
+
+## ArcLine
+
+`ArcLine` renders an arc.
+
+It is not required to be put in a polar coordinate syetem, although recommended.
+
+<div class="demo" data-height="150">
+Component {
+    coord = "polar"
+    Circle.centered { r = 2; fill = "red" }
+    ArcLine {
+        x1 = 45
+        x2 = 135
+        r = 60
+        fill = "none"
+    }
+}
+</div>
+
+## RadicalLine
+
+`RadicalLine` renders a line in polar coordinate system, of which the
+start and end point has same angle but different radius.
+
+It is not required to be put in a polar coordinate syetem, although recommended.
+
+<div class="demo" data-height="150">
+Component {
+    coord = "polar"
+    Circle.centered { r = 2; fill = "red" }
+    RadicalLine {
+        r1 = 20
+        r2 = 80
+        x = 60
+    }
+}
+</div>
+
 ## Arrow
 
 `Arrow` is a _component_ that comprises a line and a triangle.
@@ -172,7 +231,7 @@ Props available:
 | Name | Type | Usage | Default |
 |------|------|-------|---------|
 |`orientation`|`string`|Can be "top", "bottom", "left" or "right".|"top"|
-|`tickCount`|`number`|Specify an expected for number of ticks. The actual count of ticks may be different from this value due to rounding.|5|
+|`tickCount`|`number`|Specify an expected number of ticks. The actual count of ticks may be different from this value due to rounding.|5|
 |`tickInterval`|`number`|Specify the tick interval explicitly.|N/A|
 |`ticks`|`number[]`|Specify the tick values explicitly.|N/A|
 |`tickFormat`|`() => string`|Specify the label for each tick.|N/A|

@@ -46,7 +46,7 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
 
     private _prop: Option;
     public prop!: Option;
-    protected state: State = { stage: null } ;
+    protected state: State;
     public _activeState: string | null = null;
 
     public $parent?: Component; // the containing renderable component
@@ -80,6 +80,12 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
         this._prop = {} as Option;
         this.setupPropProxy();
         this.init();
+
+        if (!this!.state) {
+            this.state = { stage: null };
+        } else if (!("stage" in this.state)) {
+            this.state.stage = null;
+        }
     }
 
     public init() { /* empty */ }

@@ -3,7 +3,7 @@
 The framework features an auto-layout system.
 
 A component (including any custom component) **defines its own coordinate system**.
-That said, each child component's position starts translation from the origin point of its parent component.
+That said, each child component translates starting from the origin point of its parent component.
 
 <div class="demo" data-height="220">
 Component {
@@ -20,7 +20,7 @@ Component {
 }
 </div>
 
-It's also possible to define a local **scale system** or a **polar coordinate system**, which will be covered later.
+It's also possible to define a local **scale system** or a **polar coordinate system**, which will be introduced later in this page.
 
 ## Anchors
 
@@ -68,10 +68,10 @@ Component {
 
 ## Relative Sizes and Positions
 
-We know that components have their width and height. Children of a component can thus have **relative sizes and positions** based on their parent.
+We know that components have their widths and heights. The children of a component can thus have **relative sizes and positions** based on their parent.
 
-We denote such a relative value (called **geometry value** in Oviz) as a combination or a _percentage_ and a _fixed offset_, and we can express it in the form of `x%±y`.
-For geometry props, such as `x`, `y`, `width`, `height`, and `r` for `Circle`, other than plain numbers, their value can also be a geometry value. Just write something like `80%` and the component will recognize it.
+We denote such a relative value (called **geometry value** in Oviz) as a combination of a _percentage_ and a _fixed offset_, and we can express it in the form of `a%±b`.
+Geometry values can be used for geometry props, such as `x`, `y`, `width`, `height`, and `r` for `Circle`. Just write something like `80%` and the component will recognize it.
 
 The offset is optional, for example, `100%`, `80%`, `100%-10`, `50%+5` are all valid geometry expressions.
 
@@ -89,6 +89,7 @@ Component {
     Rect {
         x = 10; y = 10
         width = 100%-20; height = 100%-20
+        fill = "#2870eb"
     }
 }
 </div>
@@ -121,7 +122,7 @@ Component {
 The scale system is especially useful when we need to map some raw data to the actual size of the graph.
 For example, we need to render a gene of 8000bp length, but we usually have a browser window of no more than 1200px.
 That said, we need to map the domain [1, 8000] to a range of [0, 1200].
-A _scale_ is used to do the mapping, and you can attach it directly to a container component, then all children inside the container can have their positions and sizes scaled.
+A _scale_ is used to do the mapping, and you can attach it directly to a container component, then all children inside the container will have their positions and sizes scaled.
 Currently, we use d3-scale as the underlying implementation, so it's helpful to know more about the scale types provided by it.
 
 Values for `xScale` and `yScale` should be scale helpers. All those helpers start with `@scale`, such as `@scaleLinear`. `@scaleLinear` accepts four optional arguments:
@@ -189,7 +190,7 @@ Component {
 
 ## Polar Coordinate System
 
-A `Component` can also have a different type of coordinate system. The prop `coord` can be either `"cartesian"` or `"polar"`, and `"cartesian"` is the default.
+A `Component` can also have a different type of coordinate system. The prop `coord` can be either `"cartesian"` or `"polar"`; `"cartesian"` is the default.
 Once `"polar"` is specified, all containing components' positions (`x` and `y`) are treated as coordinates inside a polar coordinate system.
 
 In a polar coordinate system, `x` becomes **the angle (theta)** and `y` becomes the **radius**.
@@ -217,7 +218,7 @@ It is possible to have nested components inside, but in this case, components me
 because the origin should always be the same point. In other words, **components' positions are ignored** inside a polar coordinate system.
 
 In the following example, the component has x = 45 and y = 40, but it is ignored since it makes no sense to translate its children in a polar coordinate system.
-Therefore, the blue dot's coordinate is (225°, 40) rather than (270°, 80).
+Therefore, the coordinates of the blue dot is (225°, 40) rather than (270°, 80).
 
 <div class="demo" data-height="200">
 Component {
@@ -242,7 +243,7 @@ Component {
 }
 </div>
 
-However, if the nested component defines its new coordinate system rather than inheriting the root one, all children inside this component are translated as usual.
+However, if a nested component defines its new coordinate system rather than inheriting the root one, all children inside this component are translated as usual.
 
 <div class="demo" data-height="200">
 Component {

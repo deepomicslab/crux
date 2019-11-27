@@ -15,12 +15,17 @@
 - **PART II: COMPONENTS**
 - [Custom Components](custom-components.md)
 - [Lifetime and Hooks](lifetime.md)
-- [Advanced Components](advanced-components.md)
+- [Props and Storage](props.md)
+- [Event Handlers](events.md)
+- [States and Stages](states.md)
+- [Delegated Props](delegates.md)
+- [Sockets](yield.md)
 ---
 - **PLOTS AND CHARTS**
 - [XYPlot](plot/xy-plot.md)
 - [XYPlot Charts](plot/xy-plot-charts.md)
 - [Radical Charts](plot/radical.md)
+---
 - **REFERENCE**
 - [Visualizer](ref/visualizer.md)
 - [Commands](ref/commands.md)
@@ -28,15 +33,6 @@
 - [Modifiers](ref/modifiers.md)
 - [Elements and Components](ref/elements.md)
 - [Hooks](ref/hooks.md)
+---
 - **COMPONENT REFERENCE**
-    - [Primitive Elements](component/primitive.md)
-    - *Auxiliaries*
-        - [Axis]()
-        - [AxisBackground]()
-        - [Legend]()
-    - *Interaction*
-        - [Brush]()
-    - *Layout*
-        - [Container]()
-        - [Columns]()
-        - [Rows]()
+- _Under construction_

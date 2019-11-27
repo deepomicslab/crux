@@ -23,15 +23,17 @@ Although a function (can also be used as a string tag) `Oviz.t` is provided to c
 
 ## Creating Components
 
+Suppose that we are going to define a component `Greetings` to render a line of salutation with a custom name.
+We will use `prop.name` to get the name from props. Props will be covered in next chapter.
+
 #### From the Template
 
-If your custom component contains the template only, i.e., it doesn't have any properties and methods, the easiest way to create a component is by using `Oviz.c`:
+If the custom component contains the template only, i.e., it doesn't have any properties and methods, the easiest way to create a component is by using `Oviz.c`:
 
 ```js
 const Greetings = Oviz.c(`Component {
     Text {
         text = "Hello, " + prop.name
-        fill = prop.color
     }
 }`);
 ```
@@ -39,14 +41,12 @@ const Greetings = Oviz.c(`Component {
 <div class="demo" data-height="100">
 Greetings {
     name = "Alex"
-    color = "blue"
 }
 </div>
 <div class="bvd-code">
 Crux.c(`Component {
     Text {
         text = "Hello, " + prop.name
-        fill = prop.color
     }
 }`, "Greetings");
 </div>
@@ -81,7 +81,8 @@ class MyComponent extends Component<MyComponentOption> {
 
 #### Writing the template
 
-The template's _root component_ should be a `Component` or a custom component rather than a primitive. If you only need to render a primitive element,
+Similar to a global template, a component's template should contain only one element (_root element_) at the root level.
+The root element should be a `Component` or a custom component rather than a primitive. If you only need to render a primitive element,
 such as `Rect` or `Text`, simply wrap it in a `Component`.
 However,  it usually makes little sense to write a custom component just to render a primitive element. You may want to _create a new primitive_ instead.
 
@@ -89,197 +90,30 @@ However,  it usually makes little sense to write a custom component just to rend
 
 ## Registering Components
 
-```js
-Oviz.use.component({ Greetings });
-```
+You need to register a custom component so that Oviz can find it by its name. Components can be registered either globally or locally. 
 
-## Accessing Props
+#### Globally
 
-For example, we are going to define a `Greetings` to render a line of salutation with a given name and text color.
-It should accept a `name` and a `color` prop, both are strings.
+Registering a component globally makes it available to all templates and components. You can use `Oviz.use.component` to register multiple components at once. In the case of name confliction, a warning will appear in the console.
 
 ```js
-interface GreetingsOption extends ComponentOption {
-    name: string;
-    color: string;
-}
-
-class Greetings extends Component<GreetingsOption> {
-    public render = template`
-    Container {
-        Text {
-            text = "Hello, " + prop.name
-            fill = prop.color
-        }
-    }
-    `;
-}
+Oviz.use.component({ MyComponent });
 ```
 
-<div class="demo" data-height="100">
-Greetings {
-    name = "Alex"
-    color = "blue"
-}
-</div>
-<div class="bvd-code">
-class Greetings extends Crux.Component {}
-Greetings.prototype.render = Crux.t`
-Container {
-    Text {
-        text = "Hello, " + prop.name
-        fill = prop.color
-    }
-}
-`
-Greetings;
-</div>
+#### Locally
 
-Use `prop` to access given props inside the template. Note that `prop` is **readonly**, hence it is not possible to modify `prop`
-inside the component. This is because that props are passed from the parent and the parent has control on it; once modified, it
-might conflict with the parent's state.
-
-It is also possible to provide **default values** for props. Simply override the `defaultProp()` method in your component class:
+By registering a component locally, it can be used in templates within a visualizer or component. If your visualization uses a global template, it's possible to specify a dictionary of components to be registered as a visualizer option.
 
 ```js
-class Greetings extends Component<GreetingsOption> {
-    public render = template`
-    Container {
-        Text {
-            text = "Hello, " + prop.name
-            fill = prop.color
-        }
-    }
-    `;
-
-    public defaultProp() {
-        return {
-            ...super.defaultProp(),
-            name: "Someone",
-            color: "red",
-        }
-    }
-}
+Oviz.visualize({
+  components: { MyComponent },
+});
 ```
 
-<div class="demo" data-height="100">
-Greetings;
-</div>
-<div class="bvd-code">
-class Greetings extends Crux.Component {
-    defaultProp() {
-        return {
-            ...super.defaultProp(),
-            name: "Someone",
-            color: "red",
-        }
-    }
-}
-Greetings.prototype.render = Crux.t`
-Container {
-    Text {
-        text = "Hello, " + prop.name
-        fill = prop.color
-    }
-}
-`
-Greetings;
-</div>
-
-The `defaultProp()` method should return an object. By extending `super.defaultProp()`, it inherits all default prop values for a
-regular `Component` such as `width = 100%`, but if you do not need them, simply return a fresh object.
-
-Several props, namely "x", "y", "width", "height", "anchor" and "rotation", are passed down to the actually rendered component.
-For example, if we write
-
-```
-Greetings {
-    name = "John"
-    x = 20; y = 40
-}
-```
-
-`x = 20` and `y = 40` will be passed down to the `Container` inside `Grettings`, therefore
-(of course) they will affect the position of the rendered text, and you can try adding them in the above demo.
-However, if you do not need this behavior, simply override them inside the root component:
+If you need to register other components within a custom component, add a static class member to the component:
 
 ```js
-class RectWith50PxWidth extends Component {
-    render = template`
-    Component {
-        width = 50
-        Rect.full;
-    }
-    `;
+class NewComponent extends Oviz.Component {
+    static components = { MyComponent };
 }
 ```
-
-<div class="demo" data-height="100">
-RectWith50PxWidth {
-    width = 100  // the width will always be 50
-    height = 50
-}
-</div>
-<div class="bvd-code">
-class RectWith50PxWidth extends Crux.Component {}
-RectWith50PxWidth.prototype.render = Crux.t`
-Component {
-    width = 50
-    Rect.full;
-}
-`
-RectWith50PxWidth
-</div>
-
-## Accessing Class Members
-
-All class members, including member methods are available in the template. Please refer to the
-[Component reference](ref/component.md) for more details. In JavaScript, accessing other class members would
-require using `this` keyword; but **`this` is not needed** (and should not be used) in templates.
-
-For example, we can extract the string concatenation part in `Greetings` into a method:
-
-```js
-class Greetings extends Component<GreetingsOption> {
-    public render = template`
-    Container {
-        Text {
-            text = renderGreetings()
-            fill = prop.color
-        }
-    }
-    `;
-
-    private renderGreetings() {
-        return "Hello, " + this.prop.name;
-    }
-}
-```
-
-Note that `renderGreetings()` is used without `this` and in this method, `this.prop` is used to get props in JavaScript.
-
-Getters, setters, and other class members are also available in the template.
-It is also possible to use the method itself directly for props such as event handlers.
-
-```js
-class MyComponent extends Component {
-    public render = template`
-    Component {
-        x = computedValue
-        y = value
-        on:click = clickHandler
-    }
-    `;
-
-    private value;
-
-    private get computedValue() {
-        return // ...
-    }
-    private clickHandler(ev) {
-        // ...
-    }
-}
-```
-
-### refs

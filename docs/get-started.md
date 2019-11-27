@@ -48,7 +48,7 @@ window.addEventListener("load", init);
 For example, `#canvas` selects the element with id equals to "canvas".
 Oviz _clears_ all content inside this element, and then puts an `svg` or `canvas` element inside it depending on the renderer type.
 
-You have two choices of supplying the size, renderer type (SVG or Canvas), and the content of the visualization.
+You have two choices to define the size, renderer type (SVG or Canvas), and the content of the visualization: having a global template or using a root component.
 
 #### Having a global template
 
@@ -66,14 +66,16 @@ svg {
 }
 ```
 
-`width` and `height` define the size of the visualization. They can be a number or `auto`.
+`width` and `height` define the size of the visualization. They can be numbers or `auto`.
 `auto` is a special value which equals to the container size. By default `width` and `height` are all `auto`.
 
 Remember that since the visualization only has one root element, there should be only one component block declared inside the `svg` or `canvas` block.
 
 #### Having a root component
 
-The other option is to define a custom component as the root component (we will cover how to write custom components later). In this case, you need to specify the renderer type through the `renderer` option, and optionally its size through the `width` or `height` option.
+For complicated visualizations, you may need to write _custom components_, and use a custom component as the root component.
+We will cover how to write custom components later.
+In this case, you need to specify the renderer type through the `renderer` option, and optionally its size through the `width` or `height` option.
 
 ```js
 Oviz.visualize({
@@ -87,7 +89,7 @@ Oviz.visualize({
 ## VSCode Plugin
 
 A VSCode plugin is provided to enable the syntax highlighting for templates.
-[download it here](https://gitlab.deepomics.org/lhc/bvt-vscode/tags).
+[Download it here](https://gitlab.deepomics.org/lhc/bvt-vscode/tags).
 
 Install the vsix file through the plugin menu - Install from VSIX.
 
@@ -110,4 +112,4 @@ Component {
     // ...
 }
 `
-```
+```;

@@ -8,9 +8,9 @@
   Primitive elements cannot have children.
 - **Components**, containers that can have all 3 types of components as children inside.
   `Component`s are merely containers, so they never actually render anything on the graph;
-  however, they can affect the behaviors of its children; for example, a component defines a local coordinate system for all its children.
+  however, they can affect the behaviors of its children; for example, a component defines a local coordinate system for all their children.
 - **Custom Components**, subclasses of `Component` that have predefined children inside.
-  Depending on their settings, it might be possible or impossible to add extra children to it.
+  Depending on their settings, it might be possible or impossible to add extra children to it (will be covered later).
 
 
 Use the following syntax to define an element or component.
@@ -35,9 +35,8 @@ Component {
 ## Props
 
 Elements and components can have multiple properties or **props**. Props define various attributes from their positions or appearances to complex layouts.
-For example, a `Rect` have `fill` as one of its props, which controls the fill color.
-Custom components can render different content
-based on the props supplied.
+For example, a `Rect` has `fill` as one of its props, which controls the fill color.
+Custom components can render different content based on the props supplied.
 
 Some regular props which are available for all elements and components are `x`, `y`, `rotation`, and `anchor`.
 
@@ -63,7 +62,7 @@ Component {
 }
 ```
 
-Valid values for props are **any JavaScript expressions**.
+Values for props could be **any JavaScript expression**.
 
 ```bvt
 Component {
@@ -86,7 +85,21 @@ Component {
 }
 ```
 
-?> That said, when your expression starts with a bracket but does not end with another one, such as writing an arrow function like `(a) => a + 1`, you must add an extra pair of surrounding brackets: `((a) => a + 1)`.
+?> That said, when your multi-line expression starts with a bracket but does not end with another one, such as writing an arrow function, you must add an extra pair of surrounding brackets:
+
+```js
+(a) => {
+    return a + 1
+}
+```
+
+should be
+
+```js
+((a) => {
+    return a + 1 
+})
+```
 
 ## Commands: Assignments
 
@@ -112,7 +125,8 @@ Component {
 
 `@expr` executes an arbitrary JavaScript expression.
 
-It is not a good idea to put lots of logic inside the template, and usually, you should not use it at all. However, it serves as a useful debugging tool because you can log values during the rendering process. You might also find it useful when you need to do some extra job between iterations.
+It is not a good idea to put lots of logic inside the template, and usually, you should not use it at all.
+However, it serves as a useful debugging tool as you can log values during the rendering process. You might also find it useful when you need to do some extra jobs between iterations.
 
 ```bvt
 @let var1 = 1
@@ -122,7 +136,7 @@ It is not a good idea to put lots of logic inside the template, and usually, you
 ### The order of commands, props, and child components
 
 In Oviz, you are free to put commands, props, and declarations of child components anywhere inside the parent's block in any order.
-However, in some cases, execution order matters. Oviz handles the order of them following these rules:
+However, in some cases, the order of execution matters. Oviz handles the order of them following these rules:
 
 Commands, props, and child components are treated separately: declarations of the same kind are grouped and executed together.
 However, `@let` and `@expr` in a block are always executed _before_ any other operations such as assigning props.
@@ -159,7 +173,7 @@ Component {
 Therefore `x` and `y` for this component are all `40`, and the `Text` element renders `40`.
 
 It is recommended that **`@let` and `@expr` should always stay at the top of the block** to avoid ambiguity.
-You should also write all commands at first, then all props, and all declarations of child components at the end, without mixing them up.
+You should also write all commands first, then all props, and all declarations of child components at the end, without mixing them up.
 
 ## Commands: Controls
 
@@ -220,7 +234,7 @@ It is also possible to refer the index in the loop:
 `data` here can be:
 
 - An array; or
-- An object (dictionary), in this case, `index` is each key, and `item` is the value; or
+- An object (dictionary), in this case, `index` is the key, and `item` is the value; or
 - A number _n_, in this case, it is treated as _range(n)_, i.e., an array with length equals to _n_.
   `item` is the index, from 0 to _n-1_. `index` here is identical to `item`.
 
@@ -237,7 +251,7 @@ Component {
 }
 </div>
 
-?> It's possible to use certain JavaScript expressions for the data, such as `foo.bar` or `foo[bar]`, but complicated expressions, such as arbitrary JavaScript object or array literals are not supported.
+?> It's possible to use some simple JavaScript expressions for the data, such as `foo.bar` or `foo[bar]`, but complicated expressions that contain spaces or `{`, such as arbitrary JavaScript object or array literals, are not supported.
 If you indeed need it, you can declare it using `@let` first.
 
 ### @props
@@ -245,8 +259,6 @@ If you indeed need it, you can declare it using `@let` first.
 Sometimes it might be more precise and expressive if we can customize not only the prop values but also the names.
 
 The `@props` command provides an easy way to serve a dynamic object (dictionary) as props, so you are free to add any logic before passing the props actually to a component.
-
-Another important usage of `@props` will be introduced later in [Adcanved Components](advanced-components).
 
 <div class="demo" data-height="200">
 Rect {
