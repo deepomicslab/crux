@@ -7,7 +7,8 @@ export class ParserStream {
             .split("\n")
             .filter(x => !x.match(/^ *\/\//))
             .map(x => x.replace(/\/\/.*$/, ""))
-            .join("\n");
+            .join("\n")
+            .trim();
     }
 
     public advance(step: number) {

@@ -16,10 +16,11 @@ Arrow {
 An arrow consists of a `Line` as the shaft and a `Triangle` as the head.
 Here comes the question: how to control the appearance of them, such as the fill color of the arrow head, or the stroke width of the shaft?
 
-One solution would be defining more props on `Arrow`, such as `headFill`, `headStroke`, `shaftStrokeWidth`, and so on.
+One solution would be _defining_ more props on `Arrow`, such as `headFill`, `headStroke`, `shaftStrokeWidth`, and so on.
 A significant disadvantage is that such props can hardly be exhaustive.
-We must add numerous props to provide sufficient elasticity and meet the need for fully controlling the components inside,
-which in return result in inflexibility of `Arrow` and repeated work.
+We must add numerous props to provide sufficient elasticity and meet the need for fully controlling the components inside.
+If we are going to add new components inside `Arrow`, we may also need to define those props for them,
+which result in inflexibility of `Arrow` and repeated work.
 
 To solve this problem, we have **delegated props**.
 It is a mechanism which let custom components to _expose certain inner components with names_, so that users can thus supply any prop for them.

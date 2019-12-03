@@ -80,10 +80,12 @@ However, this usage is discouraged and is for demonstration only since we alread
 
 ## Dynamic Component Name
 
-Sometimes the type of a component is not determined until runtime. In this case, you can use a simple `Component` and provide its initializer:
+Sometimes the type of a component is not determined until runtime. In this case, you can use a simple `Component` and provide the name as its initializer:
 
 ```bvt
 Component("Axis");
+
+Component(name);
 
 Component(data > 0 ? "Rect" : "Circle") {
     fill = "red"

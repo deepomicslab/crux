@@ -761,6 +761,7 @@ ul.app-sub-sidebar li > a {
   word-wrap: normal;
 }
 /* code highlight */
+.cm-s-default .cm-comment,
 .token.comment,
 .token.prolog,
 .token.doctype,
@@ -770,23 +771,30 @@ ul.app-sub-sidebar li > a {
 .token.namespace {
   opacity: 0.7;
 }
+.cm-s-default .cm-number,
+.cm-s-default .cm-builtin,
 .token.boolean,
 .token.number {
   color: #b7642a;
 }
+.cm-s-default .cm-bracket,
 .token.punctuation {
   color: #525252;
 }
+.cm-s-default .cm-modifier,
 .token.property {
   color: #2aa9b7;
 }
+.cm-s-default .cm-def,
 .token.tag {
   color: #2973b7;
   font-weight: 700;
 }
+.cm-s-default .cm-string,
 .token.string {
   color: #229667;
 }
+.cm-s-default .cm-tag,
 .token.special-block,
 .token.selector {
   color: #6679cc;
@@ -809,10 +817,15 @@ ul.app-sub-sidebar li > a {
 .token.helper {
   color: #b114ff;
 }
+.cm-s-default .cm-socket,
+.cm-s-default .cm-keyword,
 .token.keyword,
 .token.socket {
   font-style: italic;
 }
+.cm-s-default .cm-property,
+.cm-s-default .cm-keyword,
+.cm-s-default .cm-socket,
 .token.keyword,
 .token.socket,
 .token.function {

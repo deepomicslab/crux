@@ -6,136 +6,81 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
   <meta name="description" content="Description">
   <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <script src="//unpkg.com/codemirror/lib/codemirror.js"></script>
+  <script src="//unpkg.com/codemirror/addon/edit/closebrackets.js"></script>
+  <link rel="stylesheet" href="//unpkg.com/codemirror/lib/codemirror.css">
   <link rel="stylesheet" href="./theme.css">
+  <script src="bvt-mode.js"></script>
   <style>
     .demo {
-      background: rgba(177, 20, 255, .1);
-      border-bottom: 1px solid #b114ff;
+      background: #f6f7f8;
+      margin: 35px -15px;
+      border: 1px solid #ddd;
+      border-radius: 3px;
+      box-shadow: 0 0 16px rgba(0,0,0,.15);
     }
     .bvd-editor, .bvd-canvas {
       width: 50%;
       margin: 0;
-      padding: 8px;
+      padding: 10px;
     }
     .no-editor .bvd-canvas {
       width: 100%
     }
     .bvd-toolbar {
-      padding: 6px 10px;
-      border-bottom: 1px solid #ddd;
-    }
-    .bvd-btn-run {
-      float: right;
+      padding: 10px 12px;
+      color: #777;
+      font-weight: 700;
+      border-bottom: 1px solid #b114ff;
     }
     .bvd-main {
       display: flex;
     }
     .bvd-editor {
-      color: #222;
-      line-height: 1.6;
-      background: #f8f8f8;
-      border: none;
       border-right: 1px solid #ddd;
-      border-radius: 0 0 0 4px;
-      font-family: Roboto Mono,Monaco,courier,monospace;
-      font-size: 11px;
+      border-radius: 0 0 0 3px;
     }
     .bvd-canvas {
       background: #f8f8f8;
-      border-radius: 0 0 4px 0;
+      border-radius: 0 0 3px 0;
+    }
+    .bvd-btn-run {
+      float: right;
+      background: none;
+      padding: 0 4px;
+      border-radius: 3px;
+      border: none;
+      color: #b114ff;
+      cursor: pointer;
+      text-shadow: 0 1px #609;
+    }
+    .bvd-btn-run:active {
+      margin-top: 1px;
+      text-shadow: 0 0px #609;
     }
     .bvd-error {
       color: red;
+    }
+    .CodeMirror {
+      height: 100%;
+      font-size: 11px;
+      font-family: 'Fira Code', Consolas, Monaco, courier, monospace;
+      line-height: 1.4;
+    }
+    .bvd-editor,
+    .CodeMirror {
+      transition: background 0.1s;
+      background: #f3f4f5;
+    }
+    .CodeMirror-focused,
+    .bvd-editor.active {
+      background: #f6f7f8;
     }
   </style>
 </head>
 <body>
   <div id="app"></div>
-  <script>
-    function t(height, str) {
-      return `svg { width = auto; height = ${height}; \n ${str} \n }`;
-    }
-    document.addEventListener("DOMContentLoaded", () => {
-      Crux.use.defaultBioInfoComponents();
-    })
-    window.$docsify = {
-      name: 'crux',
-      loadSidebar: true,
-      subMaxLevel: 2,
-      plugins: [
-        function(hook, vm) {
-          hook.doneEach(function() {
-            var demos = document.getElementsByClassName("demo");
-            [].forEach.call(demos, function(el) {
-              let template = el.childNodes[0].textContent.replace(/<\/?p>/g, "")
-              if (template[0] === "\n") {
-                template = template.substr(1);
-              }
-
-              var sib = el.nextElementSibling;
-              var components = {};
-              var data = {};
-              var theme = "light";
-
-              if (sib && sib.className.indexOf("bvd-code") >= 0) {
-                var extraInfo = eval(sib.textContent.replace(/<\/?p>/g, ""));
-                if (extraInfo.name) components[extraInfo.name] = extraInfo;
-                if (extraInfo.data) data = Object.assign(data, extraInfo.data)
-                if (extraInfo.theme) theme = extraInfo.theme;
-                sib.style.display = "none";
-              }
-
-              const hasEditor = el.className.indexOf("no-editor") < 0
-
-              var height = el.dataset.height
-              el.innerHTML = ""
-
-              var toolbar = document.createElement("div")
-              toolbar.className = "bvd-toolbar"
-              toolbar.appendChild(document.createTextNode("Demo"))
-
-              var main = document.createElement("div")
-              main.className = "bvd-main"
-
-              var canvas = document.createElement("div")
-              canvas.className = "bvd-canvas"
-
-              if (hasEditor) {
-                var editor = document.createElement("textarea")
-                editor.setAttribute("spellcheck", "false")
-                editor.className = "bvd-editor"
-                editor.innerHTML = template
-                main.appendChild(editor)
-              }
-
-              main.appendChild(canvas)
-              el.appendChild(toolbar)
-              el.appendChild(main)
-
-              if (hasEditor) {
-                var button = document.createElement("button")
-                button.className = "bvd-btn-run"
-                button.innerHTML = "Run"
-                toolbar.appendChild(button)
-                button.onclick = function () {
-                  try {
-                    Crux.visualize({ el: canvas, template: t(height, editor.value), components: components, data: data, theme })
-                  } catch (e) {
-                    canvas.innerHTML = `<div class="bvd-error">Error: ${e.message}</div>`;
-                  }
-                }
-              }
-              try {
-                Crux.visualize({ el: canvas, template: t(height, template), components: components, data: data, theme })
-              } catch (e) {
-                  canvas.innerHTML = `<div class="bvd-error">Error: ${e.message}</div>`;
-              }
-            })
-          })
-        }
-      ]
-    }
-  </script>
+  <script src="index.js"></script>
   <script src="//unpkg.com/docsify/lib/docsify.min.js"></script>
   <script src="//unpkg.com/docsify/lib/plugins/external-script.min.js"></script>
   <script src="prism-bvt.js"></script>

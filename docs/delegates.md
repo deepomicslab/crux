@@ -35,8 +35,8 @@ TwoRects {
     rectWidth = 100
     rectHeight = 120
     rect1.fill = "red"
-    rect2.fill = "yellow"
-    rect2.stroke = "blue"
+    rect2.fill = "blue"
+    rect2.stroke = "#f5a"
     rect2.strokeWidth = 2
 }
 </div>
@@ -60,3 +60,9 @@ Component {
 `
 TwoRects
 </div>
+
+Note that the position of the `@props` command matters: props declared later will always overwrite those declared before.
+Therefore, in the above example, even if the user designates the sizes of the `Rect`s, such as writing `rect2.width = 200`,
+they will be ignored because the line `width = prop.rectWidth`, which appears later, takes precedence.
+
+Based on the actual requirements, you can adjust the position of the `@prop` command to fit your needs.
