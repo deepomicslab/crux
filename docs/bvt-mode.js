@@ -217,7 +217,7 @@ function parseEmbeddedValue(stream, state, endBy, previousState) {
     else if (stream.match(/".+?"/)) {
         token = "string";
     }
-    else if (stream.match(/^[0-9\.]+/)) {
+    else if (stream.match(/^[0-9\.]+%?/)) {
         token = "number";
     }
     else if (stream.match("(")) {

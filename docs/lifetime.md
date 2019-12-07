@@ -41,31 +41,62 @@ class MyComponent extends Oviz.Component {
 }
 ```
 
-### Notes for some commonly-used hooks
+### Commonly-used hooks
 
-**Create**
+#### Create
 
-`didCreate`: gets called when the component is created. It's called only once.
+**didCreate**
 
-**Update**
+Called when the component is created. It's called only once for each component.
 
-`didLayout`: gets called each time when the layout is finished. All geometry values are available now.
+#### Update
 
-`willRender`: gets called each time when the component's render function is called.
-It is recommended to add prepration logics in this hook.
+**didLayout**
 
-`didLayoutSubTree`: gets called each time when the layout of all its children has been finished.
+Called each time when the layout is finished.
+
+All geometry values, including `this.$geometry`, are available now; however, it's better to add size calculation in `willRender`.
+
+**willRender**
+
+Called each time when the component's render function is called.
+
+It is recommended to add any data prepration and preprocessing in this hook.
+You can use `this._firstRender` to determine whether it's a re-render.
+
+```js
+willRender() {
+    if (this._firstRender) {
+        // initialize some flags
+    }
+    // other data preprocessing
+}
+```
+
+**didLayoutSubTree**
+
+Called each time when the layout of all its children has been finished.
 It is possible to get children's sizes and the component's final size here.
 
-`didUpdate`: gets called each time when the update is finished.
+**didUpdate**
 
-**Render**
+Called each time when the update is finished.
 
-`didMount` (SVG only): gets called when the corresponding SVG element is created.
+#### Render
 
-`didPatch` (SVG only): gets called each time when the corresponding SVG element has been updated.
+**didMount**
+
+(SVG only) Called when the corresponding SVG element is created.
+
+**didPatch**
+
+(SVG only) Called each time when the corresponding SVG element has been updated.
 Two arguments `(oldNode: VNode, newNode: VNode)` are available for this hook.
 
-**Destroy**
+#### Destroy
 
-`didUnmount` (SVG only): gets called when the component is unmounted.
+**willDestroy**
+
+**didUnmount**
+
+(SVG only) called when the component is unmounted.

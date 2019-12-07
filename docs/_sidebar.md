@@ -1,3 +1,4 @@
+- <a href="https://oviz.org" class="to-oviz">Back to oviz.org</a>
 - [Home](/)
 - [Getting Started](get-started.md)
 ---
@@ -23,6 +24,7 @@
 ---
 - **PLOTS AND CHARTS**
 - [XYPlot](plot/xy-plot.md)
+- [XYPlot Props](plot/xy-plot-ref.md)
 - [XYPlot Charts](plot/xy-plot-charts.md)
 - [Radical Charts](plot/radical.md)
 ---
@@ -36,3 +38,23 @@
 ---
 - **COMPONENT REFERENCE**
 - _Under construction_
+- Circos
+    - [Circos]()
+    - [CircosLayer]()
+    - [CircosChord]()
+- Common
+    - [Tree]()
+- Bioinfo
+    - [GeneArea]()
+    - [Chromosome]()
+- Layout
+    - [Container]()
+    - [Rows]()
+    - [Columns]()
+    - [Box]()
+- Auxilliary
+    - [Arrow]()
+    - [Axis]()
+    - [AxisBackground]()
+    - [AxisRadical]()
+    - [Legend]()

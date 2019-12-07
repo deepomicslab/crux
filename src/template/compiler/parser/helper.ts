@@ -18,6 +18,10 @@ const exprHelpers: Record<string, [string, boolean?]> = {
     "min": [`_h.min(`],
     "max": [`_h.max(`],
     "minmax": [`_h.minmax(`],
+    // legacy helpers
+    "scale-linear": [`_h.scaleLinear(`],
+    "scaled-x": [`_h.scaledX(this, `, true],
+    "scaled-y": [`_h.scaledY(this, `, true],
 };
 
 export function transformHelper(name: string) {

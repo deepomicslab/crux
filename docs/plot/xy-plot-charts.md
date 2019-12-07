@@ -12,3 +12,16 @@
 
 ## StackedArea
 
+## Scatters
+
+## Heatmap
+
+## Contour
+
+## Histogram
+
+## StepLine
+
+## UnequalBins
+
+## Violins

@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", () => {
 })
 
 window.$docsify = {
-    name: 'crux',
+    name: 'Oviz',
     loadSidebar: true,
     subMaxLevel: 2,
     plugins: [
