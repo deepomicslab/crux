@@ -2,7 +2,11 @@ import { Component } from "../component";
 import { ComponentOption } from "../component-options";
 import { isRenderable } from "../is";
 
-export class Columns extends Component {
+export interface ColumnsOption extends ComponentOption {
+    align: "top" | "center" | "bottom";
+}
+
+export class Columns extends Component<ColumnsOption> {
     public didLayoutSubTree() {
         let counter = 0;
         const autoHeight = this.heightIsNotDefined;
@@ -28,10 +32,19 @@ export class Columns extends Component {
         if (autoHeight) {
             this.$geometry.height = maxY;
         }
+        if (this.prop.align === "bottom") {
+            for (const child of this.children) {
+                if (!child._isActive) continue;
+                if (child instanceof Component) {
+                    const c = child as Component<ComponentOption>;
+                    c.$geometry._y = maxY - c.$geometry.height;
+                }
+            }
+        }
         this.$geometry.width = counter;
     }
 
     public defaultProp() {
-        return { x: 0, y: 0 };
+        return { x: 0, y: 0, align: "top" };
     }
 }
