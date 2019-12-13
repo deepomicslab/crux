@@ -232,22 +232,22 @@ Try adding a default block to `Wrapper`:
 
 ```js
 class Wrapper extends Component {
-    public render = template`
-    Component {
-        x = 10; y = 10; width = 100%-20; height = 100%-20
-        Rect {
-            y = 20; height = 100%-20; width = 100%
-            fill = "none"; stroke = "red"
-        }
-        Text("Any children will be inserted here");
-        Component {
-            y = 20
-            @yield children default {
-                Text("Empty...");
+    render() {
+        return this.t`Component {
+            x = 10; y = 10; width = 100%-20; height = 100%-20
+            Rect {
+                y = 20; height = 100%-20; width = 100%
+                fill = "none"; stroke = "red"
             }
-        }
+            Text("Any children will be inserted here");
+            Component {
+                y = 20
+                @yield children default {
+                    Text("Empty...");
+                }
+            }
+        }`
     }
-    `
 }
 ```
 

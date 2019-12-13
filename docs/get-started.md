@@ -6,7 +6,7 @@ Therefore, a _component tree_ is formed by nesting the components.
 
 ![Component tree](img/component-tree.png)
 
-Oviz has a **template language**.
+Oviz has a **templating language**.
 Rather than writing lines of code to build the structure of the component tree, you mainly _describe_ it through a template like this:
 
 ```bvt
@@ -93,23 +93,32 @@ A VSCode plugin is provided to enable the syntax highlighting for templates.
 
 Install the vsix file through the plugin menu - Install from VSIX.
 
-There are two ways to enable syntax highlight in JavaScript/TypeScript.
-When using the `template` tag (we will cover this later), the string is treated as a template automatically.
+There are two ways to enable syntax highlighting in JavaScript/TypeScript.
+
+When using the `this.t` tag or the `Oviz.c()` function (we will cover them later), the string is treated as a template automatically.
 
 ```js
-const t = template`
+const t = this.t`
 Component {
     // ...
 }
 `;
 ```
 
-For normal strings, add `//bvt` at the beginning of them:
+```js
+Oviz.c(`
+Component {
+    // ...
+}
+`);
+```
+
+For normal JavaScript/TypeScript strings, add `//bvt` at the beginning of them:
 
 ```js
 const t = `//bvt
 Component {
     // ...
 }
-`
-```;
+`;
+```
