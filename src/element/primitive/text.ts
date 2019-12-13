@@ -11,6 +11,7 @@ interface TextOption extends BaseElementOption {
     html: string;
     fontSize: number;
     fontFamily: string;
+    noSizeMeasurement: boolean;
 }
 
 export class Text extends PrimitiveElement<TextOption> {
@@ -27,6 +28,7 @@ export class Text extends PrimitiveElement<TextOption> {
     }
 
     public willAdjustAnchor() {
+        if (this.prop.noSizeMeasurement) return;
         const text = (typeof this.prop.text === "string") ? this.prop.text :
             ((this.prop.text || this.prop.text === 0) && this.prop.text.toString) ? this.prop.text.toString() :
             (this.prop.html && this.prop.html.toString) ? strip(this.prop.html.toString()) : null;
