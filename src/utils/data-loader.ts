@@ -45,6 +45,7 @@ export interface DataSource<T extends Record<string, any>, U> {
     _type?: U;
     url?: string | ((dl: DataLoader<T>) => string);
     fileKey?: string;
+    fileKeyParams?: string;
     content?: string;
     type?: DataSourceType | string;
     dataPath?: string | ((data: any) => U);
@@ -285,12 +286,16 @@ export class DataLoader<T extends Record<string, any> = Record<string, any>> {
         } else if (typeof def.url === "function") {
             return def.url.call(this, this);
         } else if (typeof def.fileKey === "string") {
+            if (def.fileKeyParams) {
+                const url = this.apiPathForFileKey(def.fileKey, multiple, true);
+                return `${url}?${def.fileKeyParams}`;
+            }
             return this.apiPathForFileKey(def.fileKey, multiple);
         }
         throw new Error(`DataLoader: Data source is invalid for type ${type}.`);
     }
 
-    public apiPathForFileKey(key: string, multiple = false) {
+    public apiPathForFileKey(key: string, multiple = false, raw = false): string | string[] | null {
         if ((window as any).BVD_CUSTOM_DATA_PROVIDER) {
             const dataList: any[] = (window as any).BVD_CUSTOM_DATA_PROVIDER;
             return dataList.find(d => d.fileKey === key).url;
@@ -304,13 +309,13 @@ export class DataLoader<T extends Record<string, any> = Record<string, any>> {
             if (info instanceof Array) {
                 return info.map(x => x.url);
             } else {
-                console.error(`DataLoader: multiple = true for file key "${key}", but this key doesn't accept multiple files.`);
+                throw new Error(`DataLoader: multiple = true for file key "${key}", but this key doesn't accept multiple files.`);
             }
         } else {
             if (info instanceof Array) {
                 throw new Error(`DataLoader: multiple = false for file key "${key}", but this key accepts multiple files.`);
             } else {
-                return info.url;
+                return raw ? `${window.gon.urls.create_file}/${info.id}` : info.url;
             }
         }
     }
