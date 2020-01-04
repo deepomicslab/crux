@@ -5,6 +5,8 @@ export interface TooltipOption {
     content: string | [(...arg: any) => string, any];
     xOffset: number;
     yOffset: number;
+    xAnchor: "left" | "right";
+    yAnchor: "top" | "bottom";
 }
 
 export default class Tooltip extends Behavior<TooltipOption> {
@@ -23,6 +25,12 @@ export default class Tooltip extends Behavior<TooltipOption> {
         }
         if (op.yOffset) {
             tooltip.config({ yOffset: op.yOffset });
+        }
+        if (op.xAnchor) {
+            tooltip.config({ xAnchor: op.xAnchor });
+        }
+        if (op.yAnchor) {
+            tooltip.config({ yAnchor: op.yAnchor });
         }
     }
 

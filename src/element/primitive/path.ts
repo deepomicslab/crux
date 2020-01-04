@@ -1,6 +1,6 @@
 import { getFinalPosition } from "../../layout/layout";
 import { canvasFill, canvasStroke } from "../../rendering/canvas-helper";
-import { svgPropFillAndStroke, svgPropXAndY, svgRotation } from "../../rendering/svg-helper";
+import { svgPropFillAndStroke, svgPropPassthrough, svgPropXAndY, svgRotation } from "../../rendering/svg-helper";
 import { BaseElementOption } from "./base-elm-options";
 import { PrimitiveElement } from "./primitive";
 
@@ -18,6 +18,9 @@ export class Path extends PrimitiveElement<PathOption> {
             ...svgPropFillAndStroke(this),
             ...svgRotation(this),
             ...svgPropXAndY(this),
+            ...svgPropPassthrough({
+                "marker-mid": "markerMid",
+            })(this),
             d: this.prop.d,
         };
         if (this.$geometry._x !== 0 || this.$geometry._y !== 0) {

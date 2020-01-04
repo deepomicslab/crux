@@ -12,6 +12,8 @@ interface TextOption extends BaseElementOption {
     fontSize: number;
     fontFamily: string;
     noSizeMeasurement: boolean;
+    fixedWidth: number;
+    fixedHeight: number;
 }
 
 export class Text extends PrimitiveElement<TextOption> {
@@ -28,7 +30,11 @@ export class Text extends PrimitiveElement<TextOption> {
     }
 
     public willAdjustAnchor() {
-        if (this.prop.noSizeMeasurement) return;
+        if (this.prop.noSizeMeasurement) {
+            this.$cachedHeight = typeof this.prop.fixedHeight === "number" ? this.prop.fixedHeight : 0;
+            this.$cachedWidth = typeof this.prop.fixedWidth === "number" ? this.prop.fixedWidth : 0;
+            return;
+        }
         const text = (typeof this.prop.text === "string") ? this.prop.text :
             ((this.prop.text || this.prop.text === 0) && this.prop.text.toString) ? this.prop.text.toString() :
             (this.prop.html && this.prop.html.toString) ? strip(this.prop.html.toString()) : null;

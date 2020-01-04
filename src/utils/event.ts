@@ -37,6 +37,11 @@ export let on = (eventName: string, callback: Callback, id?: string) => {
     if (!eventNames.has(eventName)) {
         addEventName(eventName);
     }
+    const curr = listeners[eventName].find(l => l.id === id);
+    if (id && curr) {
+        curr.action = callback;
+        return;
+    }
     listeners[eventName].push(new Listener(eventName, callback, id));
 };
 

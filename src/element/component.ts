@@ -47,7 +47,7 @@ export class Component<Option extends ComponentOption = ComponentOption>
     public _defaultedWidth?: boolean;
     public _defaultedHeight?: boolean;
 
-    public $_extraTransforms: Record<string, string> = {};
+    public $_extraTransforms: [string, ...number[]][] = [];
     public $_cachedTransform?: [number, number, number, number, number];
 
     constructor(id: number | string, renderer?: Renderer) {
@@ -139,6 +139,7 @@ export class Component<Option extends ComponentOption = ComponentOption>
         const [x, y, rc, rx, ry] = this._getTransformation();
         const rotateAfterTranslate = this.prop.rotateAfterTranslate;
         let transform = x === 0 && y === 0 ? "" : `translate(${x},${y})`;
+        const hasExtraTransform = this.$_extraTransforms.length;
         if (rc !== 0) {
             if (rx === 0 && ry === 0) {
                 transform = rotateAfterTranslate ? `${transform} rotate(${rc})` : `rotate(${rc}) ${transform}`;
@@ -146,8 +147,9 @@ export class Component<Option extends ComponentOption = ComponentOption>
                 transform = rotateAfterTranslate ? `${transform} rotate(${rc},${rx},${ry})` : `rotate(${rc},${rx},${ry}) ${transform}`;
             }
         }
-        if (transform) {
-            attrs.transform = transform + Object.values(this.$_extraTransforms).reduce((p, c) => `${p} ${c}`, "");
+        if (transform || hasExtraTransform) {
+            attrs.transform = transform;
+            attrs.transform += this.$_extraTransforms.reduce((p, [name, ...args]) => `${p} ${name}(${args.join(",")})`, "");
         }
         if ("opacity" in this.prop) {
             attrs.opacity = this.prop.opacity;
@@ -159,22 +161,30 @@ export class Component<Option extends ComponentOption = ComponentOption>
     public renderToCanvas(ctx: CanvasRenderingContext2D) {
         const t = this.$_cachedTransform = this._getTransformation();
         const [x, y, rc, rx, ry] = t;
-        const rotateAfterTranslate = this.prop.rotateAfterTranslate;
-        const needTranslate = (x !== 0 || y !== 0);
-        if (rotateAfterTranslate && needTranslate) {
-            ctx.translate(x, y);
-        }
-        if (rc !== 0) {
-            if (rx === 0 && ry === 0) {
-                ctx.rotate(toRad(rc));
-            } else {
-                ctx.translate(rx, ry);
-                ctx.rotate(toRad(rc));
-                ctx.translate(-rx, -ry);
+        if (this.$_extraTransforms.length) {
+            for (const [name, ...args] of this.$_extraTransforms) {
+                if (name === "scale") ctx.scale(args[0], args[0]);
+                else if (name === "translate") ctx.translate.apply(ctx, args as [number, number]);
+                else if (name === "rotate") ctx.rotate(args[0]);
             }
-        }
-        if (!rotateAfterTranslate && needTranslate) {
-            ctx.translate(x, y);
+        } else {
+            const rotateAfterTranslate = this.prop.rotateAfterTranslate;
+            const needTranslate = (x !== 0 || y !== 0);
+            if (rotateAfterTranslate && needTranslate) {
+                ctx.translate(x, y);
+            }
+            if (rc !== 0) {
+                if (rx === 0 && ry === 0) {
+                    ctx.rotate(toRad(rc));
+                } else {
+                    ctx.translate(rx, ry);
+                    ctx.rotate(toRad(rc));
+                    ctx.translate(-rx, -ry);
+                }
+            }
+            if (!rotateAfterTranslate && needTranslate) {
+                ctx.translate(x, y);
+            }
         }
         canvasClip(ctx, this as any);
     }

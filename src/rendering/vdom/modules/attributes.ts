@@ -30,6 +30,7 @@ function updateAttrs(oldVnode: VNode, vnode: VNode): void {
   // update modified attributes, add new attributes
   // tslint:disable-next-line:forin
   for (key in attrs) {
+    if (key === "innerHTML") continue;
     const cur = attrs[key];
     const old = oldAttrs[key];
     if (old !== cur) {

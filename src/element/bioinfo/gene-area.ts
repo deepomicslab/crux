@@ -1,7 +1,7 @@
 import * as d3 from "d3-array";
 
 import { stackedLayout } from "../../algo";
-import { template } from "../../template/tag";
+import { getThemeColor } from "../../color";
 import { GeneData } from "../../utils/bioinfo/gene";
 import { measuredTextSize } from "../../utils/text-size";
 import { Component } from "../component";
@@ -19,6 +19,7 @@ export interface GeneAreaOption extends ComponentOption {
     intronHeight: number;
     rowGap: number;
     displayExon: boolean;
+    displayDirection: boolean;
     activeGenes: string[];
     layout: "packed" | "merged";
     labelPos: "innerLeft" | "right" | "none";
@@ -27,83 +28,93 @@ export interface GeneAreaOption extends ComponentOption {
 }
 
 export class GeneArea extends Component<GeneAreaOption> {
-    public render = template`
-    Component {
-        x = prop.x
-        y = prop.y
-        width = prop.width
-        height = calculatedHeight
-        xScale = geneScale
-        clip = @clip("bound")
+    public render() {
+        return this.t`Component {
+            x = prop.x
+            y = prop.y
+            width = prop.width
+            height = calculatedHeight
+            xScale = geneScale
+            clip = @clip("bound")
 
-        @for (genes, layer) in layers {
-            @for (gene, index) in genes {
-                @let geneName = prop.labelText(gene)
-                Component {
-                    context = gene
-                    ref    = "genes[]"
-                    key    = gene.trans_name_orig
-                    x      = gene._x0
-                    y      = layer * (prop.exonHeight + prop.rowGap) + prop.rowGap * 0.5
-                    width  = Math.max(gene._x1 - gene._x0, 1)
-                    height = prop.rowHeight
-                    stage  = isGeneActive(gene) ? "active": null
-                    on:mouseenter = (_, el) => setFocusedGene(el.prop.context.trans_name)
-                    on:mouseleave = setFocusedGene(null)
-                    @props prop.opt.gene
+            @for (genes, layer) in layers {
+                @for (gene, index) in genes {
+                    @let geneName = prop.labelText(gene)
+                    Component {
+                        context = gene
+                        ref    = "genes[]"
+                        key    = gene.trans_name_orig
+                        x      = gene._x0
+                        y      = layer * (prop.exonHeight + prop.rowGap) + prop.rowGap * 0.5
+                        width  = Math.max(gene._x1 - gene._x0, 1)
+                        height = prop.rowHeight
+                        stage  = isGeneActive(gene) ? "active": null
+                        on:mouseenter = (_, el) => setFocusedGene(el.prop.context.trans_name)
+                        on:mouseleave = setFocusedGene(null)
+                        @props prop.opt.gene
 
-                    @if prop.displayPromoters {
-                        Rect {
-                        }
-                    }
-                    Rect {
-                        width  = 100%
-                        height = 100%
-                        fill   = "none"
-                        @props prop.opt.bg
-                    }
-                    Rect {
-                        anchor = @anchor("left", "middle")
-                        y      = 50%
-                        width  = 100%
-                        height = prop.intronHeight
-                        fill   = prop.geneColor(gene)
-                        @props prop.opt.intron
-                        behavior:tooltip {
-                            content = geneName + "<br>" + gene.most_left_pos + "-" + gene.most_right_pos
-                        }
-                    }
-                    @if prop.displayExon {
-                        @for (exon, index) in gene.exons {
-                            @let el = exon.most_left_pos
-                            @let er = exon.most_left_pos + exon.length
+                        @if prop.displayPromoters {
                             Rect {
-                                key      = "ex" + index
-                                x        = @scaledX(el) - gene._x0
-                                width    = Math.max(@scaledX(er) - @scaledX(el), 1)
-                                height   = 100%
-                                minWidth = 1
-                                fill     = prop.geneColor(gene)
-                                @props prop.opt.exon
-                                behavior:tooltip {
-                                    content = "Exon " + getExonIndex(gene, index) + ": " + el + "-" + er
+                            }
+                        }
+                        Rect {
+                            width  = 100%
+                            height = 100%
+                            fill   = "none"
+                            @props prop.opt.bg
+                        }
+                        Rect {
+                            anchor = @anchor("left", "middle")
+                            y      = 50%
+                            width  = 100%
+                            height = prop.intronHeight
+                            fill   = prop.geneColor(gene)
+                            @props prop.opt.intron
+                            behavior:tooltip {
+                                content = gene.trans_name_orig + "<br>" + gene.most_left_pos + "-" + gene.most_right_pos
+                            }
+                        }
+                        @if prop.displayExon {
+                            @for (exon, index) in gene.exons {
+                                @let el = exon.most_left_pos
+                                @let er = exon.most_left_pos + exon.length
+                                Rect {
+                                    key      = "ex" + index
+                                    x        = @scaledX(el) - gene._x0
+                                    width    = Math.max(@scaledX(er) - @scaledX(el), 1)
+                                    height   = 100%
+                                    minWidth = 1
+                                    fill     = prop.geneColor(gene)
+                                    @props prop.opt.exon
+                                    behavior:tooltip {
+                                        content = "Exon " + getExonIndex(gene, index) + ": " + el + "-" + er
+                                    }
                                 }
                             }
                         }
-                    }
-                    Text {
-                        text = geneName
-                        y = 50%
-                        anchor = @anchor("left", "middle")
-                        fontSize = prop.labelSize
-                        @props getGeneLabelProps(gene)
-                        @props prop.opt.label
+                        @if prop.displayDirection {
+                            Path {
+                                y = 50%
+                                d = genMarker(gene)
+                                markerMid = "url(#genearea-marker)"
+                                fill = "none"
+                                stroke = "none"
+                                events = "none"
+                            }
+                        }
+                        Text {
+                            text = geneName
+                            y = 50%
+                            anchor = @anchor("left", "middle")
+                            fontSize = prop.labelSize
+                            @props getGeneLabelProps(gene)
+                            @props prop.opt.label
+                        }
                     }
                 }
             }
-        }
+        }`;
     }
-    `;
 
     public defaultProp() {
         return {
@@ -139,6 +150,21 @@ export class GeneArea extends Component<GeneAreaOption> {
             g._x1 = scale(g.most_right_pos);
         });
         this.layers = this.layout();
+
+        if (this.prop.displayDirection) {
+            this.$v.appendDef("genearea-marker", "marker", {
+                orient: "auto",
+                markerWidth: "4",
+                markerHeight: "6",
+                refX: "0",
+                refY: "2",
+            },
+            `<path d="M0,0 L3,2.5 L0,5" fill="none" stroke-opacity="0.5" stroke="${getThemeColor(this.$v.theme, "line")}"></path>`);
+        }
+    }
+
+    public didLayoutSubTree() {
+        this._updateGeometry("height", this.calculatedHeight);
     }
 
     public layout(): ScaledGeneData[][] {
@@ -203,7 +229,19 @@ export class GeneArea extends Component<GeneAreaOption> {
             g.prop.context.most_right_pos >= position);
     }
 
-    public didLayoutSubTree() {
-        this._updateGeometry("height", this.calculatedHeight);
+    // @ts-ignore
+    private genMarker(gene) {
+        const num = Math.floor((gene._x1 - gene._x0) / 16);
+        let str = `M0,0`;
+        if (gene.strand === "-") {
+            for (let i = num - 1; i >= 1; i--) {
+                str += ` L${i * 16},0`;
+            }
+        } else {
+            for (let i = 1; i < num; i++) {
+                str += ` L${i * 16},0`;
+            }
+        }
+        return str;
     }
 }

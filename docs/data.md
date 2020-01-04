@@ -119,3 +119,59 @@ Component {
     };
 })()
 </div>
+
+As a common pattern, `@props` also has a shortcut `+` to save your keystrokes. For example, the following two blocks are equvaliant:
+
+```bvt
+Component {
+    @props a
+    @props mixin(arg)
+}
+
+Component {
+    +a
+    +mixin(arg)
+}
+```
+
+and you can also write them in one line:
+
+```bvt
+Components {
+    +a; +b; +c(foo)
+}
+```
+
+Here is another useful mixin function, which acts approximately the same as the CSS `padding` attribute:
+
+```js
+function padding() {
+    let l, r, t, b;
+    switch (arguments.length) {
+        case 1:
+            l = r = t = b = arguments[0];
+        case 2:
+            t = b = arguments[0];
+            l = r = arguments[1];
+        case 4:
+            [t, r, b, l] = arguments;
+        default:
+            throw `Padding should receive 1, 2 or 4 arguments`;
+    }
+    return {
+        x: l, width: GeometryValue.create(100, -l - r),
+        y: t, height: GeometryValue.create(100, -t - b),
+    };
+}
+```
+
+```bvt
+Compnent {
+    // Padding for all sides
+    +padding(4)
+    // Padding for x and y axis
+    +padding(10, 5)
+    // Padding for top, right, boottom, and left
+    +padding(10, 5, 4, 5)
+}
+```

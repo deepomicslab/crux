@@ -100,14 +100,8 @@ export class DataLoader<T extends Record<string, any> = Record<string, any>> {
 
         // load data
         if (window.gon && window.gon.urls) {
-            const ids = await axios.get(window.gon.urls.chosen_files);
             const paths = await axios.get(window.gon.urls.chosen_file_paths);
             this.selectedFiles = paths.data;
-            Object.entries(this.selectedFiles).forEach(([k, d]) => {
-                if (d && !(d instanceof Array)) {
-                    d.id = ids.data[k];
-                }
-            });
             this.metadata = _.mapValues(this.selectedFiles, x => {
                 if (!x) return null;
                 if (x instanceof Array) {

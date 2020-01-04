@@ -33,6 +33,8 @@ export function config(c: Partial<TooltipConfig>) {
     if ("moveWithCursor" in c) conf.moveWithCursor = c.moveWithCursor!;
     if ("xOffset" in c) conf.xOffset = c.xOffset!;
     if ("yOffset" in c) conf.yOffset = c.yOffset!;
+    if ("xAnchor" in c) conf.xAnchor = c.xAnchor!;
+    if ("yAnchor" in c) conf.yAnchor = c.yAnchor!;
 }
 
 export function style(s: Record<string, string> = {}) {
@@ -88,6 +90,19 @@ export function move(x: number, y: number) {
 }
 
 function create() {
+    createTooltip();
+
+    for (const ev of ["turbolinks:load", "DOMContentLoaded"]) {
+        document.addEventListener(ev, () => {
+            if (!document.body.contains(tooltip!)) {
+                createTooltip();
+                return;
+            }
+        });
+    }
+}
+
+function createTooltip() {
     tooltip = document.createElement("div");
     document.body.appendChild(tooltip);
     style(tStyle);

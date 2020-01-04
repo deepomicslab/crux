@@ -3,6 +3,7 @@ import * as cv from "color-convert";
 export class Color {
     private _rgb: [number, number, number] = [0, 0, 0];
     private _hsl: [number, number, number] = [0, 0, 0];
+    private _alpha = 1;
     public string: string = "#000";
 
     public get rgb() { return this._rgb; }
@@ -20,7 +21,12 @@ export class Color {
     }
 
     private _updateString() {
-        this.string = "#" + cv.rgb.hex(this._rgb);
+        if (this._alpha === 1) {
+            this.string = "#" + cv.rgb.hex(this._rgb);
+        } else {
+            const [r, g, b] = this._rgb;
+            this.string = `rgba(${r}, ${g}, ${b}, ${this._alpha})`;
+        }
     }
 
     public lighten(amount: number) {
@@ -70,6 +76,10 @@ export class Color {
         const c = new Color();
         if (t[0] === "#") {
             c.rgb = cv.hex.rgb(t.substr(1));
+        } else if (t.startsWith("rgba")) {
+            const [r, g, b, a] = t.slice(5, -1).split(",").map(n => parseFloat(n));
+            c._alpha = a;
+            c.rgb = [r, g, b];
         } else {
             c.rgb = cv.keyword.rgb(t as any);
         }
