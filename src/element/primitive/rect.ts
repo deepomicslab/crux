@@ -2,7 +2,7 @@ import { getThemeColor } from "../../color";
 import { GeometryOptValue } from "../../defs/geometry";
 import { getFinalPosition } from "../../layout/layout";
 import { canvasFill, canvasStroke } from "../../rendering/canvas-helper";
-import { svgPropFillAndStroke, svgPropPassthrough } from "../../rendering/svg-helper";
+import { svgPropFillAndStroke, svgPropPassthrough, svgRotation } from "../../rendering/svg-helper";
 import { BaseElementOption } from "./base-elm-options";
 import { PrimitiveElement } from "./primitive";
 
@@ -32,6 +32,7 @@ export class Rect extends PrimitiveElement<RectOption> {
         }
         return {
             ...svgPropFillAndStroke(this),
+            ...svgRotation(this),
             ...svgPropPassthrough({
                 rx: "cornerRadius",
                 ry: "cornerRadius",
