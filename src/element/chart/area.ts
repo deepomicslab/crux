@@ -24,7 +24,17 @@ Component {
 }
 `)
 export class Area extends BaseChart<AreaOption> {
+    private idx = 0;
+    private buffer!: Uint8Array;
+    private bufferLength = 0;
     private _hasMinValue = false;
+    private _decoder?: TextDecoder;
+
+    public init() {
+        if (window.TextDecoder) {
+            this._decoder = new TextDecoder("utf-8");
+        }
+    }
 
     private updateData() {
         this._hasMinValue = false;
@@ -33,7 +43,7 @@ export class Area extends BaseChart<AreaOption> {
 
         value.forEach((d, i) => {
             let minValue = 0;
-            if ("minValue" in d) {
+            if ("minValue" in d && d.minValue !== 0) {
                 this._hasMinValue = true;
                 minValue = this.getY(d.minValue);
             }
@@ -49,18 +59,49 @@ export class Area extends BaseChart<AreaOption> {
         const len = (this.data.values as any[]).length;
         const yMin = this.getY(0);
         // generate path
-        let path = `M${a1[0]},${yMin} `;
+        this.idx = 0;
+        if (!this.buffer || this.buffer.length < len * 20) {
+            this.buffer = new Uint8Array(len * 20);
+            this.bufferLength = len * 20;
+        }
+        const buffer = this.buffer;
+        // let path = `M${a1[0]},${yMin} `;
+        buffer[this.idx++] = 77;
+        this.toCharCode(buffer, a1[0]);
+        buffer[this.idx++] = 44;
+        this.toCharCode(buffer, yMin);
+        buffer[this.idx++] = 32;
 
         for (let i = 0; i < len; i++) {
-            path += `L${a1[i]},${a2[i]} `;
-        }
-        if (this._hasMinValue) {
-            for (let i = len - 1; i >= 0; i--) {
-                path += `L${a1[i]},${a3[i]} `;
+            // path += `L${a1[i]},${a2[i]} `;
+            buffer[this.idx++] = 76;
+            this.toCharCode(buffer, a1[i]);
+            buffer[this.idx++] = 44;
+            this.toCharCode(buffer, a2[i]);
+            buffer[this.idx++] = 32;
+            if (this.idx > this.bufferLength - 30) {
+                this.growBuffer(this.bufferLength * 2);
             }
         }
-        path += `z`;
-        return path;
+
+        if (this._hasMinValue) {
+            for (let i = len - 1; i >= 0; i--) {
+                // path += `L${a1[i]},${a3[i]} `;
+            }
+        } else {
+            buffer[this.idx++] = 76;
+            this.toCharCode(buffer, a1[len - 1]);
+            buffer[this.idx++] = 44;
+            this.toCharCode(buffer, yMin);
+            buffer[this.idx++] = 32;
+        }
+        // path += `z`;
+        buffer[this.idx++] = 122;
+        if (this._decoder) {
+            return this._decoder.decode(buffer.subarray(0, this.idx));
+        } else {
+            return uint8ToString(buffer);
+        }
     }
 
     // @ts-ignore
@@ -81,4 +122,43 @@ export class Area extends BaseChart<AreaOption> {
         }
         path.closePath();
     }
+
+    private growBuffer(len: number) {
+        console.assert(this.buffer);
+        if (!this.buffer) return;
+
+        const newBuffer = new Uint8Array(len);
+        newBuffer.set(this.buffer);
+        this.buffer = newBuffer;
+        this.bufferLength = len;
+    }
+
+    private toCharCode(buffer: Uint8Array, num: number) {
+        if (num === 0) {
+            buffer[this.idx++] = 48; // 0
+            return;
+        } else if (num < 0) {
+            buffer[this.idx++] = 45; // -
+            num = -num;
+        }
+        const n = Math.round(num * 1000);
+        this.toCharCodeStep(buffer, 0, n);
+    }
+
+    private toCharCodeStep(buffer: Uint8Array, i: number, n: number) {
+        if (n < 1 && i > 3) return;
+        this.toCharCodeStep(buffer, i + 1, (n / 10) >> 0);
+        buffer[this.idx++] = (n % 10) + 48;
+        if (i === 3) buffer[this.idx++] = 46; // .
+    }
 }
+
+function uint8ToString(u8a: Uint8Array) {
+    const CHUNK_SZ = 0x8000;
+    const c = [];
+    for (let i = 0; i < u8a.length; i += CHUNK_SZ) {
+        if (u8a[i] === 0) break;
+        c.push(String.fromCharCode.apply(null, u8a.subarray(i, i + CHUNK_SZ) as any));
+    }
+    return c.join("");
+  }
