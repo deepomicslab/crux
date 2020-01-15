@@ -42,10 +42,10 @@ export class Theme {
             this.colors[k] = Color.literal(color!);
         }
 
+        Object.assign(this.schemes, baseSchemes);
         if (def.schemes) {
             this._parseScheme(def.schemes, baseSchemes);
         }
-        Object.assign(def.schemes, baseSchemes, def.schemes);
     }
 
     private _parseScheme(schemes: Record<string, SchemeDef | undefined>, baseSchemes: Record<string, Color[]>) {
