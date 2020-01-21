@@ -48,9 +48,10 @@ export class ColorSchemeCategory<T extends number|string> implements ColorScheme
             Array.from(Array(k)).map((_, i) => i) as T[] : k;
 
         if (colors) {
+            const len = colors.length;
             colorDict = {} as Record<T, string>;
             for (let i = 0; i < cat.length; i++) {
-                colorDict[cat[i]] = colors[i];
+                colorDict[cat[i]] = colors[i % len];
             }
             return new ColorSchemeCategory(colorDict);
         } else {
