@@ -296,6 +296,7 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
     public draw() {
         this.renderTree();
         this.$v.renderer.call(null, this as any);
+        this.$callHook("didPaint");
     }
 
     public shouldDraw() {
@@ -404,6 +405,7 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
     public didUpdate?(): void;
     public willRender?(): void;
     public didRender?(): void;
+    public didPaint?(): void;
     public didLayout?(): void;
     public didLayoutSubTree?(): void;
     public willAdjustAnchor?(): void;
@@ -415,5 +417,6 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
 type HookNames = "didCreate" |
     "willUpdate" | "didUpdate" |
     "willRender" | "didRender" |
+    "didPaint" |
     "didLayout" | "didLayoutSubTree" | "willAdjustAnchor" |
     "didMount" | "didPatch" | "didUnmount";

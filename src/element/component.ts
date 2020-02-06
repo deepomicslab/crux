@@ -127,7 +127,11 @@ export class Component<Option extends ComponentOption = ComponentOption>
     }
 
     public get isStatic() {
-        return !this.$v.forceRedraw && this.prop.static;
+        if (this.$v.forceRedraw) return false;
+        if (typeof this.prop.static === "function") {
+            return this.prop.static();
+        }
+        return this.prop.static;
     }
 
     // svg

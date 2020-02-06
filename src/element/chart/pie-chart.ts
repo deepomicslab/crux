@@ -1,5 +1,5 @@
 import { ColorSchemeCategory, schemeCategory } from "../../color";
-import { template } from "../../template/tag";
+import { useTemplate } from "../../ext/decorator";
 import { Component } from "../component";
 import { ComponentOption } from "../component-options";
 import { ChartPaddingOptions, getPaddings } from "./utils/option-padding";
@@ -21,53 +21,60 @@ export interface PieChartPoint {
 
 export type PieChartData = PieChartPoint[];
 
-export class PieChart extends Component<PieChartOption> {
-    public render = template`
+@useTemplate(`
+Component {
     Component {
+        @let p = paddings
+        x = p[3]
+        y = p[0]
+        width = @geo(100, -p[1]-p[3])
+        height = @geo(100, -p[0]-p[2])
         Component {
-            @let p = paddings
-            x = p[3]
-            y = p[0]
-            width = @geo(100, -p[1]-p[3])
-            height = @geo(100, -p[0]-p[2])
-            Component {
-                width = 100%
-                height = 100%
-                coord = "polar"
-                xScale = _xScale
-                @yield background
+            width = 100%
+            height = 100%
+            coord = "polar"
+            xScale = _xScale
+            @yield background
 
-                @for (data, index) in _data {
-                    @let start = _xScale(data._minValue)
-                    @let end = _xScale(data.value + data._minValue)
-                    @let color = _colorScheme.get(data.name)
-                    @let d = { start, end, data, index, color }
-                    Component {
-                        key = index
-                        height = 100%
-                        @yield children with d default {
-                            Arc {
-                                x1 = start; x2 = end
-                                r1 = prop.innerRadius
-                                r2 = 100%
-                                fill = color
-                                @props prop.opt.arc
-                            }
-                        }
-                        Component {
-                            x = (start + end) / 2
-                            y = @geo(50, prop.innerRadius * 0.5)
-                            coord = "caetesian"
-                            @yield label with d
+            @for (data, index) in _data {
+                @let start = _xScale(data._minValue)
+                @let end = _xScale(data.value + data._minValue)
+                @let color = _colorScheme.get(data.name)
+                @let d = { start, end, data, index, color }
+                Component {
+                    key = index
+                    height = 100%
+                    @yield children with d default {
+                        Arc {
+                            x1 = start; x2 = end
+                            r1 = prop.innerRadius
+                            r2 = 100%
+                            fill = color
+                            @props prop.opt.arc
                         }
                     }
                 }
             }
-            @yield legend with legendData
-        }
-    }
-    `;
 
+            @for (data, index) in _data {
+                @let start = _xScale(data._minValue)
+                @let end = _xScale(data.value + data._minValue)
+                @let color = _colorScheme.get(data.name)
+                @let d = { start, end, data, index, color }
+                Component {
+                    key = index + "-l"
+                    x = (start + end) / 2
+                    y = @geo(50, prop.innerRadius * 0.5)
+                    coord = "caetesian"
+                    @yield label with d
+                }
+            }
+        }
+        @yield legend with legendData
+    }
+}
+`)
+export class PieChart extends Component<PieChartOption> {
     // @ts-ignore
     private _xScale!: any;
     private _data!: any[];

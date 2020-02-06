@@ -12,7 +12,7 @@ const exprHelpers: Record<string, [string, boolean?]> = {
     "colorMap": [`_h.colorMap(this, `, true],
     "themeColor": [`_h.themeColor(`],
     "themeColorScheme": [`_h.themeColorScheme(`],
-    "bind": [`this._bindMethod(`],
+    "bind": [`_bindMethod(`],
     "rad": [`_h.toRad(`],
     "deg": [`_h.toDeg(`],
     "min": [`_h.min(`],
