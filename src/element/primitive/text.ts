@@ -14,6 +14,8 @@ interface TextOption extends BaseElementOption {
     noSizeMeasurement: boolean;
     fixedWidth: number;
     fixedHeight: number;
+    drawFixedWidth: boolean;
+    maxWidth: number;
 }
 
 export class Text extends PrimitiveElement<TextOption> {
@@ -60,6 +62,7 @@ export class Text extends PrimitiveElement<TextOption> {
             })(this),
             x,
             y: y + this.$cachedHeight,
+            ...this.getFixedTextLength(),
         };
     }
 
@@ -90,6 +93,16 @@ export class Text extends PrimitiveElement<TextOption> {
 
     public get layoutWidth() { return this.$cachedWidth; }
     public get layoutHeight() { return this.$cachedHeight; }
+
+    private getFixedTextLength() {
+        if (this.prop.drawFixedWidth) {
+            return { textLength: `${this.prop.fixedWidth || 0}px` };
+        }
+        if (this.prop.maxWidth && this.$cachedWidth > this.prop.maxWidth) {
+            return { textLength: `${this.prop.maxWidth}px` };
+        }
+        return null;
+    }
 }
 
 function strip(html: string): string {
