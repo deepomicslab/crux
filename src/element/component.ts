@@ -50,6 +50,8 @@ export class Component<Option extends ComponentOption = ComponentOption>
     public $_extraTransforms: [string, ...number[]][] = [];
     public $_cachedTransform?: [number, number, number, number, number];
 
+    private _childMap = new Map<string, ActualElement>();
+
     constructor(id: number | string, renderer?: Renderer) {
         super(id);
         if (renderer) {
@@ -99,8 +101,13 @@ export class Component<Option extends ComponentOption = ComponentOption>
 
     public append(node: ActualElement) {
         this.children.push(node);
+        this._childMap.set(`${node.id}@@${node._name}`, node);
         node.$v = this.$v;
         node.parent = this as any;
+    }
+
+    public findChild(id: string | number, type: string) {
+        return this._childMap.get(`${id}@@${type}`);
     }
 
     public render?(): ElementDef;
@@ -157,6 +164,9 @@ export class Component<Option extends ComponentOption = ComponentOption>
         }
         if ("opacity" in this.prop) {
             attrs.opacity = this.prop.opacity;
+        }
+        if ("events" in this.prop) {
+            attrs["pointer-events"] = this.prop.events;
         }
         return attrs;
     }

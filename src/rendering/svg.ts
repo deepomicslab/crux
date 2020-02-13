@@ -56,6 +56,7 @@ export function render(element: BaseElement<any>) {
 }
 
 function _genView(element: BaseElement<any>): VNode {
+    // if (element instanceof Component && element.isStatic && element.vnode) {
     if (element.parent && element.parent.isStatic && element.vnode) {
         return element.vnode;
     }
@@ -70,7 +71,7 @@ function _genView(element: BaseElement<any>): VNode {
     if (element instanceof Component) {
         children = element.children
             .filter(c => c._isActive)
-            .map(c => _genView(c));
+            .map(_genView);
     }
     const key = element.prop.key || element.id;
     const opt: VNodeData = {

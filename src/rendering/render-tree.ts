@@ -27,7 +27,7 @@ let yScaleSystemChanged = false;
 
 function findComponent(component: Component, name: string, id: number | string): [ActualElement, boolean] {
     const ctor = getComponent(isRenderable(component) ? component : (component as any).$parent, name);
-    const comp = component.children.find(c => c instanceof ctor && c.id === id);
+    const comp = component.findChild(id, name || "Component");
     if (comp) {
         comp._isActive = true;
         comp._reordered = false;

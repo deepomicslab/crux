@@ -138,6 +138,7 @@ function addMouseEventListener<T>(v: Visualizer, canvas: HTMLCanvasElement, even
 }
 
 function findElement(ctx: CanvasRenderingContext2D, el: BaseElement<any>, x: number, y: number): BaseElement<any> | null {
+    if (!shouldAcceptEvents(el)) return null;
     if (el instanceof Component) {
         if (isRenderable(el as any)) {
             return findElement(ctx, el.children[0], x, y);
@@ -162,7 +163,7 @@ function findElement(ctx: CanvasRenderingContext2D, el: BaseElement<any>, x: num
         }
         return null;
     } else {
-        if (el._isActive && shouldAcceptEvents(el) && el.path && ctx.isPointInPath(el.path, x, y)) {
+        if (el._isActive && el.path && ctx.isPointInPath(el.path, x, y)) {
             return el;
         }
         return null;

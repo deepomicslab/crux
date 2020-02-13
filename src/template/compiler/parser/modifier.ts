@@ -6,6 +6,7 @@ const MODIFIERS = {
     "full": { width: "100%", height: "100%" },
     "rad": { rad: "true" },
     "detached": { detached: "true" },
+    "static": { static: "true" },
 };
 
 export function parseModifiers(node: ASTNodeComp, str: string) {
