@@ -213,8 +213,8 @@ function genNodeComp(node: ASTNodeComp, uidGen: UIDGenerator) {
                 genNamedChildren(n, uidGen),
             ].filter(s => s).join("\n")}
         }, [ ${genChildren(node, uidGen)} ]`;
-        if (n.isLazy) {
-            str = `_z(${tag}, ${key}, function() {
+        if (n.isLazy || n.staticVal) {
+            str = `_z(${tag}, ${key}, ${n.staticVal}, function() {
                 ${genLocalData(node)}
                 return [${i}];
             }, ${useAutoKey})`;

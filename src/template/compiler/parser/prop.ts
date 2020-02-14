@@ -62,6 +62,9 @@ export function parseExpr(node: ASTNodeComp, name: string, expr: string) {
             node.key = expr;
         } else {
             node.props.push({ name, expr });
+            if (name === "static") {
+                node.staticVal = expr;
+            }
         }
     }
 }

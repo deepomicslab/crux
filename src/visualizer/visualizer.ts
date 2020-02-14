@@ -23,6 +23,9 @@ export interface VisualizerOption {
 }
 
 export class Visualizer {
+    public static uidCounter = 0;
+
+    public uid: number;
     public container: Element;
     public root!: BaseElement;
     private _data: Record<string, any>;
@@ -36,6 +39,7 @@ export class Visualizer {
     public renderer: RenderFunc;
     public svg?: SVGElement;
     public ctx?: CanvasRenderingContext2D;
+    public cache: Record<string, any> = {};
 
     public theme: string;
 
@@ -74,6 +78,7 @@ export class Visualizer {
     }
 
     constructor(opt: VisualizerOption) {
+        this.uid = Visualizer.uidCounter++;
         this._registeredEvents = new Set();
 
         const el = getOpt(opt, "el") as any;

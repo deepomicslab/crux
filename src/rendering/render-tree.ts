@@ -4,7 +4,7 @@ import { ComponentOption } from "../element/component-options";
 import { getComponent } from "../element/get-component";
 import { isRenderable } from "../element/is";
 import { adjustByAnchor, layoutElement } from "../layout/layout";
-import { ElementDef, kLazyElement, OptDict, NormalElementDef } from "./element-def";
+import { ElementDef, kLazyElement, NormalElementDef, OptDict } from "./element-def";
 
 // @ts-ignore
 import shallowEqArrays from "shallow-equal/arrays";

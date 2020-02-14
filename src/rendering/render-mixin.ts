@@ -3,18 +3,19 @@ import { ElementDef, LazyElementDef, OptDict } from "./element-def";
 const indices = [0];
 
 export class RenderMixin {
-    public _z(tag: string, id: string, block: () => [OptDict, any[]], _useAutoKey = false): ElementDef {
-        if (_useAutoKey) id = `${id}-${indices[indices.length - 1]}`;
-        return new LazyElementDef(tag, id, block);
+    public _z(this: any, tag: string, id: string, staticVal: boolean | (() => boolean), block: () => [OptDict, any[]], _useAutoKey = false): ElementDef {
+        const uniqID = `${id}-${indices[indices.length - 1]}`;
+        if (_useAutoKey) id = uniqID;
+        return new LazyElementDef(this.$v, tag, id, uniqID, staticVal, block);
     }
 
-    public _c(tag: string, id: string, opt: OptDict, rawChildren: any[], _useAutoKey = false): ElementDef {
+    public _c(this: any, tag: string, id: string, opt: OptDict, rawChildren: any[], _useAutoKey = false): ElementDef {
         if (_useAutoKey) id = `${id}-${indices[indices.length - 1]}`;
         const children = rawChildren.flat(8).filter(x => x);
         return { tag, id, opt, children };
     }
 
-    public _l(data: any, iter: (data: any, index: any) => ElementDef[], _isOuterLoop = true): ElementDef[] {
+    public _l(this: any, data: any, iter: (data: any, index: any) => ElementDef[], _isOuterLoop = true): ElementDef[] {
         if (_isOuterLoop) indices.push(0);
 
         let result: ElementDef[][];
@@ -35,7 +36,7 @@ export class RenderMixin {
                 return iter(v, k);
             });
         } else {
-            throw Error(`The data to be iterate through should be an array or object, not ${data}`);
+            throw Error(`The data to be iterated through should be an array or object, not ${data}`);
         }
 
         if (_isOuterLoop) indices.pop();
