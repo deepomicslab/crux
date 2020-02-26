@@ -21,6 +21,7 @@ export interface GeneAreaOption extends ComponentOption {
     displayExon: boolean;
     displayDirection: boolean;
     activeGenes: string[];
+    markerColor: string;
     layout: "packed" | "merged";
     labelPos: "innerLeft" | "right" | "none";
     labelText: (g: GeneData) => string;
@@ -152,14 +153,15 @@ export class GeneArea extends Component<GeneAreaOption> {
         this.layers = this.layout();
 
         if (this.prop.displayDirection) {
+            const markerColor = this.prop.markerColor || getThemeColor(this.$v.theme, "line");
             this.$v.appendDef("genearea-marker", "marker", {
                 orient: "auto",
                 markerWidth: "4",
                 markerHeight: "6",
-                refX: "0",
-                refY: "2",
+                refX: "1.5",
+                refY: "2.5",
             },
-            `<path d="M0,0 L3,2.5 L0,5" fill="none" stroke-opacity="0.5" stroke="${getThemeColor(this.$v.theme, "line")}"></path>`);
+            `<path d="M0,0 L3,2.5 L0,5" fill="none" stroke-opacity="1" stroke="${markerColor}"></path>`);
         }
     }
 
@@ -203,7 +205,7 @@ export class GeneArea extends Component<GeneAreaOption> {
     private getGeneLabelProps(gene: ScaledGeneData) {
         switch (this.prop.labelPos) {
             case "innerLeft":
-                return {};
+                return { x: gene._x0! < 0 ? -gene._x0! : 0 };
             case "right":
                 return { x: gene._x1! - gene._x0! + 2 };
         }
@@ -231,16 +233,28 @@ export class GeneArea extends Component<GeneAreaOption> {
 
     // @ts-ignore
     private genMarker(gene) {
-        const num = Math.floor((gene._x1 - gene._x0) / 16);
-        let str = `M0,0`;
+        const width = gene._x1 - gene._x0;
+        const num = Math.floor(width / 16);
+        if (num < 2) {
+            const mid = width / 2;
+            if (gene.strand === "-")
+                return `M${width},0 L${mid},0 L0,0`;
+            else
+                return `M0,0 L${mid},0 L${width},0`;
+        }
+        let str: string;
         if (gene.strand === "-") {
-            for (let i = num - 1; i >= 1; i--) {
+            str = `M${width},0`;
+            for (let i = num - 1; i > 0; i--) {
                 str += ` L${i * 16},0`;
             }
+            str += `L0,0`;
         } else {
+            str = `M0,0`;
             for (let i = 1; i < num; i++) {
                 str += ` L${i * 16},0`;
             }
+            str += `L${width},0`;
         }
         return str;
     }
