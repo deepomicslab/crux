@@ -37,7 +37,9 @@ export default class Tooltip extends Behavior<TooltipOption> {
     }
 
     public updateProps(op: Partial<TooltipOption>): void {
+        this.op = { ...this.op, ...op };
         if (op.content) this.content = op.content;
+
     }
 
     public updateConfig() {
