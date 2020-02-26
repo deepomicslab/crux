@@ -155,7 +155,9 @@ function _createRootElm(element: BaseElement): Element {
 
 function updateSVGDef(v: Visualizer) {
     const defElm = v.svg!.getElementsByTagName("defs")[0];
-    defElm.innerHTML = Object.values(v.svgDef).join("");
+    const html = Object.values(v.svgDef).join("");
+    if (html === defElm.innerHTML) return;
+    defElm.innerHTML = html;
 }
 
 export function setSize(v: Visualizer) {
