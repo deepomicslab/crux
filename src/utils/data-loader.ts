@@ -74,7 +74,9 @@ export class DataLoader<T extends Record<string, any> = Record<string, any>> {
 
     protected dataTypes: string[];
     protected dataSources: { [key in keyof T]: DataSource<T, T[key]> };
-    public selectedFiles: { [key: string]: { url: string, metadata: any, id: number } | Array<{ url: string, metadata: any }> } = {};
+    public selectedFiles: { [key: string]: { url: string, metadata: any, id: number, is_demo?: boolean } | Array<{ url: string, metadata: any }> } = {};
+
+    private fileIsDemo: Record<string, boolean> = {};
 
     private debugMode: boolean;
 
@@ -103,6 +105,11 @@ export class DataLoader<T extends Record<string, any> = Record<string, any>> {
         if (window.gon && window.gon.urls) {
             const paths = await axios.get(window.gon.urls.chosen_file_paths);
             this.selectedFiles = paths.data;
+            this.fileIsDemo = {};
+            Object.entries(this.selectedFiles).forEach(([k, v]) => {
+                if (v && !Array.isArray(v))
+                    this.fileIsDemo[k] = v.is_demo || false;
+            });
             this.metadata = _.mapValues(this.selectedFiles, x => {
                 if (!x) return null;
                 if (x instanceof Array) {
@@ -118,6 +125,7 @@ export class DataLoader<T extends Record<string, any> = Record<string, any>> {
                 return;
             }
         }
+
         const loadOrder = this.dataTypes.sort((a, b) => {
             const da = this.dataSources[a];
             const db = this.dataSources[b];
@@ -128,12 +136,15 @@ export class DataLoader<T extends Record<string, any> = Record<string, any>> {
             }
             return 0;
         });
+
         for (const key of loadOrder) {
             const shouldLoad = this.dataSources[key].shouldLoad;
             if (shouldLoad && !shouldLoad.call(this as any)) {
                 continue;
             }
-            await this.loadDataFor(key).then((rawData) => {
+
+            try {
+                const rawData = await this.loadDataFor(key);
                 const def = this.dataSources[key];
                 let data = rawData;
                 if (typeof def.dataPath === "string") {
@@ -148,12 +159,17 @@ export class DataLoader<T extends Record<string, any> = Record<string, any>> {
                         (this.data as any)[key] = result;
                     }
                 }
-                if (this.debugMode) {
-                    // tslint:disable-next-line
-                    console.log(key);
-                }
-            });
+            } catch (e) {
+                event.emit(event.DATA_LOADING_FAILED, e.message);
+                throw e;
+            }
+
+            if (this.debugMode) {
+                // tslint:disable-next-line
+                console.log(key);
+            }
         }
+
         if (this.debugMode) {
             // tslint:disable-next-line
             console.log(this.data);
@@ -287,7 +303,8 @@ export class DataLoader<T extends Record<string, any> = Record<string, any>> {
             return def.url.call(this, this);
         } else if (typeof def.fileKey === "string") {
             if (def.fileKeyParams) {
-                const url = this.apiPathForFileKey(def.fileKey, multiple, true);
+                const isDemo = this.fileIsDemo[def.fileKey];
+                const url = this.apiPathForFileKey(def.fileKey, multiple, !isDemo);
                 return `${url}?${def.fileKeyParams}`;
             }
             return this.apiPathForFileKey(def.fileKey, multiple);
@@ -301,7 +318,7 @@ export class DataLoader<T extends Record<string, any> = Record<string, any>> {
             return dataList.find(d => d.fileKey === key).url;
         }
         if (!(key in this.selectedFiles)) {
-            throw new Error("DataLoader: File key misconfigured. The visualization module required a key that is not available in this analysis.");
+            throw new Error(`DataLoader: File key misconfigured. The visualization module required a key ${key} that is not available in this analysis.`);
         }
         const info = this.selectedFiles[key];
         if (!info) return null;
