@@ -2,6 +2,7 @@ import * as d3 from "d3-array";
 
 import { stackedLayout } from "../../algo";
 import { getThemeColor } from "../../color";
+import { Anchor, GeometryUnit, GeometryValue } from "../../defs/geometry";
 import { GeneData } from "../../utils/bioinfo/gene";
 import { measuredTextSize } from "../../utils/text-size";
 import { Component } from "../component";
@@ -10,6 +11,7 @@ import { ComponentOption } from "../component-options";
 type ScaledGeneData = GeneData & {
     _x0?: number;
     _x1?: number;
+    _labelWidth?: number;
 };
 
 export interface GeneAreaOption extends ComponentOption {
@@ -170,14 +172,15 @@ export class GeneArea extends Component<GeneAreaOption> {
     }
 
     public layout(): ScaledGeneData[][] {
+        this.prop.genes!.forEach(g => {
+            g._labelWidth = measuredTextSize(this.prop.labelText(g), this.prop.labelSize).width + 2;
+        });
         if (this.prop.layout === "packed") {
             return stackedLayout(this.prop.genes!)
                 .value(x => x._x0!)
                 .extent(x => [
                     x._x0!,
-                    this.prop.labelPos === "right" ?
-                        x._x1! + measuredTextSize(this.prop.labelText(x), this.prop.labelSize).width + 2 :
-                        x._x1!,
+                    this.prop.labelPos === "right" ? x._x1! + x._labelWidth! : x._x1!,
                 ])
                 .run();
         } else if (this.prop.layout === "merged") {
@@ -207,6 +210,14 @@ export class GeneArea extends Component<GeneAreaOption> {
             case "innerLeft":
                 return { x: gene._x0! < 0 ? -gene._x0! : 0 };
             case "right":
+                const width = this.$geometry.width;
+                if (gene._x1! + gene._labelWidth! > width) {
+                    return {
+                        x: width - gene._x0! - 1,
+                        y: GeometryValue.create(50, GeometryUnit.Percent, 2),
+                        anchor: Anchor.Right | Anchor.Top,
+                    };
+                }
                 return { x: gene._x1! - gene._x0! + 2 };
         }
     }
