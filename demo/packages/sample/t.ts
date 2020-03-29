@@ -47,6 +47,7 @@ svg {
             }
             Triangle {
                 x = 100; y = 0
+                anchor = @anchor("center", "bottom")
             }
         }
         Arrow {
