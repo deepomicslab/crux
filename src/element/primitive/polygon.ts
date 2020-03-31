@@ -1,6 +1,6 @@
 import { getThemeColor } from "../../color";
-import { canvasFill, canvasStroke } from "../../rendering/canvas-helper";
-import { svgPropFillAndStroke, svgPropPassthrough } from "../../rendering/svg-helper";
+import { canvasFill, canvasRotate, canvasStroke } from "../../rendering/canvas-helper";
+import { svgPropFillAndStroke, svgPropPassthrough, svgRotation } from "../../rendering/svg-helper";
 import { BaseElementOption } from "./base-elm-options";
 import { PrimitiveElement } from "./primitive";
 
@@ -17,6 +17,7 @@ export class Polygon extends PrimitiveElement<PolygonOption> {
             pointsStr += `${x},${y} `;
         }
         return {
+            ...svgRotation(this),
             ...svgPropFillAndStroke(this),
             ...svgPropPassthrough({
                 "shape-rendering": "shapeRendering",
@@ -29,6 +30,7 @@ export class Polygon extends PrimitiveElement<PolygonOption> {
     public svgTextContent() { return null; }
 
     public renderToCanvas(ctx: CanvasRenderingContext2D) {
+        canvasRotate(ctx, this);
         this.path = new Path2D();
         this.prop.points.forEach((p, i) => {
             const [x, y] = this.translatePoint(p[0], p[1]);

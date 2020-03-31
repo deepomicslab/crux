@@ -1,7 +1,7 @@
 import { getThemeColor } from "../../color";
 import { GeometryOptValue } from "../../defs/geometry";
 import { getFinalPosition } from "../../layout/layout";
-import { canvasFill, canvasStroke } from "../../rendering/canvas-helper";
+import { canvasFill, canvasRotate, canvasStroke } from "../../rendering/canvas-helper";
 import { svgPropFillAndStroke, svgPropPassthrough, svgRotation } from "../../rendering/svg-helper";
 import { BaseElementOption } from "./base-elm-options";
 import { PrimitiveElement } from "./primitive";
@@ -47,6 +47,7 @@ export class Rect extends PrimitiveElement<RectOption> {
     public svgTextContent() { return null; }
 
     public renderToCanvas(ctx: CanvasRenderingContext2D) {
+        canvasRotate(ctx, this);
         const [x, y] = getFinalPosition(this as any);
         const w = this._widthWithMin(x);
         const h = this._heightWithMin(y);

@@ -4,6 +4,12 @@ import { toRad } from "../utils/math";
 import { Visualizer } from "../visualizer/visualizer";
 import { gatherEventListeners } from "./utils";
 
+declare module "../element/component" {
+    interface Component<Option> {
+        canvasCache?: HTMLCanvasElement;
+    }
+}
+
 export interface CanvasRenderable {
     renderToCanvas(ctx: CanvasRenderingContext2D): void;
 }
@@ -31,8 +37,34 @@ function _render(ctx: CanvasRenderingContext2D, element: BaseElement<any>): void
     if (isRenderable(element)) {
         return _render(ctx, element.children[0]);
     }
+
     ctx.save();
     element.renderToCanvas(ctx);
+
+    let useOffline = false;
+    let offlineCanvas: HTMLCanvasElement | null = null;
+    let currentCtx = ctx;
+    let offset = [0, 0];
+    if (element instanceof Component && element.isStatic) {
+        if (element.prop.maxBoundOffset) {
+            offset = element.prop.maxBoundOffset;
+            if (!Array.isArray(offset)) {
+                throw new Error(`maxBoundOffset must be an array of numbers`);
+            }
+        }
+        if (!element.$v.forceRedraw && element.canvasCache) {
+            ctx.drawImage(element.canvasCache, -offset[0], -offset[1]);
+            ctx.restore();
+            return;
+        }
+        useOffline = true;
+        const oc = document.createElement("canvas");
+        oc.width = element.$v.size.width + offset[0];
+        oc.height = element.$v.size.height + offset[1];
+        offlineCanvas = element.canvasCache = oc;
+        currentCtx = offlineCanvas.getContext("2d")!;
+        currentCtx.translate(offset[0], offset[1]);
+    }
 
     const listeners = element._gatheredListeners = gatherEventListeners(element);
     if (listeners) {
@@ -42,8 +74,12 @@ function _render(ctx: CanvasRenderingContext2D, element: BaseElement<any>): void
     }
 
     if (element instanceof Component) {
-        element.children.filter(c => c._isActive).forEach(e => _render(ctx, e));
+        element.children.filter(c => c._isActive).forEach(e => _render(currentCtx, e));
     }
+    if (useOffline) {
+        ctx.drawImage(offlineCanvas!, -offset[0], -offset[1]);
+    }
+
     ctx.restore();
 }
 

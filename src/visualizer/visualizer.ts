@@ -39,7 +39,6 @@ export class Visualizer {
     public renderer: RenderFunc;
     public svg?: SVGElement;
     public ctx?: CanvasRenderingContext2D;
-    public cache: Record<string, any> = {};
 
     public theme: string;
 

@@ -1,5 +1,5 @@
 import { getFinalPosition } from "../../layout/layout";
-import { canvasFill, canvasStroke } from "../../rendering/canvas-helper";
+import { canvasFill, canvasRotate, canvasStroke } from "../../rendering/canvas-helper";
 import { svgPropFillAndStroke, svgPropPassthrough, svgPropXAndY, svgRotation } from "../../rendering/svg-helper";
 import { BaseElementOption } from "./base-elm-options";
 import { PrimitiveElement } from "./primitive";
@@ -34,6 +34,7 @@ export class Path extends PrimitiveElement<PathOption> {
     public svgTextContent() { return null; }
 
     public renderToCanvas(ctx: CanvasRenderingContext2D) {
+        canvasRotate(ctx, this);
         const [x, y] = getFinalPosition(this);
         ctx.translate(x, y);
 

@@ -1,6 +1,6 @@
 import { getThemeColor } from "../../color";
 import { getFinalPosition } from "../../layout/layout";
-import { canvasFill, canvasStroke } from "../../rendering/canvas-helper";
+import { canvasFill, canvasRotate, canvasStroke } from "../../rendering/canvas-helper";
 import { svgInnerHTML, svgPropFillAndStroke, svgPropPassthrough, svgRotation } from "../../rendering/svg-helper";
 import { measuredTextSize } from "../../utils/text-size";
 import { BaseElementOption } from "./base-elm-options";
@@ -72,6 +72,7 @@ export class Text extends PrimitiveElement<TextOption> {
     }
 
     public renderToCanvas(ctx: CanvasRenderingContext2D) {
+        canvasRotate(ctx, this);
         const [x, y] = getFinalPosition(this);
         ctx.beginPath();
         canvasFill(ctx, this, true);

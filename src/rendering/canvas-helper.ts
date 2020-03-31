@@ -3,6 +3,7 @@ import * as d3c from "d3-color";
 import { GeometryValue } from "../defs/geometry";
 import { BaseElement, Component, ComponentOption } from "../element";
 import { BaseElementOption } from "../element/primitive/base-elm-options";
+import { toRad } from "../utils/math";
 
 export function canvasClip(ctx: CanvasRenderingContext2D, elm: Component<ComponentOption>) {
     const width = elm.$geometry.width;
@@ -25,6 +26,23 @@ export function canvasClip(ctx: CanvasRenderingContext2D, elm: Component<Compone
             ctx.clip();
         } else {
             throw new Error(`Clip: unknown type "${v.type}"`);
+        }
+    }
+}
+
+export function canvasRotate(ctx: CanvasRenderingContext2D, elm: BaseElement<BaseElementOption>) {
+    let v;
+    if (v = elm.prop.rotation) {
+        const v1 = v[1] === "_" ? elm.$geometry.x : v[1];
+        const v2 = v[2] === "_" ? elm.$geometry.y : v[2];
+        if (v[0] !== 0) {
+            if (v1 === 0 && v2 === 0) {
+                ctx.rotate(toRad(v[0]));
+            } else {
+                ctx.translate(v1, v2);
+                ctx.rotate(toRad(v[0]));
+                ctx.translate(-v1, -v2);
+            }
         }
     }
 }
