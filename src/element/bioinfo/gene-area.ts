@@ -107,6 +107,7 @@ export class GeneArea extends Component<GeneAreaOption> {
                         }
                         Text {
                             text = geneName
+                            visible = gene._x0 < $geometry.width
                             y = 50%
                             anchor = @anchor("left", "middle")
                             fontSize = prop.labelSize
@@ -156,14 +157,18 @@ export class GeneArea extends Component<GeneAreaOption> {
 
         if (this.prop.displayDirection) {
             const markerColor = this.prop.markerColor || getThemeColor(this.$v.theme, "line");
-            this.$v.appendDef("genearea-marker", "marker", {
-                orient: "auto",
-                markerWidth: "4",
-                markerHeight: "6",
-                refX: "1.5",
-                refY: "2.5",
-            },
-            `<path d="M0,0 L3,2.5 L0,5" fill="none" stroke-opacity="1" stroke="${markerColor}"></path>`);
+            this.$v.appendDef(
+                "genearea-marker",
+                "marker",
+                {
+                    orient: "auto",
+                    markerWidth: "4",
+                    markerHeight: "6",
+                    refX: "1.5",
+                    refY: "2.5",
+                },
+                `<path d="M0,0 L3,2.5 L0,5" fill="none" stroke-opacity="1" stroke="${markerColor}"></path>`,
+            );
         }
     }
 
@@ -178,10 +183,7 @@ export class GeneArea extends Component<GeneAreaOption> {
         if (this.prop.layout === "packed") {
             return stackedLayout(this.prop.genes!)
                 .value(x => x._x0!)
-                .extent(x => [
-                    x._x0!,
-                    this.prop.labelPos === "right" ? x._x1! + x._labelWidth! : x._x1!,
-                ])
+                .extent(x => [x._x0!, this.prop.labelPos === "right" ? x._x1! + x._labelWidth! : x._x1!])
                 .run();
         } else if (this.prop.layout === "merged") {
             return [this.prop.genes!];
@@ -237,9 +239,9 @@ export class GeneArea extends Component<GeneAreaOption> {
     }
 
     public getGenes(position: number): Component[] {
-        return (this.$ref.genes as Component[]).filter(g =>
-            g.prop.context.most_left_pos <= position &&
-            g.prop.context.most_right_pos >= position);
+        return (this.$ref.genes as Component[]).filter(
+            g => g.prop.context.most_left_pos <= position && g.prop.context.most_right_pos >= position,
+        );
     }
 
     // @ts-ignore
@@ -248,10 +250,8 @@ export class GeneArea extends Component<GeneAreaOption> {
         const num = Math.floor(width / 16);
         if (num < 2) {
             const mid = width / 2;
-            if (gene.strand === "-")
-                return `M${width},0 L${mid},0 L0,0`;
-            else
-                return `M0,0 L${mid},0 L${width},0`;
+            if (gene.strand === "-") return `M${width},0 L${mid},0 L0,0`;
+            else return `M0,0 L${mid},0 L${width},0`;
         }
         let str: string;
         if (gene.strand === "-") {
