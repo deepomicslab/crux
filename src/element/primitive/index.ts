@@ -6,6 +6,7 @@ export * from "./path";
 export * from "./triangle";
 export * from "./polyline";
 export * from "./polygon";
+export * from "./image";
 export * from "./polar/arc";
 export * from "./polar/arc-line";
 export * from "./polar/radical-line";

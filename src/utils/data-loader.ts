@@ -24,7 +24,7 @@ export interface FileInfo {
     url: string;
     size: number;
     created_at: string;
-    metadata: {[key: string]: string};
+    metadata: { [key: string]: string };
 }
 
 export type DataSourceLoader<T> = (this: DataLoader<T>, load: (options?: any) => void) => void;
@@ -36,6 +36,7 @@ export enum DataSourceType {
     JSON = "json",
     TEXT = "text",
     NEWICK = "newick",
+    IMAGE = "image",
 }
 
 export type DSVRowType = "string" | "int" | "float" | "skip";
@@ -59,11 +60,12 @@ export interface DataSource<T extends Record<string, any>, U> {
     multiple?: boolean;
     dependsOn?: string[];
     includeCredentials?: boolean;
+    anonymousImage?: boolean;
 }
 
 export interface DataLoaderOption<T> {
     sources: { [key in keyof T]: DataSource<T, T[key]> };
-    calbacks?: Array<{ after: string[], do: () => void }>;
+    calbacks?: Array<{ after: string[]; do: () => void }>;
     debug?: boolean;
 }
 
@@ -74,7 +76,11 @@ export class DataLoader<T extends Record<string, any> = Record<string, any>> {
 
     protected dataTypes: string[];
     protected dataSources: { [key in keyof T]: DataSource<T, T[key]> };
-    public selectedFiles: { [key: string]: { url: string, metadata: any, id: number, is_demo?: boolean } | Array<{ url: string, metadata: any }> } = {};
+    public selectedFiles: {
+        [key: string]:
+            | { url: string; metadata: any; id: number; is_demo?: boolean }
+            | Array<{ url: string; metadata: any }>;
+    } = {};
 
     private fileIsDemo: Record<string, boolean> = {};
 
@@ -90,10 +96,14 @@ export class DataLoader<T extends Record<string, any> = Record<string, any>> {
     public async load(): Promise<any> {
         const checkDependence = (dt: string, orig: string): boolean => {
             const dp = this.dataSources[dt].dependsOn;
-            if (!dp) { return true; }
+            if (!dp) {
+                return true;
+            }
             let result = true;
             for (const p of dp) {
-                if (p === orig) { return false; }
+                if (p === orig) {
+                    return false;
+                }
                 result = result && checkDependence(p, orig);
             }
             return result;
@@ -107,8 +117,7 @@ export class DataLoader<T extends Record<string, any> = Record<string, any>> {
             this.selectedFiles = paths.data;
             this.fileIsDemo = {};
             Object.entries(this.selectedFiles).forEach(([k, v]) => {
-                if (v && !Array.isArray(v))
-                    this.fileIsDemo[k] = v.is_demo || false;
+                if (v && !Array.isArray(v)) this.fileIsDemo[k] = v.is_demo || false;
             });
             this.metadata = _.mapValues(this.selectedFiles, x => {
                 if (!x) return null;
@@ -192,23 +201,47 @@ export class DataLoader<T extends Record<string, any> = Record<string, any>> {
                     return;
                 }
 
+                if (def.type === DataSourceType.IMAGE) {
+                    const image = new Image();
+                    if (def.anonymousImage) image.crossOrigin = "anonymous";
+                    if (path === null) throw Error(`Image url for key ${key} is null`);
+                    image.src = path!;
+                    image.onload = () => {
+                        fullfill(getImageDataURL(image, image.naturalWidth, image.naturalHeight));
+                    };
+                    image.onerror = err => {
+                        reject(err);
+                    };
+                    return;
+                }
+
                 const dsvHasHeader = def.dsvHasHeader !== false;
-                const dsvRowParser = def.type === DataSourceType.CSV || def.type === DataSourceType.TSV ?
-                    def.dsvRowDef === undefined ?
-                    def.dsvRowParser : (data: any) => {
-                        const result: any = {};
-                        _.forOwn(data, (value, key) => {
-                            const rowDef = def.dsvRowDef![key] || ["string"];
-                            const k = rowDef[1] || key;
-                            switch (rowDef[0]) {
-                                case "int": result[k] = parseInt(value); break;
-                                case "float": result[k] = parseFloat(value); break;
-                                case "string": result[k] = value; break;
-                                default: break;
-                            }
-                        });
-                        return result;
-                    } : undefined;
+                const dsvRowParser =
+                    def.type === DataSourceType.CSV || def.type === DataSourceType.TSV
+                        ? def.dsvRowDef === undefined
+                            ? def.dsvRowParser
+                            : (data: any) => {
+                                  const result: any = {};
+                                  _.forOwn(data, (value, key) => {
+                                      const rowDef = def.dsvRowDef![key] || ["string"];
+                                      const k = rowDef[1] || key;
+                                      switch (rowDef[0]) {
+                                          case "int":
+                                              result[k] = parseInt(value);
+                                              break;
+                                          case "float":
+                                              result[k] = parseFloat(value);
+                                              break;
+                                          case "string":
+                                              result[k] = value;
+                                              break;
+                                          default:
+                                              break;
+                                      }
+                                  });
+                                  return result;
+                              }
+                        : undefined;
 
                 let load: Promise<any>;
                 if (isRawData) {
@@ -220,9 +253,12 @@ export class DataLoader<T extends Record<string, any> = Record<string, any>> {
                     }
                     load = loader.call(this, path, init);
                 }
-                load.then((rawData) => {
+                load.then(rawData => {
                     let data: any;
-                    if ((def.type === DataSourceType.CSV || def.type === DataSourceType.TSV) && (rawData as string).charAt(0) === "#") {
+                    if (
+                        (def.type === DataSourceType.CSV || def.type === DataSourceType.TSV) &&
+                        (rawData as string).charAt(0) === "#"
+                    ) {
                         data = rawData.substr(1);
                     } else {
                         data = rawData;
@@ -230,25 +266,24 @@ export class DataLoader<T extends Record<string, any> = Record<string, any>> {
                     switch (def.type) {
                         // cast to any because the definition doesn't support passing undefined as the second arg
                         case DataSourceType.CSV:
-                            data = dsvHasHeader ?
-                                d3.csvParse(data, dsvRowParser as any) :
-                                d3.csvParseRows(data, dsvRowParser as any);
+                            data = dsvHasHeader
+                                ? d3.csvParse(data, dsvRowParser as any)
+                                : d3.csvParseRows(data, dsvRowParser as any);
                             break;
                         case DataSourceType.TSV:
-                            data = dsvHasHeader ?
-                                d3.tsvParse(data, dsvRowParser as any) :
-                                d3.tsvParseRows(data, dsvRowParser as any);
+                            data = dsvHasHeader
+                                ? d3.tsvParse(data, dsvRowParser as any)
+                                : d3.tsvParseRows(data, dsvRowParser as any);
                             break;
                         case DataSourceType.JSON:
-                            if (isRawData)
-                                data = JSON.parse(data);
+                            if (isRawData) data = JSON.parse(data);
                             break;
                         case DataSourceType.NEWICK:
                             data = parseNewick(data);
                             break;
                     }
                     fullfill(data);
-                }).catch((error) => {
+                }).catch(error => {
                     console.error(`Error loading ${key}: ${error}`);
                     reject(error);
                 });
@@ -289,7 +324,7 @@ export class DataLoader<T extends Record<string, any> = Record<string, any>> {
         return this._apiPath(type, null, true);
     }
 
-    public apiPath(type: string, options= null): string | null {
+    public apiPath(type: string, options = null): string | null {
         return this._apiPath(type, options);
     }
 
@@ -318,7 +353,9 @@ export class DataLoader<T extends Record<string, any> = Record<string, any>> {
             return dataList.find(d => d.fileKey === key).url;
         }
         if (!(key in this.selectedFiles)) {
-            throw new Error(`DataLoader: File key misconfigured. The visualization module required a key ${key} that is not available in this analysis.`);
+            throw new Error(
+                `DataLoader: File key misconfigured. The visualization module required a key ${key} that is not available in this analysis.`,
+            );
         }
         const info = this.selectedFiles[key];
         if (!info) return null;
@@ -326,14 +363,30 @@ export class DataLoader<T extends Record<string, any> = Record<string, any>> {
             if (info instanceof Array) {
                 return info.map(x => x.url);
             } else {
-                throw new Error(`DataLoader: multiple = true for file key "${key}", but this key doesn't accept multiple files.`);
+                throw new Error(
+                    `DataLoader: multiple = true for file key "${key}", but this key doesn't accept multiple files.`,
+                );
             }
         } else {
             if (info instanceof Array) {
-                throw new Error(`DataLoader: multiple = false for file key "${key}", but this key accepts multiple files.`);
+                throw new Error(
+                    `DataLoader: multiple = false for file key "${key}", but this key accepts multiple files.`,
+                );
             } else {
                 return raw ? `${window.gon.urls.create_file}/${info.id}` : info.url;
             }
         }
     }
+}
+
+let canvas: HTMLCanvasElement | null = null;
+
+function getImageDataURL(image: HTMLImageElement, width: number, height: number) {
+    if (!canvas) {
+        canvas = document.createElement("canvas");
+    }
+    canvas.width = width;
+    canvas.height = height;
+    canvas.getContext("2d")!.drawImage(image, 0, 0);
+    return canvas.toDataURL("image/png");
 }

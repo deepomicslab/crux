@@ -1,3 +1,36 @@
+function removeComment(line: string) {
+    let index = 0;
+    let inString = false;
+    let leftQuote = null;
+    let hasSlash = false;
+    for (const char of line) {
+        if (inString) {
+            if (char === leftQuote) {
+                leftQuote = null;
+                inString = false;
+            }
+        } else {
+            if (char === `'` || char === "`" || char === `"`) {
+                leftQuote = char;
+                inString = true;
+            } else if (char === "/") {
+                if (hasSlash) {
+                    // double slash
+                    break;
+                } else {
+                    hasSlash = true;
+                    index += 1;
+                    continue;
+                }
+            }
+        }
+        index += 1;
+        hasSlash = false;
+    }
+
+    return index >= line.length ? line : line.slice(0, index - 1);
+}
+
 export class ParserStream {
     public str: string;
     public pos = 0;
@@ -5,8 +38,7 @@ export class ParserStream {
     constructor(str: string) {
         this.str = str
             .split("\n")
-            .filter(x => !x.match(/^ *\/\//))
-            .map(x => x.replace(/\/\/.*$/, ""))
+            .map(x => removeComment(x))
             .join("\n")
             .trim();
     }
@@ -20,11 +52,7 @@ export class ParserStream {
         return this.str.length === 0;
     }
 
-    public expect(
-        token: string,
-        desc: string = token,
-        testOnly: boolean = false,
-    ): RegExpMatchArray {
+    public expect(token: string, desc: string = token, testOnly: boolean = false): RegExpMatchArray {
         const match = this.str.match(new RegExp(`^${token}`));
         if (!match && !testOnly) {
             this._error(`${this.pos}: Expect ${desc}`);
@@ -43,8 +71,7 @@ export class ParserStream {
 
     public skipSpaces(includeNewLines = false) {
         let i = 0;
-        while (this.str[i] === " " || this.str[i] === "\t" ||
-            (includeNewLines && this.str[i] === "\n")) i++;
+        while (this.str[i] === " " || this.str[i] === "\t" || (includeNewLines && this.str[i] === "\n")) i++;
         this.advance(i);
     }
 
