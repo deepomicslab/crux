@@ -9,16 +9,14 @@ import { ElementDef, kLazyElement, NormalElementDef, OptDict } from "./element-d
 // @ts-ignore
 import shallowEqArrays from "shallow-equal/arrays";
 
-const INHERITED_PROPS = [
-    "x", "y", "width", "height", "anchor", "rotation", "visible",
-];
+const INHERITED_PROPS = ["x", "y", "width", "height", "anchor", "rotation", "visible"];
 
 const currElements: Component<ComponentOption>[] = [];
 const currElement = () => currElements[currElements.length - 1];
 let currElementInheriting = false;
 
 const currCoordRoots: Component<ComponentOption>[] = [];
-const currCoordRoot = () => currCoordRoots.length === 0 ? null : currCoordRoots[currCoordRoots.length - 1];
+const currCoordRoot = () => (currCoordRoots.length === 0 ? null : currCoordRoots[currCoordRoots.length - 1]);
 const currCoordSystems: ("polar" | "cartesian")[] = ["cartesian"];
 const currCoordSystem = () => currCoordSystems[currCoordSystems.length - 1];
 
@@ -37,7 +35,7 @@ function findComponent(component: Component, name: string, id: number | string):
     newElm._name = name;
     component.append(newElm);
     let c: Component<ComponentOption>;
-    if (c = currElement()) {
+    if ((c = currElement())) {
         newElm.$parent = c;
         if (currElementInheriting) {
             newElm.logicalParent = c;
@@ -47,12 +45,15 @@ function findComponent(component: Component, name: string, id: number | string):
 }
 
 function shouldUpdateElement(elm: ActualElement, opt: OptDict): boolean {
+    if (elm.$v.forceRedraw) return true;
     if (elm.shouldNotSkipNextUpdate) {
         elm.shouldNotSkipNextUpdate = false;
         return true;
     }
-    if (!((xScaleSystemChanged && elm.isInXScaleSystem) || (yScaleSystemChanged && elm.isInYScaleSystem)) &&
-        elm.compareProps(opt.props)) {
+    if (
+        !((xScaleSystemChanged && elm.isInXScaleSystem) || (yScaleSystemChanged && elm.isInYScaleSystem)) &&
+        elm.compareProps(opt.props)
+    ) {
         return false;
     }
     return true;
@@ -61,7 +62,8 @@ function shouldUpdateElement(elm: ActualElement, opt: OptDict): boolean {
 export function updateTree(parent: Component<ComponentOption>, def_?: ElementDef, order?: number) {
     let elm: ActualElement;
     let created: boolean;
-    let xScaleChangeRoot = false, yScaleChangeRoot = false;
+    let xScaleChangeRoot = false,
+        yScaleChangeRoot = false;
 
     let def: NormalElementDef;
     if (!def_) {
@@ -82,7 +84,7 @@ export function updateTree(parent: Component<ComponentOption>, def_?: ElementDef
         if (currElementInheriting) {
             const p = currElement().prop;
             for (const prop of INHERITED_PROPS) {
-                if (!(prop in opt.props) && (prop in p)) {
+                if (!(prop in opt.props) && prop in p) {
                     opt.props[prop] = p[prop];
                     if (prop === "width") (elm as Component)._inheritedWidth = true;
                     if (prop === "height") (elm as Component)._inheritedHeight = true;
@@ -93,7 +95,9 @@ export function updateTree(parent: Component<ComponentOption>, def_?: ElementDef
         if ("_initArg" in opt.props) {
             const initArgPropName = (elm.constructor as typeof BaseElement).propNameForInitializer();
             if (initArgPropName === null) {
-                throw new Error(`An initializer ${opt.props._initArg} is provided, but the component doesn't accept one.`);
+                throw new Error(
+                    `An initializer ${opt.props._initArg} is provided, but the component doesn't accept one.`,
+                );
             }
             opt.props[initArgPropName] = opt.props._initArg;
         }
@@ -126,10 +130,12 @@ export function updateTree(parent: Component<ComponentOption>, def_?: ElementDef
         }
 
         // ref
-        const ce = currElement(), ref = opt.props.ref;
+        const ce = currElement(),
+            ref = opt.props.ref;
         if (ce && ref) {
             if (ref.endsWith("[]")) {
-                const name = ref.substr(0, ref.length - 2), r = ce.$ref[name];
+                const name = ref.substr(0, ref.length - 2),
+                    r = ce.$ref[name];
                 if (Array.isArray(r)) {
                     r.push(elm);
                 } else {
@@ -147,10 +153,13 @@ export function updateTree(parent: Component<ComponentOption>, def_?: ElementDef
                 if (opt.props["xScale"]) {
                     const s = opt.props.xScale;
                     const sn = (elm as Component)["_prop"].xScale;
-                    if (s.__scale__ && sn.__scale__ &&
+                    if (
+                        s.__scale__ &&
+                        sn.__scale__ &&
                         s.type === sn.type &&
                         (s.domain === sn.domain || shallowEqArrays(s.domain, sn.domain)) &&
-                        (s.range === sn.range || shallowEqArrays(s.range, sn.range))) {
+                        (s.range === sn.range || shallowEqArrays(s.range, sn.range))
+                    ) {
                         xScaleSystemChanged = false;
                     } else {
                         xScaleChangeRoot = true;
@@ -160,10 +169,13 @@ export function updateTree(parent: Component<ComponentOption>, def_?: ElementDef
                 if (opt.props["yScale"]) {
                     const s = opt.props.yScale;
                     const sn = (elm as Component)["_prop"].yScale;
-                    if (s.__scale__ && sn.__scale__ &&
+                    if (
+                        s.__scale__ &&
+                        sn.__scale__ &&
                         s.type === sn.type &&
                         (s.domain === sn.domain || shallowEqArrays(s.domain, sn.domain)) &&
-                        (s.range === sn.range || shallowEqArrays(s.range, sn.range))) {
+                        (s.range === sn.range || shallowEqArrays(s.range, sn.range))
+                    ) {
                         yScaleSystemChanged = false;
                     } else {
                         yScaleChangeRoot = true;
@@ -176,12 +188,10 @@ export function updateTree(parent: Component<ComponentOption>, def_?: ElementDef
 
         elm.setProp(opt.props);
 
-        if (created)
-            elm.$callHook("didCreate");
+        if (created) elm.$callHook("didCreate");
     }
 
-    const newCoordSystem = elm instanceof Component &&
-        elm.prop.coord && elm.prop.coord !== currCoordSystem();
+    const newCoordSystem = elm instanceof Component && elm.prop.coord && elm.prop.coord !== currCoordSystem();
     elm.$coord = currCoordRoot()!;
     if (newCoordSystem) {
         currCoordRoots.push(elm as Component);
@@ -215,7 +225,7 @@ export function updateTree(parent: Component<ComponentOption>, def_?: ElementDef
     } else if (elm instanceof Component) {
         currElementInheriting = false;
         if (!elm.isStatic || elm._firstRender) {
-            elm.children.forEach(c => c._isActive = false);
+            elm.children.forEach(c => (c._isActive = false));
             for (let i = 0, l = def!.children.length; i < l; i++) {
                 updateTree(elm, def!.children[i], i);
             }
