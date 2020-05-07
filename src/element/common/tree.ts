@@ -156,7 +156,7 @@ export class Tree extends Component<TreeOption> {
             case "log":
                 this._scaleY = scaleLog()
                     .range([0, height])
-                    .domain([getMinLength(this._root) + 1, getMaxLength(this._root) + 1]);
+                    .domain([1, getMaxLength(this._root) + 1]);
                 this.isScaled = true;
                 break;
         }
@@ -292,6 +292,7 @@ function getMaxLength(d: d3.HierarchyNode<TreeData>): number {
     return d.data.length + (d.children ? max(d.children, dd => getMaxLength(dd))! : 0);
 }
 
+// @ts-ignore
 function getMinLength(d: d3.HierarchyNode<TreeData>): number {
     let min = 99999999;
     d.each(node => {
