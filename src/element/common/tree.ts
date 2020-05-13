@@ -26,6 +26,7 @@ export interface TreeOption extends ComponentOption {
     linkStyle: "rightAngle" | "straight";
     treeRotation: number;
     leafSize: number;
+    branchInteraction: boolean;
 }
 
 @useTemplate(`//bvt
@@ -35,37 +36,39 @@ Component {
         coord = isRadical ? "polar" : "cartesian"
         yScale = _scaleY
         @for (link, i) in _links {
+            @let isActive = isActiveLink(link)
             Path {
-                ref = "links[]"
                 key = "l" + i
-                stroke = "#aaa"
+                stroke = isActive ? "#000" : "#aaa"
                 fill = "none"
-                d = getPath(link.source.x, @scaledY(getR(link.source)), link.target.x, @scaledY(getR(link.target)))
-                @props prop.opt.link
+                d = getPath(getX(link.source), @scaledY(getR(link.source)), getX(link.target), @scaledY(getR(link.target)))
+                @props isActive ? prop.opt.activeLink : prop.opt.link
             }
         }
         @for (node, i) in _nodes {
             @yield node with { node } default {
                 Circle.centered {
                     key = "c" + i
-                    x = node.x; y = @scaledY(getR(node));
+                    x = getX(node); y = @scaledY(getR(node));
                     r = 2
-                    fill = "red"
-                    @props prop.opt.node
+                    fill = "#999"
                     behavior:tooltip {
-                        content = node.x.toString()
+                        content = node.data._radius.toString()
                     }
+                    @props prop.opt.node
                 }
             }
         }
         @for (leaf, i) in _leaves {
             Component {
                 key = "f" + i
-                x = leaf.x
-                y = leaf.y
+                x = getX(leaf)
+                y = getY(leaf)
                 width = 0
                 rotation = leafRotation(leaf)
                 coord = "cartesian"
+                on:mouseenter = setActive(leaf)
+                on:mouseleave = setActive(null)
                 @yield leaf with { leaf } default {
                     Container {
                         anchor = leafAnchor(leaf)
@@ -74,15 +77,16 @@ Component {
                             text = leaf.data.name
                         }
                         behavior:tooltip {
-                            content = leaf.x.toString()
+                            content = leaf.data._radius.toString()
                         }
+                        @props prop.opt.leaf
                     }
                 }
             }
             @if isScaled {
                 Line {
-                    x1 = leaf.x; y1 = @scaledY(getR(leaf))
-                    x2 = leaf.x; y2 = leaf.y
+                    x1 = getX(leaf); y1 = @scaledY(getR(leaf))
+                    x2 = getX(leaf); y2 = getY(leaf)
                     stroke = "#ccc"
                     @props prop.opt.linkExtention
                 }
@@ -92,6 +96,8 @@ Component {
 }
 `)
 export class Tree extends Component<TreeOption> {
+    protected state!: { activePath: Set<any> };
+
     // @ts-ignore
     private _scaleY: ScaleContinuousNumeric<number, number> | null = null;
 
@@ -109,6 +115,8 @@ export class Tree extends Component<TreeOption> {
     private _leafDeg!: number;
 
     private isRadical = false;
+    private isHorizontal = false;
+    private isInversed = false;
     // @ts-ignore
     private isScaled = false;
     // @ts-ignore
@@ -116,21 +124,44 @@ export class Tree extends Component<TreeOption> {
     // @ts-ignore
     private height!: number;
 
+    public init() {
+        this.state = {
+            activePath: new Set(),
+        };
+    }
+
     public willRender() {
         const data = this.prop.data;
         this.isRadical = this.prop.direction === "radical";
 
         let width: number, height: number;
-        if (this.isRadical) {
-            const totalR = this.prop.r || Math.min(this.$geometry.width, this.$geometry.height) / 2;
-            if (totalR <= 0) {
-                console.warn(`Tree: radius is 0. The tree should have a proper size.`);
-            }
-            width = this.prop.deg;
-            height = totalR - this.prop.leafSize;
-        } else {
-            this.width = width = this.$geometry.width;
-            this.height = height = this.$geometry.height - this.prop.leafSize;
+        switch (this.prop.direction) {
+            case "radical":
+                const totalR = this.prop.r || Math.min(this.$geometry.width, this.$geometry.height) / 2;
+                if (totalR <= 0) {
+                    console.warn(`Tree: radius is 0. The tree should have a proper size.`);
+                }
+                width = this.prop.deg;
+                height = totalR - this.prop.leafSize;
+                this.isHorizontal = false;
+                break;
+            case "top":
+            case "bottom":
+                this.width = width = this.$geometry.width;
+                this.height = height = this.$geometry.height - this.prop.leafSize;
+                this.isHorizontal = false;
+                this.isInversed = this.prop.direction === "top";
+                break;
+            case "right":
+            case "left":
+                this.width = width = this.$geometry.height;
+                this.height = height = this.$geometry.width - this.prop.leafSize;
+                this.isHorizontal = true;
+                this.isInversed = this.prop.direction === "left";
+                break;
+            default:
+                width = 0;
+                height = 0;
         }
 
         const hierarchy = d3.hierarchy(data).sum(d => d.length);
@@ -210,11 +241,8 @@ export class Tree extends Component<TreeOption> {
             direction: "bottom",
             treeRotation: 0,
             leafSize: 20,
+            branchInteraction: true,
         };
-    }
-
-    public getLinks(node: d3.HierarchyPointNode<TreeData>) {
-        // console.log(node.links());
     }
 
     // @ts-ignore
@@ -238,14 +266,40 @@ export class Tree extends Component<TreeOption> {
                     return path;
             }
         } else {
-            return `M${x1},${y1} L${x2},${y1} L${x2},${y2}`;
+            if (this.isHorizontal) {
+                return `M${x1},${y1} L${x1},${y2} L${x2},${y2}`;
+            } else {
+                return `M${x1},${y1} L${x2},${y1} L${x2},${y2}`;
+            }
         }
+    }
+
+    // @ts-ignore
+    private getX(node: d3.HierarchyPointNode<TreeData>) {
+        return this.isInversed
+            ? this.isHorizontal
+                ? this.height - node.y + this.prop.leafSize
+                : this.width - node.x
+            : this.isHorizontal
+            ? node.y
+            : node.x;
+    }
+
+    // @ts-ignore
+    private getY(node: d3.HierarchyPointNode<TreeData>) {
+        return this.isInversed
+            ? this.isHorizontal
+                ? this.width - node.x
+                : this.height - node.y + this.prop.leafSize
+            : this.isHorizontal
+            ? node.x
+            : node.y;
     }
 
     // @ts-ignore
     private getR(node: d3.HierarchyPointNode<TreeData>) {
         if (this.prop.scale === "none") {
-            return node.y;
+            return this.getY(node);
         } else if (this.prop.scale === "log") {
             return node.data._radius! + 1;
         }
@@ -260,6 +314,8 @@ export class Tree extends Component<TreeOption> {
                 return [isRight ? leaf.x - 90 : leaf.x + 90, "_", "_"];
             case "bottom":
                 return [90, "_", "_"];
+            case "top":
+                return [270, "_", "_"];
             default:
                 return 0;
         }
@@ -271,9 +327,9 @@ export class Tree extends Component<TreeOption> {
         switch (this.prop.direction) {
             case "radical":
                 return (isRight ? Anchor.Left : Anchor.Right) | Anchor.Middle;
-            case "top":
             case "left":
                 return Anchor.Right | Anchor.Middle;
+            case "top":
             case "bottom":
             case "right":
                 return Anchor.Left | Anchor.Middle;
@@ -285,6 +341,40 @@ export class Tree extends Component<TreeOption> {
         const thres1 = 180 - this.prop.treeRotation;
         const thres2 = 360 - this.prop.treeRotation;
         return deg < thres1 || deg > thres2;
+    }
+
+    // @ts-ignore
+    private setActive(node_: d3.HierarchyPointNode<TreeData> | string) {
+        let node: d3.HierarchyPointNode<TreeData>;
+        if (typeof node_ === "string") {
+            const n = this._leaves.find(x => x.data.name === node_);
+            if (!n) {
+                console.warn(`Tree: setActive: cannot find a leaf with name "${node_}"`);
+                return;
+            }
+            node = n;
+        } else {
+            node = node_;
+        }
+        if (node === null) {
+            this.setState({ activePath: new Set() });
+        } else {
+            this.setState({ activePath: new Set(ancestor(node)) });
+        }
+    }
+
+    // @ts-ignore
+    private isActiveLink(link: d3.HierarchyPointLink<TreeData>) {
+        if (!this.prop.branchInteraction) return;
+        return this.state.activePath.has(link.source.data) && this.state.activePath.has(link.target.data);
+    }
+}
+
+function* ancestor(node: d3.HierarchyPointNode<TreeData>) {
+    let n: d3.HierarchyPointNode<TreeData> | null = node;
+    while (n) {
+        yield n.data;
+        n = n.parent;
     }
 }
 
