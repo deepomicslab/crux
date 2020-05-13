@@ -1,9 +1,9 @@
 import { Component } from "../element";
 import { BaseElement } from "../element/base-element";
-import { CanvasMouseEvent } from "../rendering/canvas";
+import { CanvasMouseEvent } from "../rendering/canvas/canvas";
 import { Matrix } from "./matrix";
 
-export default function(el: BaseElement, event: MouseEvent|CanvasMouseEvent): [number, number] {
+export default function (el: BaseElement, event: MouseEvent | CanvasMouseEvent): [number, number] {
     if ("_m_x" in event) {
         const dpi = window.devicePixelRatio;
         const point = { x: event._m_x! / dpi, y: event._m_y! / dpi };
@@ -16,7 +16,7 @@ export default function(el: BaseElement, event: MouseEvent|CanvasMouseEvent): [n
         el = (el as Component).children[0];
     }
     const node = el.vnode!.elm! as SVGGraphicsElement;
-    const svg: SVGSVGElement = node.ownerSVGElement || node as any;
+    const svg: SVGSVGElement = node.ownerSVGElement || (node as any);
 
     if (svg.createSVGPoint) {
         let point = svg.createSVGPoint();
@@ -41,7 +41,7 @@ function compose(el: BaseElement): Matrix {
     return m;
 }
 
-function transformPoint(point: {x: number, y: number}, m: Matrix) {
+function transformPoint(point: { x: number; y: number }, m: Matrix) {
     const x = m.a * point.x + m.c * point.y + m.e;
     const y = m.b * point.x + m.d * point.y + m.f;
     point.x = x;

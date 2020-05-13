@@ -1,33 +1,40 @@
-import { BaseElement, Component, ElementEventListener } from "../element";
-import { isRenderable } from "../element/is";
-import { toRad } from "../utils/math";
-import { Visualizer } from "../visualizer/visualizer";
-import { gatherEventListeners } from "./utils";
+import { BaseElement, Component, ElementEventListener } from "../../element";
+import { isRenderable } from "../../element/is";
+import IS_NODE from "../../utils/is-node";
+import { toRad } from "../../utils/math";
+import { GradientDef, Visualizer } from "../../visualizer/visualizer";
+import { Renderer } from "../renderer";
+import { gatherEventListeners } from "../utils";
 
-declare module "../element/component" {
+declare module "../../element/component" {
     interface Component<Option> {
         canvasCache?: HTMLCanvasElement;
     }
+}
+
+interface CanvasContext {
+    ctx: CanvasRenderingContext2D;
+    gradients: Record<string, CanvasGradient>;
 }
 
 export interface CanvasRenderable {
     renderToCanvas(ctx: CanvasRenderingContext2D): void;
 }
 
-export function render(element: BaseElement<any>) {
+function render(element: BaseElement<any>, context: CanvasContext) {
     const v = element.$v;
     if (!v) {
         throw new Error(`The element must be placed in a visualizer`);
     }
-    if (!v.ctx) {
-        init(v);
+    if (!context.ctx) {
+        init(v, context);
     }
-    v.ctx!.clearRect(0, 0, v.ctx!.canvas.width, v.ctx!.canvas.height);
+    context.ctx.clearRect(0, 0, context.ctx.canvas.width, context.ctx.canvas.height);
     const ratio = window.devicePixelRatio || 1;
-    v.ctx!.save();
-    v.ctx!.scale(ratio, ratio);
-    _render(v.ctx!, v.root);
-    v.ctx!.restore();
+    context.ctx.save();
+    context.ctx.scale(ratio, ratio);
+    _render(context.ctx, v.root);
+    context.ctx.restore();
 }
 
 function _render(ctx: CanvasRenderingContext2D, element: BaseElement<any>): void {
@@ -66,7 +73,7 @@ function _render(ctx: CanvasRenderingContext2D, element: BaseElement<any>): void
         currentCtx.translate(offset[0], offset[1]);
     }
 
-    const listeners = element._gatheredListeners = gatherEventListeners(element);
+    const listeners = (element._gatheredListeners = gatherEventListeners(element));
     if (listeners) {
         Object.keys(listeners).forEach(ev => {
             element.$v._registeredEvents.add(MOUSE_EVENT_MAP[ev]);
@@ -83,7 +90,10 @@ function _render(ctx: CanvasRenderingContext2D, element: BaseElement<any>): void
     ctx.restore();
 }
 
-export function init(v: Visualizer) {
+function init(v: Visualizer, context: CanvasContext) {
+    if (IS_NODE) {
+        throw Error(`The "svg" renderer only works in browser environments.`);
+    }
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
     if (!ctx) {
@@ -91,19 +101,22 @@ export function init(v: Visualizer) {
     }
 
     // const ratio = window.devicePixelRatio || 1;
-    setSize(canvas, v);
+    context.ctx = ctx;
+    context.gradients = {};
+    setSize(v, context);
     ctx.font = "12px Arial";
     // ctx.scale(ratio, ratio);
 
     for (const event of Object.keys(MOUSE_EVENT_MAP) as (keyof typeof MOUSE_EVENT_MAP)[]) {
-        addMouseEventListener(v, canvas, event);
+        addMouseEventListener(v, context, canvas, event);
     }
 
-    v.container.appendChild(canvas);
-    v.ctx = ctx;
+    v.container!.appendChild(canvas);
 }
 
-export function setSize(canvas: HTMLCanvasElement, v: Visualizer) {
+function setSize(v: Visualizer, context: CanvasContext) {
+    if (!context.ctx) return;
+    const canvas = context.ctx.canvas;
     const ratio = window.devicePixelRatio || 1;
     const { width, height } = v.size;
 
@@ -111,6 +124,18 @@ export function setSize(canvas: HTMLCanvasElement, v: Visualizer) {
     canvas.height = height * ratio;
     canvas.style.width = `${width}px`;
     canvas.style.height = `${height}px`;
+}
+
+function defineGradient(id: string, def: GradientDef, v: Visualizer, context: CanvasContext) {
+    const g = context.ctx.createLinearGradient(def.x1, def.y1, def.x2, def.y2);
+    for (const stop of def.stops) {
+        g.addColorStop(stop.offset * 0.01, stop.color);
+    }
+    context.gradients[id] = g;
+}
+
+function getGradient(name: string, v: Visualizer, context: CanvasContext) {
+    return context.gradients[name];
 }
 
 const MOUSE_EVENT_MAP = {
@@ -125,20 +150,20 @@ const MOUSE_EVENT_MAP = {
 
 type EventName = keyof typeof MOUSE_EVENT_MAP;
 
-function addMouseEventListener<T>(v: Visualizer, canvas: HTMLCanvasElement, event: EventName) {
+function addMouseEventListener<T>(v: Visualizer, context: CanvasContext, canvas: HTMLCanvasElement, event: EventName) {
     const mappedEvent = MOUSE_EVENT_MAP[event];
     const isMouseMove = mappedEvent === "_mousemove";
     const isMouseLeave = event === "mouseleave";
-    canvas.addEventListener(event, function(this: HTMLCanvasElement, e: MouseEvent) {
+    canvas.addEventListener(event, function (this: HTMLCanvasElement, e: MouseEvent) {
         if (!v._registeredEvents.has(mappedEvent)) return;
         const ratio = window.devicePixelRatio || 1;
         const b = canvas.getBoundingClientRect();
         const x = (e.clientX - b.left) * ratio;
         const y = (e.clientY - b.top) * ratio;
-        v.ctx!.save();
-        v.ctx!.scale(ratio, ratio);
-        const element = isMouseLeave ? null : findElement(v.ctx!, v.root, x, y);
-        v.ctx!.restore();
+        context.ctx.save();
+        context.ctx.scale(ratio, ratio);
+        const element = isMouseLeave ? null : findElement(context.ctx, v.root, x, y);
+        context.ctx.restore();
         if (isMouseMove) {
             for (const el of v._focusedElements.values()) {
                 el._isFocused = false;
@@ -167,13 +192,18 @@ function addMouseEventListener<T>(v: Visualizer, canvas: HTMLCanvasElement, even
         } else {
             if (v._currentCursor) {
                 v._currentCursor = null;
-                v.ctx!.canvas.style.cursor = "";
+                context.ctx.canvas.style.cursor = "";
             }
         }
     });
 }
 
-function findElement(ctx: CanvasRenderingContext2D, el: BaseElement<any>, x: number, y: number): BaseElement<any> | null {
+function findElement(
+    ctx: CanvasRenderingContext2D,
+    el: BaseElement<any>,
+    x: number,
+    y: number,
+): BaseElement<any> | null {
     if (!shouldAcceptEvents(el)) return null;
     if (el instanceof Component) {
         if (isRenderable(el as any)) {
@@ -190,7 +220,7 @@ function findElement(ctx: CanvasRenderingContext2D, el: BaseElement<any>, x: num
             }
             let r: BaseElement<any> | null;
             for (let i = el.children.length - 1; i >= 0; i--) {
-                if (r = findElement(ctx, el.children[i], x, y)) {
+                if ((r = findElement(ctx, el.children[i], x, y))) {
                     ctx.restore();
                     return r;
                 }
@@ -258,7 +288,7 @@ function triggerEvents(event: string, origEvent: MouseEvent, el: BaseElement<any
     }
     if (cursor !== el.$v._currentCursor) {
         el.$v._currentCursor = cursor;
-        el.$v.ctx!.canvas.style.cursor = cursor ? cursor : "";
+        el.$v.rendererCtx.ctx.canvas.style.cursor = cursor ? cursor : "";
     }
 }
 
@@ -268,8 +298,12 @@ export type CanvasMouseEvent = MouseEvent & {
 };
 
 function callListener(
-    listener: ElementEventListener|ElementEventListener[],
-    e: CanvasMouseEvent, el: BaseElement, x: number, y: number) {
+    listener: ElementEventListener | ElementEventListener[],
+    e: CanvasMouseEvent,
+    el: BaseElement,
+    x: number,
+    y: number,
+) {
     e._m_x = x;
     e._m_y = y;
     if (typeof listener === "function") {
@@ -277,7 +311,16 @@ function callListener(
     } else if (listener[0] !== null) {
         listener[0].apply(null, listener.slice(1) as any);
     } else {
-        for (let i = 1; i < listener.length; i++)
-            callListener(listener[i], e, el, x, y);
+        for (let i = 1; i < listener.length; i++) callListener(listener[i], e, el, x, y);
     }
 }
+
+const renderer: Renderer = {
+    init,
+    render,
+    setSize,
+    defineGradient,
+    getGradient,
+};
+
+export default renderer;

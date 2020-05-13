@@ -1,7 +1,7 @@
 import { getThemeColor } from "../../../color";
 import { GeometryOptValue } from "../../../defs/geometry";
-import { canvasStroke } from "../../../rendering/canvas-helper";
-import { svgPropFillAndStroke } from "../../../rendering/svg-helper";
+import { canvasStroke } from "../../../rendering/canvas/canvas-helper";
+import { svgPropFillAndStroke } from "../../../rendering/svg/svg-helper";
 import { toCartesian } from "../../../utils/math";
 import { BaseElement } from "../../base-element";
 import { BaseElementOption } from "../base-elm-options";
@@ -20,12 +20,19 @@ export class RadicalLine extends BaseElement<RadicalLineOption> {
         const [x2, y2] = toCartesian(x, r2, isRad);
         return {
             ...svgPropFillAndStroke(this),
-            x1, y1, x2, y2,
+            x1,
+            y1,
+            x2,
+            y2,
         };
     }
 
-    public svgTagName() { return "line"; }
-    public svgTextContent() { return null; }
+    public svgTagName() {
+        return "line";
+    }
+    public svgTextContent() {
+        return null;
+    }
 
     public renderToCanvas(ctx: CanvasRenderingContext2D) {
         const isRad = !!this.prop.rad;
@@ -46,7 +53,7 @@ export class RadicalLine extends BaseElement<RadicalLineOption> {
 
     public geometryProps() {
         const { h, v } = super.geometryProps();
-        return { h, v: [...v, "r1", "r2"]};
+        return { h, v: [...v, "r1", "r2"] };
     }
 
     public positionDetached = true;

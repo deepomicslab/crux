@@ -1,8 +1,8 @@
 import { getThemeColor } from "../../color";
 import { GeometryOptValue } from "../../defs/geometry";
 import { getFinalPosition } from "../../layout/layout";
-import { canvasFill, canvasStroke } from "../../rendering/canvas-helper";
-import { svgPropFillAndStroke } from "../../rendering/svg-helper";
+import { canvasFill, canvasStroke } from "../../rendering/canvas/canvas-helper";
+import { svgPropFillAndStroke } from "../../rendering/svg/svg-helper";
 import { BaseElementOption } from "./base-elm-options";
 import { PrimitiveElement } from "./primitive";
 
@@ -11,7 +11,6 @@ interface CircleOption extends BaseElementOption {
 }
 
 export class Circle extends PrimitiveElement<CircleOption> {
-
     public svgAttrs(): any {
         const [x, y] = getFinalPosition(this);
         const r = this.$geometry.r;
@@ -23,8 +22,12 @@ export class Circle extends PrimitiveElement<CircleOption> {
         };
     }
 
-    public svgTagName() { return "circle"; }
-    public svgTextContent() { return null; }
+    public svgTagName() {
+        return "circle";
+    }
+    public svgTextContent() {
+        return null;
+    }
 
     public renderToCanvas(ctx: CanvasRenderingContext2D) {
         const [x, y] = getFinalPosition(this);
@@ -37,7 +40,7 @@ export class Circle extends PrimitiveElement<CircleOption> {
 
     public geometryProps() {
         const { h, v } = super.geometryProps();
-        return { h, v: [...v, "r"]};
+        return { h, v: [...v, "r"] };
     }
 
     public defaultProp() {
@@ -55,6 +58,10 @@ export class Circle extends PrimitiveElement<CircleOption> {
         return this.$geometry._y + this.$geometry.r * 2;
     }
 
-    public get layoutWidth() { return this.$geometry.r * 2; }
-    public get layoutHeight() { return this.$geometry.r * 2; }
+    public get layoutWidth() {
+        return this.$geometry.r * 2;
+    }
+    public get layoutHeight() {
+        return this.$geometry.r * 2;
+    }
 }

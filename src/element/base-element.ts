@@ -1,8 +1,8 @@
 import { getBehavior } from "../behavior";
 import { Behavior } from "../behavior/behavior";
 import { GeometryOptions, GeometryUnit, GeometryValue } from "../defs/geometry";
-import { CanvasRenderable } from "../rendering/canvas";
-import { SVGRenderable } from "../rendering/svg";
+import { CanvasRenderable } from "../rendering/canvas/canvas";
+import { SVGRenderable } from "../rendering/svg/svg";
 import { VNode } from "../rendering/vdom/vnode";
 import { toCartesian } from "../utils/math";
 import { defaultUIDGenerator } from "../utils/uid";
@@ -22,9 +22,7 @@ interface State {
 
 export type ElementEventListener = (ev: Event, el: BaseElement<any>) => void;
 
-export abstract class BaseElement<Option extends BaseOption = BaseOption>
-    implements SVGRenderable, CanvasRenderable {
-
+export abstract class BaseElement<Option extends BaseOption = BaseOption> implements SVGRenderable, CanvasRenderable {
     public _name!: string;
     public id: number | string;
     public uid: number;
@@ -38,7 +36,7 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
 
     public vnode?: VNode;
     public path?: Path2D;
-    public _gatheredListeners?: Record<string, ElementEventListener|ElementEventListener[]> | null;
+    public _gatheredListeners?: Record<string, ElementEventListener | ElementEventListener[]> | null;
     public _isFocused = false;
 
     public _firstRender = true;
@@ -89,9 +87,13 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
         }
     }
 
-    public init() { /* empty */ }
+    public init() {
+        /* empty */
+    }
 
-    public static propNameForInitializer(): string | null { return null; }
+    public static propNameForInitializer(): string | null {
+        return null;
+    }
 
     public __didCreate() {
         this.$defaultProp = this.defaultProp();
@@ -101,7 +103,9 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
 
     /* properties */
 
-    public defaultProp(): Partial<Option> { return {}; }
+    public defaultProp(): Partial<Option> {
+        return {};
+    }
 
     private setupPropProxy() {
         this.prop = new Proxy(this._prop, {
@@ -110,7 +114,7 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
                 if (p === "opt") {
                     return target["opt"] || {};
                 }
-                if (this._activeState && (s = this.$stages[this._activeState]) && (p in s)) {
+                if (this._activeState && (s = this.$stages[this._activeState]) && p in s) {
                     return s[p];
                 }
                 if (p in target) {
@@ -156,8 +160,10 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
         // if (!shallowEqArrays(k1, k2)) return false;
         let k, p1, p2, t1, t2;
         for (k of k1) {
-            p1 = p[k]; p2 = this._prop[k];
-            t1 = typeof p1; t2 = typeof p2;
+            p1 = p[k];
+            p2 = this._prop[k];
+            t1 = typeof p1;
+            t2 = typeof p2;
             if (t1 !== t2) return false;
             switch (t1) {
                 case "string":
@@ -230,12 +236,14 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
 
     public _findActiveStage() {
         if (this.stage) {
-            this._activeState = this.stage; return;
+            this._activeState = this.stage;
+            return;
         }
         let el = this.parent;
         while (el && !el.render) {
             if (el.stage) {
-                this._activeState = el.stage; return;
+                this._activeState = el.stage;
+                return;
             }
             el = el.parent;
         }
@@ -278,7 +286,7 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
     private _boundMethods = new Map();
     protected _bindMethod(m: any) {
         let bound;
-        if (bound = this._boundMethods.get(m)) return bound;
+        if ((bound = this._boundMethods.get(m))) return bound;
         bound = m.bind(this);
         this._boundMethods.set(m, bound);
         return bound;
@@ -297,7 +305,7 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
     public draw() {
         this._isRenderRoot = true;
         this.renderTree();
-        this.$v.renderer.call(null, this as any);
+        this.$v.renderer.render(this as any, this.$v.rendererCtx);
         this.$callHook("didPaint");
         this._isRenderRoot = false;
     }
@@ -383,24 +391,32 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
     /* canvas */
     public abstract renderToCanvas(ctx: CanvasRenderingContext2D): void;
 
-    public geometryProps(): { h: string[], v: string[] } {
+    public geometryProps(): { h: string[]; v: string[] } {
         return {
             h: ["x"],
             v: ["y"],
         };
     }
 
-    public get maxX(): number { return (this.$geometry as any).x; }
-    public get maxY(): number { return (this.$geometry as any).y; }
-    public get layoutWidth(): number { return (this.$geometry as any).width; }
-    public get layoutHeight(): number { return (this.$geometry as any).height; }
+    public get maxX(): number {
+        return (this.$geometry as any).x;
+    }
+    public get maxY(): number {
+        return (this.$geometry as any).y;
+    }
+    public get layoutWidth(): number {
+        return (this.$geometry as any).width;
+    }
+    public get layoutHeight(): number {
+        return (this.$geometry as any).height;
+    }
 
     /* Hooks */
 
     public $callHook(name: HookNames) {
         let hook: any;
-        if (hook = this[`__${name}`]) hook.call(this);
-        if (hook = this[name]) hook.call(this);
+        if ((hook = this[`__${name}`])) hook.call(this);
+        if ((hook = this[name])) hook.call(this);
     }
 
     public didCreate?(): void;
@@ -417,9 +433,16 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
     public didPatch?(oldNode: VNode, newNode: VNode): void;
 }
 
-type HookNames = "didCreate" |
-    "willUpdate" | "didUpdate" |
-    "willRender" | "didRender" |
-    "didPaint" |
-    "didLayout" | "didLayoutSubTree" | "willAdjustAnchor" |
-    "didMount" | "didPatch" | "didUnmount";
+type HookNames =
+    | "didCreate"
+    | "willUpdate"
+    | "didUpdate"
+    | "willRender"
+    | "didRender"
+    | "didPaint"
+    | "didLayout"
+    | "didLayoutSubTree"
+    | "willAdjustAnchor"
+    | "didMount"
+    | "didPatch"
+    | "didUnmount";

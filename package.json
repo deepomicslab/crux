@@ -1,53 +1,54 @@
 {
-  "name": "crux",
-  "version": "0.1.0",
-  "repository": "git@gitlab.deepomics.org:lhc/crux.git",
-  "author": "Collider LI",
-  "license": "MIT",
-  "private": true,
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "scripts": {
-    "test": "mocha --require ts-node/register test/*.ts",
-    "build": "tsc -p ./ --outDir ./dist"
-  },
-  "dependencies": {
-    "axios": "^0.18.0",
-    "babel-polyfill": "^6.26.0",
-    "color-convert": "^2.0.1",
-    "common-tags": "^1.8.0",
-    "d3": "^5.9.2",
-    "d3-array": "^2.0.3",
-    "d3-geo": "^1.11.3",
-    "d3-scale": "^3.0.0",
-    "lodash": "^4.17.11",
-    "mustache": "^3.0.1",
-    "parjs": "^0.10.4",
-    "randomstring": "^1.1.5",
-    "shallow-equal": "^1.1.0",
-    "snabbdom": "^0.7.3",
-    "typescript": "^3.4.3",
-    "venn.js": "^0.2.20"
-  },
-  "devDependencies": {
-    "@types/assert": "^1.4.2",
-    "@types/color-convert": "^1.9.0",
-    "@types/common-tags": "^1.8.0",
-    "@types/d3": "^5.7.2",
-    "@types/d3-array": "^2.0.0",
-    "@types/d3-scale": "^2.1.1",
-    "@types/lodash": "^4.14.123",
-    "@types/mocha": "^5.2.7",
-    "@types/mustache": "^0.8.32",
-    "@types/node": "^11.13.8",
-    "@types/randomstring": "^1.1.6",
-    "cssnano": "^4.1.10",
-    "mocha": "^6.1.4",
-    "ts-node": "^8.1.0",
-    "tslint": "^5.15.0",
-    "tslint-eslint-rules": "^5.4.0"
-  },
-  "browserslist": [
-    "since 2017-06"
-  ]
+    "name": "crux",
+    "version": "0.1.0",
+    "repository": "git@gitlab.deepomics.org:lhc/crux.git",
+    "author": "Collider LI",
+    "license": "MIT",
+    "private": true,
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "scripts": {
+        "test": "mocha --require ts-node/register test/*.ts",
+        "build": "tsc -p ./ --outDir ./dist",
+        "build-node": "tsc -p ./tsconfig.node.json --outDir ./dist-node"
+    },
+    "dependencies": {
+        "axios": "^0.18.0",
+        "babel-polyfill": "^6.26.0",
+        "color-convert": "^2.0.1",
+        "common-tags": "^1.8.0",
+        "d3": "^5.9.2",
+        "d3-array": "^2.0.3",
+        "d3-geo": "^1.11.3",
+        "d3-scale": "^3.0.0",
+        "lodash": "^4.17.11",
+        "mustache": "^3.0.1",
+        "parjs": "^0.10.4",
+        "randomstring": "^1.1.5",
+        "shallow-equal": "^1.1.0",
+        "snabbdom": "^0.7.3",
+        "typescript": "^3.4.3",
+        "venn.js": "^0.2.20"
+    },
+    "devDependencies": {
+        "@types/assert": "^1.4.2",
+        "@types/color-convert": "^1.9.0",
+        "@types/common-tags": "^1.8.0",
+        "@types/d3": "^5.7.2",
+        "@types/d3-array": "^2.0.0",
+        "@types/d3-scale": "^2.1.1",
+        "@types/lodash": "^4.14.123",
+        "@types/mocha": "^5.2.7",
+        "@types/mustache": "^0.8.32",
+        "@types/node": "^11.13.8",
+        "@types/randomstring": "^1.1.6",
+        "cssnano": "^4.1.10",
+        "mocha": "^6.1.4",
+        "ts-node": "^8.1.0",
+        "tslint": "^5.15.0",
+        "tslint-eslint-rules": "^5.4.0"
+    },
+    "browserslist": [
+        "since 2017-06"
+    ]
 }

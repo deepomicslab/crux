@@ -1,6 +1,6 @@
 import { getFinalPosition } from "../../layout/layout";
-import { canvasFill, canvasRotate, canvasStroke } from "../../rendering/canvas-helper";
-import { svgPropFillAndStroke, svgPropPassthrough, svgPropXAndY, svgRotation } from "../../rendering/svg-helper";
+import { canvasFill, canvasRotate, canvasStroke } from "../../rendering/canvas/canvas-helper";
+import { svgPropFillAndStroke, svgPropPassthrough, svgPropXAndY, svgRotation } from "../../rendering/svg/svg-helper";
 import { BaseElementOption } from "./base-elm-options";
 import { PrimitiveElement } from "./primitive";
 
@@ -11,7 +11,9 @@ export interface PathOption extends BaseElementOption {
 }
 
 export class Path extends PrimitiveElement<PathOption> {
-    public static propNameForInitializer(): string { return "d"; }
+    public static propNameForInitializer(): string {
+        return "d";
+    }
 
     public svgAttrs(): any {
         const result = {
@@ -30,8 +32,12 @@ export class Path extends PrimitiveElement<PathOption> {
         return result;
     }
 
-    public svgTagName() { return "path"; }
-    public svgTextContent() { return null; }
+    public svgTagName() {
+        return "path";
+    }
+    public svgTextContent() {
+        return null;
+    }
 
     public renderToCanvas(ctx: CanvasRenderingContext2D) {
         canvasRotate(ctx, this);

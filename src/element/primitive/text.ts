@@ -1,7 +1,7 @@
 import { getThemeColor } from "../../color";
 import { getFinalPosition } from "../../layout/layout";
-import { canvasFill, canvasRotate, canvasStroke } from "../../rendering/canvas-helper";
-import { svgInnerHTML, svgPropFillAndStroke, svgPropPassthrough, svgRotation } from "../../rendering/svg-helper";
+import { canvasFill, canvasRotate, canvasStroke } from "../../rendering/canvas/canvas-helper";
+import { svgInnerHTML, svgPropFillAndStroke, svgPropPassthrough, svgRotation } from "../../rendering/svg/svg-helper";
 import { measuredTextSize } from "../../utils/text-size";
 import { BaseElementOption } from "./base-elm-options";
 import { PrimitiveElement } from "./primitive";
@@ -22,7 +22,9 @@ export class Text extends PrimitiveElement<TextOption> {
     public $cachedWidth!: number;
     public $cachedHeight!: number;
 
-    public static propNameForInitializer(): string { return "text"; }
+    public static propNameForInitializer(): string {
+        return "text";
+    }
 
     public defaultProp(): any {
         return {
@@ -37,9 +39,14 @@ export class Text extends PrimitiveElement<TextOption> {
             this.$cachedWidth = typeof this.prop.fixedWidth === "number" ? this.prop.fixedWidth : 0;
             return;
         }
-        const text = (typeof this.prop.text === "string") ? this.prop.text :
-            ((this.prop.text || this.prop.text === 0) && this.prop.text.toString) ? this.prop.text.toString() :
-            (this.prop.html && this.prop.html.toString) ? strip(this.prop.html.toString()) : null;
+        const text =
+            typeof this.prop.text === "string"
+                ? this.prop.text
+                : (this.prop.text || this.prop.text === 0) && this.prop.text.toString
+                ? this.prop.text.toString()
+                : this.prop.html && this.prop.html.toString
+                ? strip(this.prop.html.toString())
+                : null;
 
         if (text === null) {
             throw new Error(`Text: you must supply either "text" or "html".`);
@@ -66,7 +73,9 @@ export class Text extends PrimitiveElement<TextOption> {
         };
     }
 
-    public svgTagName() { return "text"; }
+    public svgTagName() {
+        return "text";
+    }
     public svgTextContent() {
         return this.prop.text;
     }
@@ -92,8 +101,12 @@ export class Text extends PrimitiveElement<TextOption> {
         return this.$geometry._y + this.$cachedHeight;
     }
 
-    public get layoutWidth() { return this.$cachedWidth; }
-    public get layoutHeight() { return this.$cachedHeight; }
+    public get layoutWidth() {
+        return this.$cachedWidth;
+    }
+    public get layoutHeight() {
+        return this.$cachedHeight;
+    }
 
     private getFixedTextLength() {
         if (this.prop.drawFixedWidth) {

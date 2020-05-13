@@ -1,17 +1,27 @@
-import { h, init } from "./vdom";
-import moduleAttrs from "./vdom/modules/attributes";
-import moduleEventLIsteners from "./vdom/modules/eventlisteners";
-import moduleProps from "./vdom/modules/props";
-import moduleStyle from "./vdom/modules/style";
-import { VNode, VNodeData } from "./vdom/vnode";
+import { h, init } from "../vdom";
+import moduleAttrs from "../vdom/modules/attributes";
+import moduleEventLIsteners from "../vdom/modules/eventlisteners";
+import moduleProps from "../vdom/modules/props";
+import moduleStyle from "../vdom/modules/style";
+import { VNode, VNodeData } from "../vdom/vnode";
 
-import { BaseElement } from "../element/base-element";
-import { Component } from "../element/component";
-import { isRenderable } from "../element/is";
-import { BaseElementOption } from "../element/primitive/base-elm-options";
-import { Visualizer } from "../visualizer/visualizer";
-import ns from "./ns";
-import { gatherEventListeners } from "./utils";
+import { oneLineTrim } from "common-tags";
+import { BaseElement } from "../../element/base-element";
+import { Component } from "../../element/component";
+import { isRenderable } from "../../element/is";
+import { BaseElementOption } from "../../element/primitive/base-elm-options";
+import IS_NODE from "../../utils/is-node";
+import { GradientDef, Visualizer } from "../../visualizer/visualizer";
+import ns from "../ns";
+import { Renderer } from "../renderer";
+import { gatherEventListeners } from "../utils";
+
+declare module "../../visualizer/visualizer" {
+    interface Visualizer {
+        svgDef: Record<string, string>;
+        svg?: SVGElement;
+    }
+}
 
 const patch = init([moduleAttrs, moduleProps, moduleEventLIsteners, moduleStyle]);
 
@@ -44,7 +54,7 @@ function updateHook(elm: BaseElement<BaseElementOption>) {
     return hook;
 }
 
-export function render(element: BaseElement<any>) {
+function render(element: BaseElement<any>) {
     const vnode = _genView(element);
     _patch(element, vnode);
     updateSVGDef(element.$v);
@@ -142,7 +152,7 @@ function _createRootElm(element: BaseElement): Element {
     svg.setAttribute("style", "font-family: Arial");
     svg.appendChild(rootElm);
     svg.appendChild(defElm);
-    element.$v.container.appendChild(svg);
+    element.$v.container!.appendChild(svg);
     return rootElm;
 }
 
@@ -153,8 +163,49 @@ function updateSVGDef(v: Visualizer) {
     defElm.innerHTML = html;
 }
 
-export function setSize(v: Visualizer) {
+function setSize(v: Visualizer) {
     if (!v.svg) return;
     v.svg.setAttribute("width", v.size.width);
     v.svg.setAttribute("height", v.size.height);
 }
+
+export function defineGradient(id: string, def: GradientDef, v: Visualizer) {
+    v.appendDef(
+        id,
+        "linearGradient",
+        {
+            x1: `${def.x1}%`,
+            x2: `${def.x2}%`,
+            y1: `${def.y1}%`,
+            y2: `${def.y2}%`,
+        },
+        def.stops
+            .map(
+                s => oneLineTrim`
+                <stop offset="${s.offset}%" style="
+                    stop-color:${s.color};
+                    stop-opacity:${s.opacity === undefined ? 1 : s.opacity}" />
+                `,
+            )
+            .join(),
+    );
+}
+
+export function getGradient(name: string) {
+    return `url(#${name})`;
+}
+
+const renderer: Renderer = {
+    init(v: Visualizer) {
+        if (IS_NODE) {
+            throw Error(`The "svg" renderer only works in browser environments.`);
+        }
+        v.svgDef = {};
+    },
+    setSize,
+    render,
+    defineGradient,
+    getGradient,
+};
+
+export default renderer;

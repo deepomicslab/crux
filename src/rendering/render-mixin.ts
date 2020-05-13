@@ -2,8 +2,15 @@ import { ElementDef, LazyElementDef, OptDict } from "./element-def";
 
 const indices = [0];
 
-export class RenderMixin {
-    public _z(this: any, tag: string, id: string, staticVal: boolean | (() => boolean), block: () => [OptDict, any[]], _useAutoKey = false): ElementDef {
+export default class RenderMixin {
+    public _z(
+        this: any,
+        tag: string,
+        id: string,
+        staticVal: boolean | (() => boolean),
+        block: () => [OptDict, any[]],
+        _useAutoKey = false,
+    ): ElementDef {
         const uniqID = `${id}-${indices[indices.length - 1]}`;
         if (_useAutoKey) id = uniqID;
         return new LazyElementDef(this.$v, tag, id, uniqID, staticVal, block);
@@ -21,10 +28,12 @@ export class RenderMixin {
         let result: ElementDef[][];
 
         if (typeof data === "number") {
-            result = Array(data).fill(null).map((_, i) => {
-                indices[indices.length - 1]++;
-                return iter(i, i);
-            });
+            result = Array(data)
+                .fill(null)
+                .map((_, i) => {
+                    indices[indices.length - 1]++;
+                    return iter(i, i);
+                });
         } else if (data instanceof Array) {
             result = data.map((d, i) => {
                 indices[indices.length - 1]++;

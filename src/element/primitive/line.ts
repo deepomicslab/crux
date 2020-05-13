@@ -1,7 +1,7 @@
 import { getThemeColor } from "../../color";
 import { GeometryOptValue } from "../../defs/geometry";
-import { canvasStroke } from "../../rendering/canvas-helper";
-import { svgPropFillAndStroke, svgPropPassthrough } from "../../rendering/svg-helper";
+import { canvasStroke } from "../../rendering/canvas/canvas-helper";
+import { svgPropFillAndStroke, svgPropPassthrough } from "../../rendering/svg/svg-helper";
 import { BaseElementOption } from "./base-elm-options";
 import { PrimitiveElement } from "./primitive";
 
@@ -15,7 +15,6 @@ export interface LineOption extends BaseElementOption {
 }
 
 export class Line extends PrimitiveElement<LineOption> {
-
     public svgAttrs(): any {
         const { x, y, x1, x2, y1, y2 } = this.$geometry;
         return {
@@ -30,20 +29,18 @@ export class Line extends PrimitiveElement<LineOption> {
         };
     }
 
-    public svgTagName() { return "line"; }
-    public svgTextContent() { return null; }
+    public svgTagName() {
+        return "line";
+    }
+    public svgTextContent() {
+        return null;
+    }
 
     public renderToCanvas(ctx: CanvasRenderingContext2D) {
         const { x, y, x1, x2, y1, y2 } = this.$geometry;
         this.path = new Path2D();
-        this.path.moveTo(
-            x1 === null ? x : x1,
-            y1 === null ? y : y1,
-        );
-        this.path.lineTo(
-            x2 === null ? x : x2,
-            y2 === null ? y : y2,
-        );
+        this.path.moveTo(x1 === null ? x : x1, y1 === null ? y : y1);
+        this.path.lineTo(x2 === null ? x : x2, y2 === null ? y : y2);
         canvasStroke(ctx, this);
     }
 

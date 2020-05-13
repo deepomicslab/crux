@@ -12,6 +12,7 @@ import * as utils from "./utils";
 import loadData from "./load-data";
 
 import { currentEventContext } from "./event";
+import IS_NODE from "./utils/is-node";
 
 // tslint:disable-next-line: variable-name
 const Crux = {
@@ -32,4 +33,6 @@ const Crux = {
 
 export default Crux;
 
-window["Crux"] = Crux;
+if (!IS_NODE) {
+    window["Crux"] = Crux;
+}

@@ -1,5 +1,6 @@
 import loadData from "../load-data";
 import { DataSource } from "../utils/data-loader";
+import IS_NODE from "../utils/is-node";
 import { Visualizer, VisualizerOption } from "./visualizer";
 
 type VisualizeOption = VisualizerOption & {
@@ -34,23 +35,23 @@ export function visualize(arg: VisualizeOption | VisualizeResult): VisualizeResu
         opt = arg;
         v = new Visualizer(arg);
     }
-    if (opt.loadData) {
-        loadData(opt.loadData).then((d: any) => {
-            v.data = { ...v.data, ...d };
-            if (opt.setup) opt.setup.call(v);
-            v.run();
-            if (window.OVIZ_EXPORT_GLOBAL && window.OVIZ_VISUALIZER) {
-                window.OVIZ_VISUALIZER(v);
-            }
-            if (opt.didRender) opt.didRender.call(v);
-        });
-    } else {
+
+    function run() {
         if (opt.setup) opt.setup.call(v);
         v.run();
-        if (window.OVIZ_EXPORT_GLOBAL && window.OVIZ_VISUALIZER) {
+        if (!IS_NODE && window.OVIZ_EXPORT_GLOBAL && window.OVIZ_VISUALIZER) {
             window.OVIZ_VISUALIZER(v);
         }
         if (opt.didRender) opt.didRender.call(v);
+    }
+
+    if (opt.loadData) {
+        loadData(opt.loadData).then((d: any) => {
+            v.data = { ...v.data, ...d };
+            run();
+        });
+    } else {
+        run();
     }
     return { visualizer: v, option: opt };
 }

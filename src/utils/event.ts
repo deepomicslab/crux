@@ -1,4 +1,5 @@
 import * as _ from "lodash";
+import IS_NODE from "./is-node";
 
 declare global {
     interface Window {
@@ -8,9 +9,16 @@ declare global {
     }
 }
 
-const eventNames = window.__BVD3_eventNames || (window.__BVD3_eventNames = new Set());
-const listeners = window.__BVD3_listeners || (window.__BVD3_listeners = {});
-const rpcReceivers = window.__BVD3_rpcReceivers || (window.__BVD3_rpcReceivers = {});
+function getWindowObject<T>(name: string, defaultVal: T): T {
+    if (IS_NODE) {
+        return defaultVal;
+    }
+    return window[name] || (window[name] = defaultVal);
+}
+
+const eventNames = getWindowObject("__BVD3_eventNames", new Set());
+const listeners: Record<string, Listener[]> = getWindowObject("__BVD3_listeners", {});
+const rpcReceivers: Record<string, RPCCallback> = getWindowObject("__BVD3_rpcReceivers", {});
 
 export type Callback = (eventName: string, data?: any) => void;
 export type RPCCallback = (data?: any) => any;
@@ -72,7 +80,9 @@ export function rpcRegisterReceiver(label: string, callback: RPCCallback) {
 }
 
 export function rpc(label: string, data?: any): any {
-    if (!rpcReceivers[label]) { return undefined; }
+    if (!rpcReceivers[label]) {
+        return undefined;
+    }
     return rpcReceivers[label].call(null, data);
 }
 

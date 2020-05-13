@@ -1,8 +1,8 @@
 import { getThemeColor } from "../../color";
 import { GeometryOptValue } from "../../defs/geometry";
 import { getFinalPosition } from "../../layout/layout";
-import { canvasFill, canvasRotate, canvasStroke } from "../../rendering/canvas-helper";
-import { svgPropFillAndStroke, svgPropPassthrough, svgRotation } from "../../rendering/svg-helper";
+import { canvasFill, canvasRotate, canvasStroke } from "../../rendering/canvas/canvas-helper";
+import { svgPropFillAndStroke, svgPropPassthrough, svgRotation } from "../../rendering/svg/svg-helper";
 import { BaseElementOption } from "./base-elm-options";
 import { PrimitiveElement } from "./primitive";
 
@@ -17,7 +17,6 @@ interface RectOption extends BaseElementOption {
 }
 
 export class Rect extends PrimitiveElement<RectOption> {
-
     public svgAttrs(): any {
         let [x, y] = getFinalPosition(this as any);
         let width = this._widthWithMin(x);
@@ -37,14 +36,19 @@ export class Rect extends PrimitiveElement<RectOption> {
                 rx: "cornerRadius",
                 ry: "cornerRadius",
             })(this),
-            x, y,
+            x,
+            y,
             width,
             height,
         };
     }
 
-    public svgTagName() { return "rect"; }
-    public svgTextContent() { return null; }
+    public svgTagName() {
+        return "rect";
+    }
+    public svgTextContent() {
+        return null;
+    }
 
     public renderToCanvas(ctx: CanvasRenderingContext2D) {
         canvasRotate(ctx, this);
@@ -97,15 +101,13 @@ export class Rect extends PrimitiveElement<RectOption> {
         const gw = this.$geometry.width;
         const gx2 = this.$geometry.xEnd;
         const width = gx2 !== null ? gx2 - x : gw;
-        return "minWidth" in this.prop && this.prop.minWidth > 0 ?
-            Math.max(width, this.prop.minWidth) : width;
+        return "minWidth" in this.prop && this.prop.minWidth > 0 ? Math.max(width, this.prop.minWidth) : width;
     }
 
     private _heightWithMin(y: number): number {
         const gh = this.$geometry.height;
         const gy2 = this.$geometry.yEnd;
         const height = gy2 !== null ? gy2 - y : gh;
-        return "minHeight" in this.prop && this.prop.minHeight > 0 ?
-            Math.max(height, this.prop.minHeight) : height;
+        return "minHeight" in this.prop && this.prop.minHeight > 0 ? Math.max(height, this.prop.minHeight) : height;
     }
 }

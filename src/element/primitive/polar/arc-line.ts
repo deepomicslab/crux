@@ -1,7 +1,7 @@
 import { getThemeColor } from "../../../color";
 import { GeometryOptValue } from "../../../defs/geometry";
-import { canvasFill, canvasStroke } from "../../../rendering/canvas-helper";
-import { svgPropFillAndStroke } from "../../../rendering/svg-helper";
+import { canvasFill, canvasStroke } from "../../../rendering/canvas/canvas-helper";
+import { svgPropFillAndStroke } from "../../../rendering/svg/svg-helper";
 import { toCartesian, toRad } from "../../../utils/math";
 import { BaseElement } from "../../base-element";
 import { BaseElementOption } from "../base-elm-options";
@@ -21,16 +21,18 @@ export class ArcLine extends BaseElement<ArcLineOption> {
         };
     }
 
-    public svgTagName() { return "path"; }
-    public svgTextContent() { return null; }
+    public svgTagName() {
+        return "path";
+    }
+    public svgTextContent() {
+        return null;
+    }
 
     public renderToCanvas(ctx: CanvasRenderingContext2D) {
         const { x1, x2, r } = this.$geometry;
         const isRad = !!this.prop.rad;
         this.path = new Path2D();
-        this.path.arc(0, 0, r,
-            isRad ? x1 - 90 : toRad(x1 - 90),
-            isRad ? x2 - 90 : toRad(x2 - 90));
+        this.path.arc(0, 0, r, isRad ? x1 - 90 : toRad(x1 - 90), isRad ? x2 - 90 : toRad(x2 - 90));
         canvasFill(ctx, this);
         canvasStroke(ctx, this);
     }
@@ -43,7 +45,7 @@ export class ArcLine extends BaseElement<ArcLineOption> {
 
     public geometryProps() {
         const { h, v } = super.geometryProps();
-        return { h: [...h, "x1", "x2"], v: [...v, "r"]};
+        return { h: [...h, "x1", "x2"], v: [...v, "r"] };
     }
 
     private getPath() {

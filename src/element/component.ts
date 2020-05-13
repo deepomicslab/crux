@@ -1,11 +1,11 @@
 import { GeometryOptions, GeometryValue } from "../defs/geometry";
 import { getFinalPosition } from "../layout/layout";
-import { canvasClip } from "../rendering/canvas-helper";
+import { canvasClip } from "../rendering/canvas/canvas-helper";
 import { ElementDef } from "../rendering/element-def";
 import helperMixin from "../rendering/helper-mixin";
-import { RenderMixin } from "../rendering/render-mixin";
+import RenderMixin from "../rendering/render-mixin";
 import { updateTree } from "../rendering/render-tree";
-import { svgPropClip } from "../rendering/svg-helper";
+import { svgPropClip } from "../rendering/svg/svg-helper";
 import { compile, Renderer } from "../template/compiler";
 import { toRad } from "../utils/math";
 import { applyMixins } from "../utils/mixin";
@@ -26,10 +26,8 @@ export interface PolarCoordInfo {
     rad: boolean;
 }
 
-export class Component<Option extends ComponentOption = ComponentOption>
-    extends BaseElement<Option>
+export class Component<Option extends ComponentOption = ComponentOption> extends BaseElement<Option>
     implements RenderMixin, ScaleMixin {
-
     public static components: Record<string, any>;
 
     public $ref: Record<string, ActualElement | ActualElement[]> = {};
@@ -68,10 +66,8 @@ export class Component<Option extends ComponentOption = ComponentOption>
     }
 
     public setProp(prop: Partial<Option>) {
-        if (!("width" in prop))
-            this._defaultedWidth = true;
-        if (!("height" in prop))
-            this._defaultedHeight = true;
+        if (!("width" in prop)) this._defaultedWidth = true;
+        if (!("height" in prop)) this._defaultedHeight = true;
         super.setProp(prop);
     }
 
@@ -118,17 +114,15 @@ export class Component<Option extends ComponentOption = ComponentOption>
 
     protected _getTransformation(): [number, number, number, number, number] {
         let v: any;
-        let x = 0, y = 0;
+        let x = 0,
+            y = 0;
         if (!(this.$coord && this.$coord.$polar && !this.$isCoordRoot)) {
             [x, y] = getFinalPosition(this as any);
         }
-        if (v = this.prop.rotation) {
-            if (typeof v === "number")
-                return [x, y, v, 0, 0];
-            else if (Array.isArray(v))
-                return [x, y, v[0] , v[1] === "_" ? x : v[1], v[2] === "_" ? y : v[2]];
-            else
-                throw new Error(`transform value must be a number or an array.`);
+        if ((v = this.prop.rotation)) {
+            if (typeof v === "number") return [x, y, v, 0, 0];
+            else if (Array.isArray(v)) return [x, y, v[0], v[1] === "_" ? x : v[1], v[2] === "_" ? y : v[2]];
+            else throw new Error(`transform value must be a number or an array.`);
         }
         return [x, y, 0, 0, 0];
     }
@@ -143,9 +137,13 @@ export class Component<Option extends ComponentOption = ComponentOption>
 
     // svg
 
-    public svgTagName() { return "g"; }
-    public svgTextContent() { return null; }
-    public svgAttrs(): Record<string, string|number|boolean> {
+    public svgTagName() {
+        return "g";
+    }
+    public svgTextContent() {
+        return null;
+    }
+    public svgAttrs(): Record<string, string | number | boolean> {
         const attrs = svgPropClip(this as any);
         const [x, y, rc, rx, ry] = this._getTransformation();
         const rotateAfterTranslate = this.prop.rotateAfterTranslate;
@@ -155,12 +153,17 @@ export class Component<Option extends ComponentOption = ComponentOption>
             if (rx === 0 && ry === 0) {
                 transform = rotateAfterTranslate ? `${transform} rotate(${rc})` : `rotate(${rc}) ${transform}`;
             } else {
-                transform = rotateAfterTranslate ? `${transform} rotate(${rc},${rx},${ry})` : `rotate(${rc},${rx},${ry}) ${transform}`;
+                transform = rotateAfterTranslate
+                    ? `${transform} rotate(${rc},${rx},${ry})`
+                    : `rotate(${rc},${rx},${ry}) ${transform}`;
             }
         }
         if (transform || hasExtraTransform) {
             attrs.transform = transform;
-            attrs.transform += this.$_extraTransforms.reduce((p, [name, ...args]) => `${p} ${name}(${args.join(",")})`, "");
+            attrs.transform += this.$_extraTransforms.reduce(
+                (p, [name, ...args]) => `${p} ${name}(${args.join(",")})`,
+                "",
+            );
         }
         if ("opacity" in this.prop) {
             attrs.opacity = this.prop.opacity;
@@ -173,7 +176,7 @@ export class Component<Option extends ComponentOption = ComponentOption>
 
     // canvas
     public renderToCanvas(ctx: CanvasRenderingContext2D) {
-        const t = this.$_cachedTransform = this._getTransformation();
+        const t = (this.$_cachedTransform = this._getTransformation());
         const [x, y, rc, rx, ry] = t;
         if (this.$_extraTransforms.length) {
             for (const [name, ...args] of this.$_extraTransforms) {
@@ -183,7 +186,7 @@ export class Component<Option extends ComponentOption = ComponentOption>
             }
         } else {
             const rotateAfterTranslate = this.prop.rotateAfterTranslate;
-            const needTranslate = (x !== 0 || y !== 0);
+            const needTranslate = x !== 0 || y !== 0;
             if (rotateAfterTranslate && needTranslate) {
                 ctx.translate(x, y);
             }
@@ -207,7 +210,7 @@ export class Component<Option extends ComponentOption = ComponentOption>
 
     public __didLayout() {
         if (this.prop.coord === "polar" && !this.inPolorCoordSystem) {
-            const $g = this.$geometry as unknown as GeometryOptions<ComponentOption>;
+            const $g = (this.$geometry as unknown) as GeometryOptions<ComponentOption>;
             const r = Math.min($g.width, $g.height) * 0.5;
             const cx = $g.width * 0.5;
             const cy = $g.height * 0.5;
@@ -218,8 +221,7 @@ export class Component<Option extends ComponentOption = ComponentOption>
     }
 
     public getScale(horizontal: boolean): any {
-        return (horizontal ? this.$scaleX : this.$scaleY) ||
-            (this.parent ? this.parent.getScale(horizontal) : null);
+        return (horizontal ? this.$scaleX : this.$scaleY) || (this.parent ? this.parent.getScale(horizontal) : null);
     }
 
     public geometryProps() {
@@ -247,11 +249,15 @@ export class Component<Option extends ComponentOption = ComponentOption>
     }
 
     public boundaryForScale(horizontal?: boolean): [number, number] {
-        const size = horizontal ?
-            this.$polar ?
-                this.$polar.rad ? Math.PI * 2 : 360 :
-                (this.$geometry as any).width :
-            this.$polar ? this.$polar.r : (this.$geometry as any).height;
+        const size = horizontal
+            ? this.$polar
+                ? this.$polar.rad
+                    ? Math.PI * 2
+                    : 360
+                : (this.$geometry as any).width
+            : this.$polar
+            ? this.$polar.r
+            : (this.$geometry as any).height;
         return [0, size];
     }
 
@@ -286,7 +292,11 @@ export class Component<Option extends ComponentOption = ComponentOption>
     public _l!: () => ElementDef[];
     public _h = helperMixin;
 
-    public _createScaleLinear!: (horizontal: boolean, domain: [number, number], range?: [number, number]) => d3.ScaleLinear<number, number>;
+    public _createScaleLinear!: (
+        horizontal: boolean,
+        domain: [number, number],
+        range?: [number, number],
+    ) => d3.ScaleLinear<number, number>;
     public _createScaleOrdinal!: (domain: string[], range: number[]) => d3.ScaleOrdinal<string, number>;
 
     protected t!: (t: TemplateStringsArray, ...placeholders: string[]) => ElementDef;

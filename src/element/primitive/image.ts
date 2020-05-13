@@ -1,7 +1,7 @@
 import { GeometryOptValue } from "../../defs/geometry";
 import { getFinalPosition } from "../../layout/layout";
-import { canvasRotate } from "../../rendering/canvas-helper";
-import { svgRotation } from "../../rendering/svg-helper";
+import { canvasRotate } from "../../rendering/canvas/canvas-helper";
+import { svgRotation } from "../../rendering/svg/svg-helper";
 import { BaseElement } from "../base-element";
 import { BaseElementOption } from "./base-elm-options";
 

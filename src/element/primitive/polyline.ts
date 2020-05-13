@@ -1,6 +1,6 @@
 import { getThemeColor } from "../../color";
-import { canvasFill, canvasStroke } from "../../rendering/canvas-helper";
-import { svgPropFillAndStroke, svgPropPassthrough } from "../../rendering/svg-helper";
+import { canvasFill, canvasStroke } from "../../rendering/canvas/canvas-helper";
+import { svgPropFillAndStroke, svgPropPassthrough } from "../../rendering/svg/svg-helper";
 import { BaseElementOption } from "./base-elm-options";
 import { PrimitiveElement } from "./primitive";
 
@@ -9,7 +9,6 @@ export interface PolylineOption extends BaseElementOption {
 }
 
 export class Polyline extends PrimitiveElement<PolylineOption> {
-
     public svgAttrs(): any {
         let pointsStr = ``;
         for (const p of this.prop.points) {
@@ -25,8 +24,12 @@ export class Polyline extends PrimitiveElement<PolylineOption> {
         };
     }
 
-    public svgTagName() {return "polyline"; }
-    public svgTextContent() { return null; }
+    public svgTagName() {
+        return "polyline";
+    }
+    public svgTextContent() {
+        return null;
+    }
 
     public renderToCanvas(ctx: CanvasRenderingContext2D) {
         this.path = new Path2D();

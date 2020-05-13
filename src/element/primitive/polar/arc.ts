@@ -1,7 +1,7 @@
 import { getThemeColor } from "../../../color";
 import { GeometryOptValue } from "../../../defs/geometry";
-import { canvasFill, canvasStroke } from "../../../rendering/canvas-helper";
-import { svgPropFillAndStroke } from "../../../rendering/svg-helper";
+import { canvasFill, canvasStroke } from "../../../rendering/canvas/canvas-helper";
+import { svgPropFillAndStroke } from "../../../rendering/svg/svg-helper";
 import { toRad } from "../../../utils/math";
 import { BaseElement } from "../../base-element";
 import { BaseElementOption } from "../base-elm-options";
@@ -25,8 +25,12 @@ export class Arc extends BaseElement<ArcOption> {
         };
     }
 
-    public svgTagName() { return "path"; }
-    public svgTextContent() { return null; }
+    public svgTagName() {
+        return "path";
+    }
+    public svgTextContent() {
+        return null;
+    }
 
     public renderToCanvas(ctx: CanvasRenderingContext2D) {
         ctx.beginPath();
@@ -38,13 +42,12 @@ export class Arc extends BaseElement<ArcOption> {
     private getPath() {
         const x1 = this.prop.rad ? this.$geometry.x1 : toRad(this.$geometry.x1);
         const x2 = this.prop.rad ? this.$geometry.x2 : toRad(this.$geometry.x2);
-        return arc()
-            .padAngle(this.prop.pad)({
-                innerRadius: this.$geometry.r1,
-                outerRadius: this.$geometry.r2,
-                startAngle: x1,
-                endAngle: x2,
-            });
+        return arc().padAngle(this.prop.pad)({
+            innerRadius: this.$geometry.r1,
+            outerRadius: this.$geometry.r2,
+            startAngle: x1,
+            endAngle: x2,
+        });
     }
 
     public defaultProp() {

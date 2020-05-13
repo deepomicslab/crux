@@ -33,7 +33,8 @@ export default {
         }
     },
     anchor(s1: string, s2: string) {
-        const a1 = ANCHOR[s1], a2 = ANCHOR[s2];
+        const a1 = ANCHOR[s1],
+            a2 = ANCHOR[s2];
         if (!a1 || !a2) {
             throw new Error(`Unknown anchor (${s1}, ${s2})`);
         }
@@ -41,7 +42,9 @@ export default {
     },
     rotate(self: any, value: number) {
         if (arguments.length >= 4) {
-            const x = arguments[2], y = arguments[3], unit = arguments[4];
+            const x = arguments[2],
+                y = arguments[3],
+                unit = arguments[4];
             if (unit === "rad") value = toDeg(value);
             return self._rotate(value, x, y);
         } else {
@@ -66,25 +69,18 @@ export default {
     },
     scaled(self: any, value: number | [number, number][], direction: boolean) {
         if (Array.isArray(value)) {
-            return value.map(([x, y]) => [
-                self._scale(x, true),
-                self._scale(y, false),
-            ]);
+            return value.map(([x, y]) => [self._scale(x, true), self._scale(y, false)]);
         } else {
             return self._scale(value, direction);
         }
     },
     scaleLinear(d1?: number, d2?: number, r1?: number, r2?: number) {
-        const domain = (d1 !== undefined && d2 !== undefined) ? [d1, d2] : null;
-        const range = (r1 !== undefined && r2 !== undefined) ? [r1, r2] : null;
+        const domain = d1 !== undefined && d2 !== undefined ? [d1, d2] : null;
+        const range = r1 !== undefined && r2 !== undefined ? [r1, r2] : null;
         return { __scale__: true, type: "linear", domain, range };
     },
     gradient(self: any, name: string) {
-        if (self.$v.isSVG) {
-            return `url(#${name})`;
-        } else {
-            return self.$v._gradients[name];
-        }
+        return self.$v.renderer.getGradient(name, self.$v, self.$v.rendererCtx);
     },
     color(self: any, name: string | number) {
         if (typeof name === "number") {

@@ -1,8 +1,8 @@
 import { getThemeColor } from "../../color";
 import { GeometryOptValue } from "../../defs/geometry";
 import { getFinalPosition } from "../../layout/layout";
-import { canvasFill, canvasRotate, canvasStroke } from "../../rendering/canvas-helper";
-import { svgPropFillAndStroke, svgRotation } from "../../rendering/svg-helper";
+import { canvasFill, canvasRotate, canvasStroke } from "../../rendering/canvas/canvas-helper";
+import { svgPropFillAndStroke, svgRotation } from "../../rendering/svg/svg-helper";
 import { BaseElementOption } from "./base-elm-options";
 import { PrimitiveElement } from "./primitive";
 
@@ -13,7 +13,9 @@ export interface TriangleOption extends BaseElementOption {
 }
 
 export class Triangle extends PrimitiveElement<TriangleOption> {
-    public static propNameForInitializer(): string { return "d"; }
+    public static propNameForInitializer(): string {
+        return "d";
+    }
 
     public geometryProps() {
         const { h, v } = super.geometryProps();
@@ -45,8 +47,12 @@ export class Triangle extends PrimitiveElement<TriangleOption> {
         return result;
     }
 
-    public svgTagName() { return "path"; }
-    public svgTextContent() { return null; }
+    public svgTagName() {
+        return "path";
+    }
+    public svgTextContent() {
+        return null;
+    }
 
     public renderToCanvas(ctx: CanvasRenderingContext2D) {
         canvasRotate(ctx, this);
@@ -67,13 +73,29 @@ export class Triangle extends PrimitiveElement<TriangleOption> {
         const { width, height } = this.$geometry;
         switch (this.prop.orientation) {
             case "bottom":
-                return [[0, 0], [width, 0], [width / 2, height]];
+                return [
+                    [0, 0],
+                    [width, 0],
+                    [width / 2, height],
+                ];
             case "left":
-                return [[0, height / 2], [width, 0], [width, height]];
+                return [
+                    [0, height / 2],
+                    [width, 0],
+                    [width, height],
+                ];
             case "right":
-                return [[0, 0], [width, height / 2], [0, height]];
+                return [
+                    [0, 0],
+                    [width, height / 2],
+                    [0, height],
+                ];
             default:
-                return [[width / 2, 0], [width, height], [0, height]];
+                return [
+                    [width / 2, 0],
+                    [width, height],
+                    [0, height],
+                ];
         }
     }
 
