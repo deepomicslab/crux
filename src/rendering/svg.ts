@@ -13,12 +13,7 @@ import { Visualizer } from "../visualizer/visualizer";
 import ns from "./ns";
 import { gatherEventListeners } from "./utils";
 
-const patch = init([
-    moduleAttrs,
-    moduleProps,
-    moduleEventLIsteners,
-    moduleStyle,
-]);
+const patch = init([moduleAttrs, moduleProps, moduleEventLIsteners, moduleStyle]);
 
 export interface SVGRenderable {
     svgTagName(): string;
@@ -34,18 +29,18 @@ const HOOKS_MAP = {
 
 function insertHook(elm: BaseElement<BaseElementOption>) {
     if (elm.__insertHook) return elm.__insertHook;
-    const hook = elm.__insertHook = (vnode: VNode) => {
+    const hook = (elm.__insertHook = (vnode: VNode) => {
         if (!elm.isRoot) elm.vnode = vnode;
         elm.$callHook("didMount");
-    };
+    });
     return hook;
 }
 
 function updateHook(elm: BaseElement<BaseElementOption>) {
     if (elm.__updateHook) return elm.__updateHook;
-    const hook = elm.__updateHook = (_: VNode, vnode: VNode) => {
+    const hook = (elm.__updateHook = (_: VNode, vnode: VNode) => {
         if (!elm.isRoot) elm.vnode = vnode;
-    };
+    });
     return hook;
 }
 
@@ -57,7 +52,7 @@ export function render(element: BaseElement<any>) {
 
 function _genView(element: BaseElement<any>): VNode {
     // if (element instanceof Component && element.isStatic && element.vnode) {
-    if (element.parent && element.parent.isStatic && element.vnode) {
+    if (element.parent && element.parent.isStatic && !element.parent._isRenderRoot && element.vnode) {
         return element.vnode;
     }
     if (isRenderable(element)) {
@@ -69,9 +64,7 @@ function _genView(element: BaseElement<any>): VNode {
 
     let children: VNode[] | undefined;
     if (element instanceof Component) {
-        children = element.children
-            .filter(c => c._isActive)
-            .map(_genView);
+        children = element.children.filter(c => c._isActive).map(_genView);
     }
     const key = element.prop.key || element.id;
     const opt: VNodeData = {
@@ -117,7 +110,7 @@ function _genView(element: BaseElement<any>): VNode {
     }
 
     // hooks
-    Object.keys(HOOKS_MAP).forEach((k) => {
+    Object.keys(HOOKS_MAP).forEach(k => {
         if (k in element) {
             opt.hook![HOOKS_MAP[k]] = element[k].bind(element);
         }
@@ -143,7 +136,7 @@ function _createRootElm(element: BaseElement): Element {
     const rootElm = document.createElementNS(ns, "g");
     const defElm = document.createElementNS(ns, "defs");
     defElm.innerHTML = Object.values(element.$v.svgDef).join("");
-    const svg = element.$v.svg = document.createElementNS(ns, "svg");
+    const svg = (element.$v.svg = document.createElementNS(ns, "svg"));
     svg.setAttribute("xmlns", ns);
     setSize(element.$v);
     svg.setAttribute("style", "font-family: Arial");

@@ -43,6 +43,7 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
 
     public _firstRender = true;
     public shouldNotSkipNextUpdate = false;
+    public _isRenderRoot = false;
 
     private _prop: Option;
     public prop!: Option;
@@ -294,9 +295,11 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption>
     }
 
     public draw() {
+        this._isRenderRoot = true;
         this.renderTree();
         this.$v.renderer.call(null, this as any);
         this.$callHook("didPaint");
+        this._isRenderRoot = false;
     }
 
     public shouldDraw() {
