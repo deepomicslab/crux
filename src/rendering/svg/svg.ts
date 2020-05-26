@@ -19,6 +19,7 @@ import { gatherEventListeners } from "../utils";
 interface SVGContext {
     svgDef: Record<string, string>;
     svg?: SVGElement;
+    appendDef: any;
 }
 
 const patch = init([moduleAttrs, moduleProps, moduleEventLIsteners, moduleStyle]);
@@ -213,6 +214,8 @@ const renderer: Renderer<SVGContext> = {
             throw Error(`The "svg" renderer only works in browser environments.`);
         }
         context.svgDef = {};
+        context.appendDef = (id: string, tag: string, attrs: Record<string, string> = {}, content: string = "") =>
+            appendDef(context, id, tag, attrs, content);
     },
     setSize,
     render,

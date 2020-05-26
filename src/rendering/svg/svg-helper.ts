@@ -64,7 +64,7 @@ export function svgPropClip(elm: Component<ComponentOption>) {
             throw new Error(`Clip: unknown type "${v.type}"`);
         }
         const id = `clip-${elm.uid}`;
-        elm.$v.appendDef(id, "clipPath", {}, clipPath);
+        elm.$v.rendererCtx.appendDef(id, "clipPath", {}, clipPath);
         result["clip-path"] = `url(#${id})`;
     }
     return result;

@@ -157,7 +157,7 @@ export class GeneArea extends Component<GeneAreaOption> {
 
         if (this.prop.displayDirection) {
             const markerColor = this.prop.markerColor || getThemeColor(this.$v.theme, "line");
-            this.$v.appendDef(
+            this.$v.rendererCtx.appendDef(
                 "genearea-marker",
                 "marker",
                 {

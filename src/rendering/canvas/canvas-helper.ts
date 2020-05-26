@@ -55,7 +55,7 @@ export function canvasFill(
 ) {
     let f, v: any;
     if ((f = elm.prop.fill) && f !== "none") {
-        if ((v = elm.prop.fillOpacity)) {
+        if ((v = elm.prop.fillOpacity) && v < 1) {
             const color = d3c.color(f)!.rgb();
             ctx.fillStyle = `rgba(${color.r},${color.g},${color.b},${color.opacity * v})`;
         } else {

@@ -59,7 +59,7 @@ function shouldUpdateElement(elm: ActualElement, opt: OptDict): boolean {
     return true;
 }
 
-export function updateTree(parent: Component<ComponentOption>, def_?: ElementDef, order?: number) {
+export function updateTree(parent: Component, def_?: ElementDef, order?: number) {
     let elm: ActualElement;
     let created: boolean;
     let xScaleChangeRoot = false,
@@ -227,7 +227,7 @@ export function updateTree(parent: Component<ComponentOption>, def_?: ElementDef
         if (!elm.isStatic || elm._firstRender) {
             elm.children.forEach(c => (c._isActive = false));
             for (let i = 0, l = def!.children.length; i < l; i++) {
-                updateTree(elm, def!.children[i], i);
+                updateTree(elm as Component, def!.children[i], i);
             }
             // sort
             let tmp, o;

@@ -82,7 +82,6 @@ export default {
     gradient(self: any, name: string) {
         if (arguments.length >= 4) {
             const [, id, deg, ...stops] = arguments;
-            console.log(name, id, stops, deg);
             self.$v.defineGradient(id, deg, stops);
         }
         return self.$v.renderer.getGradient(name, self.$v, self.$v.rendererCtx);
