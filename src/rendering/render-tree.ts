@@ -1,3 +1,4 @@
+import config from "../config";
 import { BaseElement } from "../element/base-element";
 import { ActualElement, Component } from "../element/component";
 import { ComponentOption } from "../element/component-options";
@@ -202,15 +203,14 @@ export function updateTree(parent: Component, def_?: ElementDef, order?: number)
     elm.$callHook("willUpdate");
 
     elm._findActiveStage();
+    elm.parseInternalProps();
+    if (config.typeCheck) elm.performTypeCheck();
+
     layoutElement(elm);
 
-    if (elm.prop.debug) {
-        console.log(elm);
-    }
+    if (elm.prop.debug) console.log(elm);
 
     elm.$callHook("didLayout");
-
-    elm.parseInternalProps();
 
     if (isRenderable(elm)) {
         currElements.push(elm);

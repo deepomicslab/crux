@@ -9,6 +9,7 @@ import * as color from "./color";
 import * as use from "./ext/use";
 import * as utils from "./utils";
 
+import config from "./config";
 import loadData from "./load-data";
 
 import { currentEventContext } from "./event";
@@ -23,6 +24,7 @@ const Crux = {
     c,
     use,
 
+    config,
     utils,
     algo,
     color,

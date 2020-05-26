@@ -22,7 +22,7 @@ svg {
         Rect {
             x = 20
             y = 20
-            fillOpacity = "1"
+            fillOpacity = 1
             stroke = "blue"
             strokeWidth = 2
             width = 100

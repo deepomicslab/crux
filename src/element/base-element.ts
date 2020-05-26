@@ -5,6 +5,7 @@ import { CanvasRenderable } from "../rendering/canvas/canvas";
 import { SVGRenderable } from "../rendering/svg/svg";
 import { VNode } from "../rendering/vdom/vnode";
 import { toCartesian } from "../utils/math";
+import Type, { TypeDef } from "../utils/type-check";
 import { defaultUIDGenerator } from "../utils/uid";
 import { Visualizer } from "../visualizer/visualizer";
 import { BaseOption } from "./base-options";
@@ -26,6 +27,8 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption> implem
     public _name!: string;
     public id: number | string;
     public uid: number;
+
+    public static propTypes?: Record<string, TypeDef>;
 
     public isRoot = false;
     public _isActive = true;
@@ -223,6 +226,20 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption> implem
                 this.$behavior[k] = new behavior(this as any, def);
             }
         });
+    }
+
+    public performTypeCheck() {
+        if ((this.constructor as typeof BaseElement).propTypes) {
+            Object.keys(this._prop).forEach(k => {
+                const t = (this.constructor as typeof BaseElement).propTypes![k];
+                if (t !== undefined) {
+                    const [result, error] = Type.check(this._prop[k], t);
+                    if (!result) {
+                        console.error(`Type checking failed for prop "${k}".\n${Type.trace(error!)}`);
+                    }
+                }
+            });
+        }
     }
 
     /* event */

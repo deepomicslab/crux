@@ -1,5 +1,7 @@
 import Crux from "../src/index";
 
+Crux.config.typeCheck = true;
+
 import { registerDefaultBioInfoComponents } from "../src/element/global";
 
 declare global {

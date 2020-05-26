@@ -13,8 +13,8 @@ function updateGeometryProps(el: BaseElement, propName: string, parentSize: numb
     if (typeof val === "number") {
         el.$geometry[propName] = val;
     } else if (!val) {
-        el.$geometry[propName] = (propName === "x" || propName === "y") ? 0 : null;
-    } else if ("value" in val) {
+        el.$geometry[propName] = propName === "x" || propName === "y" ? 0 : null;
+    } else if (typeof val === "object" && "value" in val) {
         el.$geometry[propName] = GeometryValue.cal(val, parentSize);
     } else {
         throw new Error(`Unexpected geometry value: ${val}`);
@@ -23,8 +23,7 @@ function updateGeometryProps(el: BaseElement, propName: string, parentSize: numb
 
 export function getParentSize(el: BaseElement) {
     const isRoot = el instanceof Component && el.isRoot;
-    const parent = el.logicalParent && el.logicalParent.parent ?
-        el.logicalParent.parent : el.parent;
+    const parent = el.logicalParent && el.logicalParent.parent ? el.logicalParent.parent : el.parent;
     let pWidth: number, pHeight: number;
     if (el.inPolorCoordSystem) {
         pWidth = el.$coord!.$polar!.rad ? Math.PI : 360;
@@ -55,16 +54,18 @@ export function layoutElement(el: BaseElement, skipFixed = false) {
 export function adjustByAnchor(el: BaseElement<BaseOption>) {
     const g = el.$geometry;
     if (el.positionDetached) {
-        g._x = g.x; g._y = g.y;
+        g._x = g.x;
+        g._y = g.y;
         return;
     }
     let anchor: Anchor | undefined;
     const [x, y] = el.translatePoint(g.x, g.y);
-    if (anchor = el.prop.anchor) {
+    if ((anchor = el.prop.anchor)) {
         g._x = posWithAnchor(true, x, el.layoutWidth, anchor);
         g._y = posWithAnchor(false, y, el.layoutHeight, anchor);
     } else {
-        g._x = x; g._y = y;
+        g._x = x;
+        g._y = y;
     }
 }
 

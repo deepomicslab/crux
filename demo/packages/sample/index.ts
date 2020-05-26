@@ -1,5 +1,3 @@
 import template from "./t";
 
-export {
-    template,
-};
+export { template };

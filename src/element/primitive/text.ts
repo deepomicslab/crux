@@ -76,6 +76,7 @@ export class Text extends PrimitiveElement<TextOption> {
     public svgTagName() {
         return "text";
     }
+
     public svgTextContent() {
         return this.prop.text;
     }

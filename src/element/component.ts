@@ -71,30 +71,6 @@ export class Component<Option extends ComponentOption = ComponentOption> extends
         super.setProp(prop);
     }
 
-    public parseInternalProps() {
-        super.parseInternalProps();
-        if ("xScale" in this.prop) this._setScale(true);
-        if ("yScale" in this.prop) this._setScale(false);
-    }
-
-    private _setScale(horizontal: boolean) {
-        const s = horizontal ? this.prop.xScale : this.prop.yScale;
-        const k = horizontal ? "$scaleX" : "$scaleY";
-        if (s === null) {
-            this[k] = null;
-        } else if (typeof s === "object" && s.__scale__) {
-            if (this[k] && s.type === "linear") {
-                const scale = this[k] as Scale;
-                scale.domain(s.domain === null ? [0, 1] : s.domain);
-                scale.range(s.range === null ? this.boundaryForScale(horizontal) : s.range);
-            } else {
-                this[k] = this._createScaleLinear(horizontal, s.domain, s.range);
-            }
-        } else if (typeof s === "function") {
-            this[k] = s as any;
-        }
-    }
-
     public append(node: ActualElement) {
         this.children.push(node);
         this._childMap.set(`${node.id}@@${node._name}`, node);
@@ -209,6 +185,9 @@ export class Component<Option extends ComponentOption = ComponentOption> extends
     // geometry
 
     public __didLayout() {
+        if ("xScale" in this.prop) this._initScale(true);
+        if ("yScale" in this.prop) this._initScale(false);
+
         if (this.prop.coord === "polar" && !this.inPolorCoordSystem) {
             const $g = (this.$geometry as unknown) as GeometryOptions<ComponentOption>;
             const r = Math.min($g.width, $g.height) * 0.5;
@@ -217,6 +196,24 @@ export class Component<Option extends ComponentOption = ComponentOption> extends
             this.$polar = { r, cx, cy, rad: !!this.prop.coordUseRad };
             this.$geometry._xOffset.polor = cx;
             this.$geometry._yOffset.polor = cy;
+        }
+    }
+
+    private _initScale(horizontal: boolean) {
+        const s = horizontal ? this.prop.xScale : this.prop.yScale;
+        const k = horizontal ? "$scaleX" : "$scaleY";
+        if (s === null) {
+            this[k] = null;
+        } else if (typeof s === "object" && s.__scale__) {
+            if (this[k] && s.type === "linear") {
+                const scale = this[k] as Scale;
+                scale.domain(s.domain === null ? [0, 1] : s.domain);
+                scale.range(s.range === null ? this.boundaryForScale(horizontal) : s.range);
+            } else {
+                this[k] = this._createScaleLinear(horizontal, s.domain, s.range);
+            }
+        } else if (typeof s === "function") {
+            this[k] = s as any;
         }
     }
 

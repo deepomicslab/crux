@@ -3,7 +3,8 @@ import { GeometryOptValue } from "../../defs/geometry";
 import { getFinalPosition } from "../../layout/layout";
 import { canvasFill, canvasRotate, canvasStroke } from "../../rendering/canvas/canvas-helper";
 import { svgPropFillAndStroke, svgPropPassthrough, svgRotation } from "../../rendering/svg/svg-helper";
-import { BaseElementOption } from "./base-elm-options";
+import Type from "../../utils/type-check";
+import { BaseElementOption, baseElementPropType } from "./base-elm-options";
 import { PrimitiveElement } from "./primitive";
 
 interface RectOption extends BaseElementOption {
@@ -111,3 +112,14 @@ export class Rect extends PrimitiveElement<RectOption> {
         return "minHeight" in this.prop && this.prop.minHeight > 0 ? Math.max(height, this.prop.minHeight) : height;
     }
 }
+
+Rect.propTypes = {
+    ...baseElementPropType,
+    width: Type.geoValue,
+    height: Type.geoValue,
+    xEnd: Type.geoValue,
+    yEnd: Type.geoValue,
+    minWidth: Type.number,
+    minHeight: Type.number,
+    cornerRadius: Type.number,
+};
