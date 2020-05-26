@@ -228,18 +228,8 @@ export class Visualizer {
         this._changedElements.clear();
     }
 
-    public appendDef(id: string, tag: string, attrs: Record<string, string> = {}, content: string = "") {
-        if (!this.svgDef) {
-            this.svgDef = {};
-        }
-        const attrStr = Object.keys(attrs)
-            .map(k => `${k}=${attrs[k]}`)
-            .join(" ");
-        this.svgDef[id] = `<${tag} id="${id}" ${attrStr}>${content}</${tag}>`;
-    }
-
     public defineGradient(id: string, def: GradientDef): void;
-    public defineGradient(id: string, direction: "horizontal" | "vertical", stops: [string, string]): void;
+    public defineGradient(id: string, direction: "horizontal" | "vertical" | number, stops: [string, string]): void;
     public defineGradient(id: string): void {
         let def: GradientDef;
         if (arguments.length === 2) {
@@ -250,8 +240,25 @@ export class Visualizer {
             const stops = arguments[2] as [string, string];
             if (direction === "horizontal") {
                 def.x2 = 100;
-            } else {
+            } else if (direction === "vertical") {
                 def.y2 = 100;
+            } else if (typeof direction === "number") {
+                let deg = direction;
+                if (deg < 0) deg += 360;
+                const values = {
+                    "0": [0, 0, 100, 0],
+                    "45": [0, 0, 100, 100],
+                    "90": [0, 0, 0, 100],
+                    "135": [100, 0, 0, 100],
+                }[deg >= 180 ? deg - 180 : deg];
+                if (!values) throw new Error(`defineGradient: direction should be a multiple of 45deg`);
+                if (deg < 180) {
+                    [def.x1, def.y1, def.x2, def.y2] = values;
+                } else {
+                    [def.x2, def.y2, def.x1, def.y1] = values;
+                }
+            } else {
+                throw new Error(`defineGradient: direction should be a number or "horizontal" or "vertical"`);
             }
             def.stops = stops.map((s, i) => ({ offset: i * 100, color: s, opacity: 1 }));
         }

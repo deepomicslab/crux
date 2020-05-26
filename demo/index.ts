@@ -18,7 +18,7 @@ interface Demo {
 registerDefaultBioInfoComponents();
 
 async function init() {
-    const demo: Demo = await import("./packages/tree");
+    const demo: Demo = await import("./packages/sample");
     // demo regression plot
     window.$v = Crux.visualize({
         el: "#canvas",

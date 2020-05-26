@@ -16,11 +16,9 @@ import ns from "../ns";
 import { Renderer } from "../renderer";
 import { gatherEventListeners } from "../utils";
 
-declare module "../../visualizer/visualizer" {
-    interface Visualizer {
-        svgDef: Record<string, string>;
-        svg?: SVGElement;
-    }
+interface SVGContext {
+    svgDef: Record<string, string>;
+    svg?: SVGElement;
 }
 
 const patch = init([moduleAttrs, moduleProps, moduleEventLIsteners, moduleStyle]);
@@ -54,10 +52,10 @@ function updateHook(elm: BaseElement<BaseElementOption>) {
     return hook;
 }
 
-function render(element: BaseElement<any>) {
+function render(element: BaseElement<any>, context: SVGContext) {
     const vnode = _genView(element);
-    _patch(element, vnode);
-    updateSVGDef(element.$v);
+    _patch(element, vnode, context);
+    updateSVGDef(context);
 }
 
 function _genView(element: BaseElement<any>): VNode {
@@ -128,9 +126,9 @@ function _genView(element: BaseElement<any>): VNode {
     return h(tag, opt, children || text);
 }
 
-function _patch(element: BaseElement<any>, vnode: VNode) {
+function _patch(element: BaseElement<any>, vnode: VNode, context: SVGContext) {
     if (element.isRoot) {
-        element.vnode = patch(element.vnode ? element.vnode : _createRootElm(element), vnode);
+        element.vnode = patch(element.vnode ? element.vnode : _createRootElm(element, context), vnode);
     } else {
         let el = element;
         while (isRenderable(el)) {
@@ -142,13 +140,13 @@ function _patch(element: BaseElement<any>, vnode: VNode) {
     }
 }
 
-function _createRootElm(element: BaseElement): Element {
+function _createRootElm(element: BaseElement, context: SVGContext): Element {
     const rootElm = document.createElementNS(ns, "g");
     const defElm = document.createElementNS(ns, "defs");
-    defElm.innerHTML = Object.values(element.$v.svgDef).join("");
-    const svg = (element.$v.svg = document.createElementNS(ns, "svg"));
+    defElm.innerHTML = Object.values(context.svgDef).join("");
+    const svg = (context.svg = document.createElementNS(ns, "svg"));
     svg.setAttribute("xmlns", ns);
-    setSize(element.$v);
+    setSize(element.$v, context);
     svg.setAttribute("style", "font-family: Arial");
     svg.appendChild(rootElm);
     svg.appendChild(defElm);
@@ -156,21 +154,35 @@ function _createRootElm(element: BaseElement): Element {
     return rootElm;
 }
 
-function updateSVGDef(v: Visualizer) {
-    const defElm = v.svg!.getElementsByTagName("defs")[0];
-    const html = Object.values(v.svgDef).join("");
+function updateSVGDef(context: SVGContext) {
+    const defElm = context.svg!.getElementsByTagName("defs")[0];
+    const html = Object.values(context.svgDef).join("");
     if (html === defElm.innerHTML) return;
     defElm.innerHTML = html;
 }
 
-function setSize(v: Visualizer) {
-    if (!v.svg) return;
-    v.svg.setAttribute("width", v.size.width);
-    v.svg.setAttribute("height", v.size.height);
+function setSize(v: Visualizer, context: SVGContext) {
+    if (!context.svg) return;
+    context.svg.setAttribute("width", v.size.width);
+    context.svg.setAttribute("height", v.size.height);
 }
 
-export function defineGradient(id: string, def: GradientDef, v: Visualizer) {
-    v.appendDef(
+function appendDef(
+    context: SVGContext,
+    id: string,
+    tag: string,
+    attrs: Record<string, string> = {},
+    content: string = "",
+) {
+    const attrStr = Object.keys(attrs)
+        .map(k => `${k}=${attrs[k]}`)
+        .join(" ");
+    context.svgDef[id] = `<${tag} id="${id}" ${attrStr}>${content}</${tag}>`;
+}
+
+export function defineGradient(id: string, def: GradientDef, v: Visualizer, context: SVGContext) {
+    appendDef(
+        context,
         id,
         "linearGradient",
         {
@@ -195,12 +207,12 @@ export function getGradient(name: string) {
     return `url(#${name})`;
 }
 
-const renderer: Renderer = {
-    init(v: Visualizer) {
+const renderer: Renderer<SVGContext> = {
+    init(v: Visualizer, context: SVGContext) {
         if (IS_NODE) {
             throw Error(`The "svg" renderer only works in browser environments.`);
         }
-        v.svgDef = {};
+        context.svgDef = {};
     },
     setSize,
     render,

@@ -27,6 +27,7 @@ svg {
             strokeWidth = 2
             width = 100
             height = 80
+            fill = @gradient("fill", 90, "#f00", "#ff0")
         }
         Component {
             x = 70; y = 60
