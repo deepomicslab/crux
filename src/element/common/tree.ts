@@ -46,16 +46,19 @@ Component {
             }
         }
         @for (node, i) in _nodes {
-            @yield node with { node } default {
-                Circle.centered {
-                    key = "c" + i
-                    x = getX(node); y = @scaledY(getR(node));
-                    r = 2
-                    fill = "#999"
-                    behavior:tooltip {
-                        content = node.data._radius.toString()
+            Component {
+                key = "c" + i
+                coord = "cartesian"
+                x = getX(node); y = @scaledY(getR(node));
+                @yield node with { node } default {
+                    Circle.centered {
+                        r = 2
+                        fill = "#999"
+                        behavior:tooltip {
+                            content = node.data._radius.toString()
+                        }
+                        @props prop.opt.node
                     }
-                    @props prop.opt.node
                 }
             }
         }
@@ -363,8 +366,7 @@ export class Tree extends Component<TreeOption> {
         }
     }
 
-    // @ts-ignore
-    private isActiveLink(link: d3.HierarchyPointLink<TreeData>) {
+    public isActiveLink(link: d3.HierarchyPointLink<TreeData>) {
         if (!this.prop.branchInteraction) return;
         return this.state.activePath.has(link.source.data) && this.state.activePath.has(link.target.data);
     }
