@@ -18,12 +18,37 @@ Rect {
 
 Props available:
 
-| Name | Type | Usage | Default |
-|------|------|-------|---------|
-|`width`, `height`|`number`|Width and height. Negative values also work.|20|
-|`xEnd`, `yEnd`|`number`|Sometimes it might be more convenient to specify the right-most and the bottom position rather than width and height.|N/A|
-|`minWidth`, `minHeight`|`number`|Take precedence if the width/height (speficied by `width`/`height` or calculated from `xEnd`/`yEnd`) is smaller. This can be used to ensure that the rectangle has an 1px width/height to be visible.|N/A|
-|`cornerRadius`|`number`|Supply a number if rounded corners are needed.|0|
+<div class="propdoc">
+width,height
+number
+0
+</div>
+
+Width and height. Negative values also work.
+
+<div class="propdoc">
+xEnd,yEnd
+number
+N/A
+</div>
+
+Sometimes it might be more convenient to specify the right-most and the bottom position rather than width and height.
+
+<div class="propdoc">
+minWidth,minHeight
+number
+N/A
+</div>
+
+Take precedence if the width/height (speficied by `width`/`height` or calculated from `xEnd`/`yEnd`) is smaller. This can be used to ensure that the rectangle has an 1px width/height to be visible.
+
+<div class="propdoc">
+cornerRadius
+number
+0
+</div>
+
+The corner radius.
 
 ## Circle
 
@@ -37,9 +62,9 @@ Circle {
 
 Props available:
 
-| Name | Type | Usage | Default |
-|------|------|-------|---------|
-|`r`|`number`|The radius.|5|
+| Name | Type     | Usage       | Default |
+| ---- | -------- | ----------- | ------- |
+| `r`  | `number` | The radius. | 5       |
 
 ## Triangle
 
@@ -53,10 +78,10 @@ Triangle {
 
 Props available:
 
-| Name | Type | Usage | Default |
-|------|------|-------|---------|
-|`width`, `height`|`number`|Width and height.|8|
-|`orientation`|`string`|Can be "top", "bottom", "left" or "right".|"top"|
+| Name              | Type     | Usage                                      | Default |
+| ----------------- | -------- | ------------------------------------------ | ------- |
+| `width`, `height` | `number` | Width and height.                          | 8       |
+| `orientation`     | `string` | Can be "top", "bottom", "left" or "right". | "top"   |
 
 ## Line
 
@@ -70,10 +95,21 @@ Line {
 
 Props available:
 
-| Name | Type | Usage | Default |
-|------|------|-------|---------|
-|`x1`, `x2`, `y1`, `y2`|`number`|Start and end position.|0|
-|`x`, `y`|`number`|If `x1` and `x2` (or `y1` and `y2`) are the same, you can supply a single `x` (or `y`) instead.|N/A|
+<div class="propdoc">
+x1,x2,y1,y2
+number
+0
+</div>
+
+Start and end position.
+
+<div class="propdoc">
+x,y
+number
+N/A
+</div>
+
+If `x1` and `x2` (or `y1` and `y2`) are the same, you may supply a single `x` (or `y`) instead.
 
 ## Polyline
 
@@ -87,11 +123,17 @@ Polyline {
 
 Props available:
 
-| Name | Type | Usage | Default |
-|------|------|-------|---------|
-|`points`|`[number, number][]`|The x and y coordinates of points.|[]|
+<div class="propdoc">
+points
+[number, number][]
+[]
+</div>
+
+The x and y coordinates of points.
 
 ## Polygon
+
+Similar to `Polyline` but the path is closed.
 
 <div class="demo" data-height="150">
 Polygon {
@@ -117,9 +159,13 @@ Path {
 
 Props available:
 
-| Name | Type | Usage | Default |
-|------|------|-------|---------|
-|`d`|`string`|The path definition.|N/A|
+<div class="propdoc">
+d
+string
+N/A
+</div>
+
+The path definition. See this [MDN link](https://developer.mozilla.org/en-US/docs/Web/SVG/Tutorial/Paths) for more info.
 
 ## Text
 
@@ -128,17 +174,97 @@ Props available:
 <div class="demo" data-height="100">
 Text {
     text = "Hello, world!"
+    fontSize = 18
 }
 </div>
 
 Props available:
 
-| Name | Type | Usage | Default |
-|------|------|-------|---------|
-|`text`|`string`|The text content.|""|
-|`html`|`string`|The raw html content. SVG Only.|""|
-|`fontSize`|`number`|The font size.|12|
-|`fontFamily`|`string`|The font family.|N/A|
+<div class="propdoc">
+text
+string
+N/A
+</div>
+
+The text content.
+
+<div class="propdoc">
+html
+string
+N/A
+</div>
+
+The content as an HTML string (SVG only).
+
+<div class="propdoc">
+fontSize
+number
+12
+</div>
+
+The font size.
+
+<div class="propdoc">
+fontFamily
+string
+"Arial"
+</div>
+
+The font family.
+
+<div class="propdoc">
+maxWidth
+number
+N/A
+</div>
+
+Compress the text if its width exceeds `maxWidth`.
+
+#### Drawing text with fixed length
+
+`Text` is the only primitive that measures its size at runtime.
+However, sometimes you may want to draw text with a fixed width or height, such as sequencing reads.
+In such cases, you may want to use a monospaced font first and add some additional props.
+
+`Text` provides the following props for rendering fix-sized text:
+
+<div class="propdoc">
+noSizeMeasurement
+boolean
+false
+</div>
+
+Disable size measurement at runtime. This can speed up rendering.
+This option can be used when the text size does not affect the layout, or when using `fixedWidth` or `fixedHeight`.
+If a fixed size is not provided, the default width and height will be 0.
+
+<div class="propdoc">
+fixedWidth,fixedHeight
+number
+N/A
+</div>
+
+Designate the width and height for the text component.
+This size will be used for calculating its layout size and position.
+
+<div class="propdoc">
+drawFixedWidth
+boolean
+false
+</div>
+
+Render the text using the designated size. The text may be compressed or stretched.
+
+<div class="demo" data-height="100">
+Text {
+    text = "ACGTAACGTCCGATACGTAACGTCCGAT"
+    fontFamily = "monospace"
+    noSizeMeasurement = true
+    drawFixedWidth = true
+    fixedWidth = 150
+    fixedHeight = 14
+}
+</div>
 
 ## Arc
 
@@ -209,9 +335,9 @@ Arrow {
 
 Props available:
 
-| Name | Type | Usage | Default |
-|------|------|-------|---------|
-|`x1`, `x2`, `y1`, `y2`|`number`|Start and end position.|0|
+| Name                   | Type     | Usage                   | Default |
+| ---------------------- | -------- | ----------------------- | ------- |
+| `x1`, `x2`, `y1`, `y2` | `number` | Start and end position. | 0       |
 
 ## Axis
 
@@ -228,14 +354,14 @@ Axis {
 
 Props available:
 
-| Name | Type | Usage | Default |
-|------|------|-------|---------|
-|`orientation`|`string`|Can be "top", "bottom", "left" or "right".|"top"|
-|`tickCount`|`number`|Specify an expected number of ticks. The actual count of ticks may be different from this value due to rounding.|5|
-|`tickInterval`|`number`|Specify the tick interval explicitly.|N/A|
-|`ticks`|`number[]`|Specify the tick values explicitly.|N/A|
-|`tickFormat`|`() => string`|Specify the label for each tick.|N/A|
-|`includeEndTicks`|`boolean`|Whether display the ticks at the start and the end.|true|
+| Name              | Type           | Usage                                                                                                            | Default |
+| ----------------- | -------------- | ---------------------------------------------------------------------------------------------------------------- | ------- |
+| `orientation`     | `string`       | Can be "top", "bottom", "left" or "right".                                                                       | "top"   |
+| `tickCount`       | `number`       | Specify an expected number of ticks. The actual count of ticks may be different from this value due to rounding. | 5       |
+| `tickInterval`    | `number`       | Specify the tick interval explicitly.                                                                            | N/A     |
+| `ticks`           | `number[]`     | Specify the tick values explicitly.                                                                              | N/A     |
+| `tickFormat`      | `() => string` | Specify the label for each tick.                                                                                 | N/A     |
+| `includeEndTicks` | `boolean`      | Whether display the ticks at the start and the end.                                                              | true    |
 
 ### Axis Background
 
@@ -254,9 +380,9 @@ AxisBackground {
 
 Additional props available:
 
-| Name | Type | Usage | Default |
-|------|------|-------|---------|
-|`orientation`|`string`|Can be "horizontal" or "vertical".|"horizontal"|
+| Name          | Type     | Usage                              | Default      |
+| ------------- | -------- | ---------------------------------- | ------------ |
+| `orientation` | `string` | Can be "horizontal" or "vertical". | "horizontal" |
 
 ## Legend
 
@@ -276,14 +402,14 @@ Component {
 
 Props available:
 
-| Name | Type | Usage | Default |
-|------|------|-------|---------|
-|`type`|`string`|Shape of the marker. Can be "dot", "rect", and "line".|"rect"|
-|`title`|`string`|The optional title for this legend.|N/A|
-|`data`|`LegendData[]`|An array that defines style for each marker and content for each label.|[]|
-|`lineHeight`|`number`|Line height for each row.|12|
-|`legendWidth`|`number`|The width value for "rect" and "line" marker.|20|
-|`padding`|`number`|Padding for the legend.|0|
+| Name          | Type           | Usage                                                                   | Default |
+| ------------- | -------------- | ----------------------------------------------------------------------- | ------- |
+| `type`        | `string`       | Shape of the marker. Can be "dot", "rect", and "line".                  | "rect"  |
+| `title`       | `string`       | The optional title for this legend.                                     | N/A     |
+| `data`        | `LegendData[]` | An array that defines style for each marker and content for each label. | []      |
+| `lineHeight`  | `number`       | Line height for each row.                                               | 12      |
+| `legendWidth` | `number`       | The width value for "rect" and "line" marker.                           | 20      |
+| `padding`     | `number`       | Padding for the legend.                                                 | 0       |
 
 ```js
 interface LegendData {
@@ -300,11 +426,11 @@ interface LegendData {
 
 These graphical props are available for all _primitives_.
 
-| Name | Type |
-|------|------|
-|`fill`|`string`|
-|`fillOpacity`|`number`|
-|`stroke`|`string`|
-|`strokeOpacity`|`number`|
-|`strokeWidth`|`number`|
-|`dashArray`|`string`|
+| Name            | Type     |
+| --------------- | -------- |
+| `fill`          | `string` |
+| `fillOpacity`   | `number` |
+| `stroke`        | `string` |
+| `strokeOpacity` | `number` |
+| `strokeWidth`   | `number` |
+| `dashArray`     | `string` |

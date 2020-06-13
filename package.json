@@ -23,10 +23,8 @@
         "d3-scale": "^3.0.0",
         "lodash": "^4.17.11",
         "mustache": "^3.0.1",
-        "parjs": "^0.10.4",
         "randomstring": "^1.1.5",
         "shallow-equal": "^1.1.0",
-        "snabbdom": "^0.7.3",
         "typescript": "^3.9.3",
         "venn.js": "^0.2.20"
     },
