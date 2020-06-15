@@ -31,6 +31,7 @@ export interface TreeOption extends ComponentOption {
 
 @useTemplate(`//bvt
 Component {
+    @let tree = _extMethods
     Component {
         width = 100%; height = 100%
         coord = isRadical ? "polar" : "cartesian"
@@ -50,7 +51,7 @@ Component {
                 key = "c" + i
                 coord = "cartesian"
                 x = getX(node); y = @scaledY(getR(node));
-                @yield node with { node } default {
+                @yield node with { node, tree } default {
                     Circle.centered {
                         r = 2
                         fill = "#999"
@@ -72,7 +73,7 @@ Component {
                 coord = "cartesian"
                 on:mouseenter = setActive(leaf)
                 on:mouseleave = setActive(null)
-                @yield leaf with { leaf } default {
+                @yield leaf with { leaf, tree } default {
                     Container {
                         anchor = leafAnchor(leaf)
                         padding = 4
@@ -127,10 +128,17 @@ export class Tree extends Component<TreeOption> {
     // @ts-ignore
     private height!: number;
 
+    // @ts-ignore
+    private _extMethods!: any;
+
     public init() {
         this.state = {
             activePath: new Set(),
         };
+        this._extMethods = {};
+        ["leafRotation", "leafAnchor", "isRightHalf"].forEach(name => {
+            this._extMethods[name] = this._bindMethod(this[name]);
+        });
     }
 
     public willRender() {
