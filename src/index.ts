@@ -16,7 +16,7 @@ import { currentEventContext } from "./event";
 import IS_NODE from "./utils/is-node";
 
 // tslint:disable-next-line: variable-name
-const Crux = {
+const Oviz = {
     visualize,
     Component,
     Behavior,
@@ -33,8 +33,8 @@ const Crux = {
     event: currentEventContext,
 };
 
-export default Crux;
+export default Oviz;
 
 if (!IS_NODE) {
-    window["Crux"] = Crux;
+    window["Oviz"] = Oviz;
 }

@@ -1,6 +1,6 @@
-import Crux from "../src/index";
+import Oviz from "../src/index";
 
-Crux.config.typeCheck = true;
+Oviz.config.typeCheck = true;
 
 import { registerDefaultBioInfoComponents } from "../src/element/global";
 
@@ -22,7 +22,7 @@ registerDefaultBioInfoComponents();
 async function init() {
     const demo: Demo = await import("./packages/sample");
     // demo regression plot
-    window.$v = Crux.visualize({
+    window.$v = Oviz.visualize({
         el: "#canvas",
         template: demo.template,
 

@@ -6,7 +6,7 @@ if (!IS_NODE) {
     throw new Error(`The CLI must be executed under Node.js`);
 }
 
-const Crux = require("./index").default;
+const Oviz = require("./index").default;
 
 const path = require("path");
 const fs = require("fs");
@@ -66,7 +66,7 @@ if (dataPath) {
     data = JSON.parse(fs.readFileSync(dataPath).toString());
 }
 
-const { visualizer } = Crux.visualize({
+const { visualizer } = Oviz.visualize({
     renderer: "svg-offline",
     template,
     data,
