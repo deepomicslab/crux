@@ -6,7 +6,8 @@ import { Visualizer, VisualizerOption } from "./visualizer";
 type VisualizeOption = VisualizerOption & {
     loadData?: Record<string, DataSource<any, any>>;
     setup?: (this: Visualizer) => void;
-    didRender?: (this: Visualizer) => void;
+    _willLoadData?: (this: Visualizer, def: any) => void;
+    _didRender?: (this: Visualizer) => void;
 };
 
 declare global {
@@ -42,11 +43,23 @@ export function visualize(arg: VisualizeOption | VisualizeResult): VisualizeResu
         if (!IS_NODE && window.OVIZ_EXPORT_GLOBAL && window.OVIZ_VISUALIZER) {
             window.OVIZ_VISUALIZER(v);
         }
-        if (opt.didRender) opt.didRender.call(v);
+        if (opt._didRender) opt._didRender.call(v);
     }
 
-    if (opt.loadData) {
-        loadData(opt.loadData).then((d: any) => {
+    let needLoadData = !!opt.loadData;
+    const dataDefFromCommands = {};
+
+    for (const cmd of v.extComands) {
+        if (cmd.type === "load") {
+            needLoadData = true;
+            dataDefFromCommands[cmd.name] = new Function(`return ${cmd.payload}`)();
+        }
+    }
+
+    if (needLoadData) {
+        const dataDef = { ...opt.loadData, ...dataDefFromCommands };
+        if (opt._willLoadData) opt._willLoadData.call(v, dataDef);
+        loadData(dataDef).then((d: any) => {
             v.data = { ...v.data, ...d };
             run();
         });

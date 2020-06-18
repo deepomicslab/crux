@@ -9,7 +9,7 @@ export function template(literals: TemplateStringsArray, ...placeholders: string
     }
     result += literals[literals.length - 1];
 
-    return compile(result)[0];
+    return compile(result).renderer;
 }
 
 type StringLike = string | { toString(): string };

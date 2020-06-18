@@ -316,7 +316,7 @@ class TemplateMixin {
         if (cached) {
             return cached.call(this);
         }
-        const renderFunc = compile(template)[0];
+        const renderFunc = compile(template).renderer;
         p[kCachedrenderFunc] = renderFunc;
         return renderFunc.call(this as any);
     }

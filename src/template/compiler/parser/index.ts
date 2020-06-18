@@ -2,9 +2,18 @@ import { TemplateMetaData } from "..";
 import { ASTNode, ASTNodeComp } from "../ast-node";
 import { ParserStream } from "../parse-stream";
 import { parseBlock } from "./block";
+import { ExtCommand, parseExtCommand } from "./sfv";
 
-export function parse(template: string): [ASTNode, TemplateMetaData | null] {
+export function parse(template: string, extended = false): [ASTNode, TemplateMetaData | null, ExtCommand[]] {
     const parser = new ParserStream(template.trim());
+    const commands: ExtCommand[] = [];
+
+    if (extended) {
+        let c: ExtCommand | null;
+        while ((c = parseExtCommand(parser))) {
+            commands.push(c);
+        }
+    }
 
     const rootBlock = parser.expect("svg|canvas|component", "svg/canvas/component block", true);
     const isRoot = !!rootBlock;
@@ -23,12 +32,11 @@ export function parse(template: string): [ASTNode, TemplateMetaData | null] {
             return acc;
         }, {}) as TemplateMetaData;
 
-        if (isRoot)
-            metadata.renderer = rootBlock[0];
+        if (isRoot) metadata.renderer = rootBlock[0];
         metadata.rootComponent = (ast.children[0] as ASTNodeComp).name;
         ast.props = [];
-        return [ast, metadata];
+        return [ast, metadata, commands];
     }
 
-    return [ast, null];
+    return [ast, null, commands];
 }

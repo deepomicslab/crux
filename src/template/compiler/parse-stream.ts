@@ -38,6 +38,7 @@ export class ParserStream {
     constructor(str: string) {
         this.str = str
             .split("\n")
+            .filter(x => x.trim())
             .map(x => removeComment(x))
             .join("\n")
             .trim();

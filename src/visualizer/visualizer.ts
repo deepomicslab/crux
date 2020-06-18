@@ -4,6 +4,7 @@ import { Component } from "../element/component";
 import { registerDefaultGlobalComponents } from "../element/global";
 import { addRenderer, Renderer, renderers } from "../rendering/renderer";
 import { compile } from "../template/compiler";
+import { ExtCommand } from "../template/compiler/parser/sfv";
 import { RootComponent } from "./root";
 
 import canvasRenderer from "../rendering/canvas/canvas";
@@ -18,6 +19,7 @@ addRenderer("svg-offline", svgOfflineRenderer);
 export interface VisualizerOption {
     el: string;
     template?: string;
+    singleTemplate?: boolean;
     props?: Record<string, any>;
     data?: Record<string, any>;
     root?: Component;
@@ -37,6 +39,8 @@ export class Visualizer {
     public root!: BaseElement;
     public size!: { width: number; height: number };
     public components: Record<string, typeof Component>;
+
+    public extComands!: ExtCommand[];
 
     public rendererType: "svg" | "canvas";
     public renderer: Renderer;
@@ -111,7 +115,8 @@ export class Visualizer {
             if (typeof opt.template !== "string") {
                 throw Error(`Option "template" should be a string.`);
             }
-            const [renderer, metadata] = compile(getOpt(opt, "template"));
+            const { renderer, metadata, commands } = compile(getOpt(opt, "template"), getOpt(opt, "singleTemplate"));
+            this.extComands = commands;
             if (!metadata) {
                 throw new Error(`The template must be wrapped with an svg or canvas block.`);
             }

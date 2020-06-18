@@ -4,9 +4,9 @@ import { ElementDef } from "../../rendering/element-def";
 import { gencode } from "./codegen";
 import { parse } from "./parser";
 
-export type Renderer<
-    Option extends BaseOption = BaseOption,
-    T extends BaseElement<Option> = BaseElement<Option>> = (this: T) => ElementDef;
+export type Renderer<Option extends BaseOption = BaseOption, T extends BaseElement<Option> = BaseElement<Option>> = (
+    this: T,
+) => ElementDef;
 
 export interface TemplateMetaData {
     width?: string;
@@ -16,11 +16,12 @@ export interface TemplateMetaData {
     renderer?: string;
 }
 
-export function compile(template: string): [Renderer, TemplateMetaData | null] {
-    const [ast, metadata] = parse(template);
+export function compile(template: string, extended = false) {
+    const [ast, metadata, commands] = parse(template, extended);
     const code = gencode(ast);
-    return [
-        new Function("prop", code) as Renderer,
+    return {
+        renderer: new Function("prop", code) as Renderer,
+        commands,
         metadata,
-    ];
+    };
 }
