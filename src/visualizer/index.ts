@@ -49,7 +49,7 @@ export function visualize(arg: VisualizeOption | VisualizeResult): VisualizeResu
     let needLoadData = !!opt.loadData;
     const dataDefFromCommands = {};
 
-    for (const cmd of v.extComands) {
+    for (const cmd of v.extCommands) {
         if (cmd.type === "load") {
             needLoadData = true;
             dataDefFromCommands[cmd.name] = new Function(`return ${cmd.payload}`)();

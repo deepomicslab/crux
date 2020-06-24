@@ -72,7 +72,7 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption> implem
     // tslint:disable-next-line: variable-name
     public __updateHook: any;
 
-    constructor(id: number | string) {
+    constructor(id: number | string = 0) {
         this.id = id;
         this.uid = defaultUIDGenerator.gen();
         this.$geometry = {

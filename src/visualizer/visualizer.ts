@@ -40,7 +40,7 @@ export class Visualizer {
     public size!: { width: number; height: number };
     public components: Record<string, typeof Component>;
 
-    public extComands!: ExtCommand[];
+    public extCommands!: ExtCommand[];
 
     public rendererType: "svg" | "canvas";
     public renderer: Renderer;
@@ -115,8 +115,11 @@ export class Visualizer {
             if (typeof opt.template !== "string") {
                 throw Error(`Option "template" should be a string.`);
             }
-            const { renderer, metadata, commands } = compile(getOpt(opt, "template"), getOpt(opt, "singleTemplate"));
-            this.extComands = commands;
+            const { renderer, metadata, commands } = compile(
+                getOpt(opt, "template"),
+                getOpt(opt, "singleTemplate", false),
+            );
+            this.extCommands = commands;
             if (!metadata) {
                 throw new Error(`The template must be wrapped with an svg or canvas block.`);
             }
