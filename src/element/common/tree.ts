@@ -37,13 +37,18 @@ Component {
         coord = isRadical ? "polar" : "cartesian"
         yScale = _scaleY
         @for (link, i) in _links {
-            @let isActive = isActiveLink(link)
-            Path {
+            Component {
                 key = "l" + i
-                stroke = isActive ? "#000" : "#aaa"
-                fill = "none"
-                d = getPath(getX(link.source), @scaledY(getR(link.source)), getX(link.target), @scaledY(getR(link.target)))
-                @props isActive ? prop.opt.activeLink : prop.opt.link
+                @let isActive = isActiveLink(link)
+                @let pos = [getX(link.source), @scaledY(getR(link.source)), getX(link.target), @scaledY(getR(link.target))]
+                @yield link with { link, pos, tree } default {
+                    Path {
+                        stroke = isActive ? "#000" : "#aaa"
+                        fill = "none"
+                        d = getPath(...pos)
+                        @props isActive ? prop.opt.activeLink : prop.opt.link
+                    }
+                }
             }
         }
         @for (node, i) in _nodes {
@@ -136,7 +141,7 @@ export class Tree extends Component<TreeOption> {
             activePath: new Set(),
         };
         this._extMethods = {};
-        ["leafRotation", "leafAnchor", "isRightHalf"].forEach(name => {
+        ["leafRotation", "leafAnchor", "isRightHalf", "getPath", "isActiveLink"].forEach(name => {
             this._extMethods[name] = this._bindMethod(this[name]);
         });
     }
