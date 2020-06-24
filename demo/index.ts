@@ -37,4 +37,14 @@ async function init() {
     }).visualizer;
 }
 
+async function sfc() {
+    const demo = await (await import("./packages/sfc")).default;
+
+    Oviz.visualize({
+        el: "#canvas",
+        template: demo,
+        singleTemplate: true,
+    });
+}
+
 document.addEventListener("DOMContentLoaded", init);
