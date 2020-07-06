@@ -2,8 +2,8 @@ import * as d3 from "d3-array";
 import * as _ from "lodash";
 
 import { GeometryValue } from "../../defs/geometry";
+import { useTemplate } from "../../ext/decorator";
 import { ElementDef } from "../../rendering/element-def";
-import { template } from "../../template/tag";
 import { ChartPaddingOptions, getPaddings } from "../chart/utils/option-padding";
 import { Component } from "../component";
 import { ComponentOption } from "../component-options";
@@ -30,11 +30,13 @@ interface DataHandler {
 
 export interface XYPlotOption extends ComponentOption, ChartPaddingOptions {
     data: any[] | Record<string, any>;
-    dataHandler: { [name: string]: DataHandler };
+    dataHandler: DataHandler | Record<string, DataHandler>;
     stackedData: Record<string, string[]>;
     discreteCategory: boolean;
     categoryRange: any[];
     valueRange: [number, number];
+    valueUseLog: boolean;
+    categoryUseLog: boolean;
     capToMinValue: boolean;
     gap: number;
     hasPadding: boolean;
@@ -43,24 +45,23 @@ export interface XYPlotOption extends ComponentOption, ChartPaddingOptions {
     invertValueAxis: boolean;
 }
 
-export class XYPlot extends Component<XYPlotOption> {
-    public render = template`
+@useTemplate(`
+Component {
     Component {
-        Component {
-            @let p = _paddings
+        @let p = _paddings
 
-            x = p[3]
-            y = p[0]
-            width = @geo(100, -p[1]-p[3])
-            height = @geo(100, -p[0]-p[2])
-            xScale = _xScale
-            yScale = _yScale
+        x = p[3]
+        y = p[0]
+        width = @geo(100, -p[1]-p[3])
+        height = @geo(100, -p[0]-p[2])
+        xScale = _xScale
+        yScale = _yScale
 
-            @yield children then handleChildren
-        }
+        @yield children then handleChildren
     }
-    `;
-
+}
+`)
+export class XYPlot extends Component<XYPlotOption> {
     public data!: ParsedData | Record<string, ParsedData>;
     public hasMultipleData = false;
     public columnWidth!: number;
@@ -81,7 +82,13 @@ export class XYPlot extends Component<XYPlotOption> {
 
     public willRender() {
         const data = this.prop.data;
-        const handler = this.prop.dataHandler || {};
+        let handler: Record<string, DataHandler>;
+        const h_ = this.prop.dataHandler || {};
+        if (typeof h_.value === "function" && typeof h_.pos === "function") {
+            handler = { default: h_ as DataHandler };
+        } else {
+            handler = h_ as Record<string, DataHandler>;
+        }
         if (data) {
             let allData: XYPlotPoint[];
             if (Array.isArray(data)) {
@@ -90,8 +97,9 @@ export class XYPlot extends Component<XYPlotOption> {
             } else if (typeof data === "object") {
                 this.hasMultipleData = true;
                 this.data = {};
-                Object.keys(data).forEach(k =>
-                    this.data[k] = parseData(this, data[k], handler[k] || handler.default));
+                Object.keys(data).forEach(
+                    k => (this.data[k] = parseData(this, data[k], handler[k] || handler.default)),
+                );
                 // all data
                 allData = [];
                 const keys = new Set(Object.keys(this.data));
@@ -100,12 +108,15 @@ export class XYPlot extends Component<XYPlotOption> {
                     Object.keys(stackedData).forEach(k => {
                         if (typeof k !== "string" || !(k in stackedData))
                             throw new Error(`${k} is not a valid data key.`);
-                        const flatten: XYPlotPoint[] = stackedData[k].map(sd => {
-                            keys.delete(sd);
-                            return this.data[sd].values;
-                        }).flat();
+                        const flatten: XYPlotPoint[] = stackedData[k]
+                            .map(sd => {
+                                keys.delete(sd);
+                                return this.data[sd].values;
+                            })
+                            .flat();
                         const grouped = _.groupBy(flatten, "pos");
-                        const gather = (pos: any) => grouped[pos].reduce((p, c) => ({ pos: p.pos, value: p.value + c.value, minValue: 0 }));
+                        const gather = (pos: any) =>
+                            grouped[pos].reduce((p, c) => ({ pos: p.pos, value: p.value + c.value, minValue: 0 }));
                         allData.push(...Object.keys(grouped).map(gather));
                     });
                 }
@@ -115,10 +126,14 @@ export class XYPlot extends Component<XYPlotOption> {
             } else {
                 throw new Error(`XYPlot: data supplied must be an array or an object.`);
             }
-            this.discreteCategory = "discreteCategory" in this.prop ?
-                this.prop.discreteCategory :
-                allData.length > 0 ? typeof allData[0].pos === "string" : false;
-            this._cRange = this.prop.categoryRange ||
+            this.discreteCategory =
+                "discreteCategory" in this.prop
+                    ? this.prop.discreteCategory
+                    : allData.length > 0
+                    ? typeof allData[0].pos === "string"
+                    : false;
+            this._cRange =
+                this.prop.categoryRange ||
                 (this.discreteCategory ? _.uniq(allData.map(d => d.pos)) : d3.extent(allData, d => d.pos));
             const minValue = d3.min(allData, d => d.minValue)!;
             this._vRange = this.prop.valueRange || [
@@ -145,13 +160,25 @@ export class XYPlot extends Component<XYPlotOption> {
 
     // API
 
-    public get flipped() { return !!this.prop.flip; }
-    public get inverted() { return !!this.prop.invertValueAxis; }
-    public get categoryScale() { return this.flipped ? this._yScale : this._xScale; }
-    public get valueScale() { return this.flipped ? this._xScale : this._yScale; }
-    public get categories() { return this._cRange; }
+    public get flipped() {
+        return !!this.prop.flip;
+    }
+    public get inverted() {
+        return !!this.prop.invertValueAxis;
+    }
+    public get categoryScale() {
+        return this.flipped ? this._yScale : this._xScale;
+    }
+    public get valueScale() {
+        return this.flipped ? this._xScale : this._yScale;
+    }
+    public get categories() {
+        return this._cRange;
+    }
 
-    public stackedDataKeys(key: string) { return this.prop.stackedData[key]; }
+    public stackedDataKeys(key: string) {
+        return this.prop.stackedData[key];
+    }
 
     // private use
 
@@ -166,28 +193,38 @@ export class XYPlot extends Component<XYPlotOption> {
         const width = size - pl - pr;
         let n = (this.hasMultipleData ? this.data[Object.keys(this.data)[0]] : this.data).values.length;
         if (!this.prop.hasPadding) n -= 1;
-        const gap = typeof this.prop.gap === "number" ? this.prop.gap : (width * 0.1 / n);
+        const gap = typeof this.prop.gap === "number" ? this.prop.gap : (width * 0.1) / n;
         const columnSizeWithGap = (width - gap) / n;
         this.columnWidth = columnSizeWithGap - gap;
         const padding = this.prop.hasPadding ? (columnSizeWithGap + gap) * 0.5 : 0;
         const domain: [number, number] = [padding, width - padding];
 
         if (this.discreteCategory) {
-            const ticks = Array(n).fill(null).map((_, i) => i * columnSizeWithGap + domain[0]);
+            const ticks = Array(n)
+                .fill(null)
+                .map((_, i) => i * columnSizeWithGap + domain[0]);
             return this._createScaleOrdinal(this._cRange, ticks);
         } else {
-            return this._createScaleLinear(true, this._cRange as any, domain);
+            const scale = this._createScale(
+                this.prop.categoryUseLog ? "log" : "linear",
+                true,
+                this._cRange as any,
+                domain,
+            );
+            return scale;
         }
     }
 
     private createValueScale(size: number) {
         const [pt, , pb] = this._paddings;
         const width = size - pt - pb;
-        return this._createScaleLinear(
+        const scale = this._createScale(
+            this.prop.valueUseLog ? "log" : "linear",
             false,
             this._vRange,
             this.inverted ? [0, width] : [width, 0],
         );
+        return scale;
     }
 }
 
@@ -204,7 +241,9 @@ export function parseData(elm: Component<ComponentOption>, data: any, h: DataHan
     return {
         values: h.values(data).map((d, i) => ({
             pos: categories ? categories[i] : h.pos(d, i),
-            value: h.value(d, i), minValue: h.min(d, i), data: d,
+            value: h.value(d, i),
+            minValue: h.min(d, i),
+            data: d,
         })),
         raw: data,
     };
@@ -241,9 +280,11 @@ function createDataHandler(data: any): DataHandler {
         max = d => d;
     } else if (Array.isArray(d)) {
         if (d.length === 2 && typeof d[0] === "string") {
-            max = d => d[1]; pos = d => d[0];
+            max = d => d[1];
+            pos = d => d[0];
         } else {
-            max = d => d[d.length - 1]; min = d => d[0];
+            max = d => d[d.length - 1];
+            min = d => d[0];
         }
     } else {
         pos = d => d.pos;

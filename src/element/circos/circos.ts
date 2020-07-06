@@ -69,7 +69,8 @@ export class Circos extends Component<CircosOption> {
     private sectionRadius: Record<string, number> = {};
 
     public willRender() {
-        const pie = d3.pie<CircosSectionDef>()
+        const pie = d3
+            .pie<CircosSectionDef>()
             .padAngle(this.prop.padAngle)
             .startAngle(this.prop.startAngle)
             .endAngle(this.prop.endAngle)
@@ -82,7 +83,7 @@ export class Circos extends Component<CircosOption> {
             startAngle: s.startAngle + s.padAngle,
             endAngle: s.endAngle - s.padAngle,
             circos: this,
-            scale: this._createScaleLinear(true, [s.data.start, s.data.end], [s.startAngle, s.endAngle]),
+            scale: this._createScale("linear", true, [s.data.start, s.data.end], [s.startAngle, s.endAngle]),
         }));
 
         this.sectionById = {};
@@ -105,20 +106,25 @@ export class Circos extends Component<CircosOption> {
 
     public labelRotation(rx: number, ry: number): [number, number, number] {
         const [x, y] = toCartesian(rx, ry, true);
-        const angle = rx * 180 / Math.PI;
-        let adjustedAngle = (rx + this.rotation) * 180 / Math.PI;
-        if (adjustedAngle >= 360) { adjustedAngle -= 360; }
-        if (adjustedAngle < 0) { adjustedAngle += 360; }
-        return [
-            adjustedAngle < 180 ? angle - 90 : angle + 90,
-            x, y,
-        ];
+        const angle = (rx * 180) / Math.PI;
+        let adjustedAngle = ((rx + this.rotation) * 180) / Math.PI;
+        if (adjustedAngle >= 360) {
+            adjustedAngle -= 360;
+        }
+        if (adjustedAngle < 0) {
+            adjustedAngle += 360;
+        }
+        return [adjustedAngle < 180 ? angle - 90 : angle + 90, x, y];
     }
 
     public labelAnchor(angle: number, towardsCenter: boolean = false): Anchor {
-        let adjustedAngle = (angle + this.rotation) * 180 / Math.PI;
-        if (adjustedAngle >= 360) { adjustedAngle -= 360; }
-        if (adjustedAngle < 0) { adjustedAngle += 360; }
+        let adjustedAngle = ((angle + this.rotation) * 180) / Math.PI;
+        if (adjustedAngle >= 360) {
+            adjustedAngle -= 360;
+        }
+        if (adjustedAngle < 0) {
+            adjustedAngle += 360;
+        }
         return (adjustedAngle > 180 === towardsCenter ? Anchor.Left : Anchor.Right) | Anchor.Middle;
     }
 

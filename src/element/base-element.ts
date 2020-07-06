@@ -15,6 +15,7 @@ import { Component } from "./component";
 import shallowEqArrays from "shallow-equal/arrays";
 // @ts-ignore
 import shallowEqObjects from "shallow-equal/objects";
+import { scaled } from "./scale";
 
 interface State {
     stage?: string | null | undefined;
@@ -388,7 +389,7 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption> implem
         if (horizontal) this.isInXScaleSystem = true;
         else this.isInYScaleSystem = true;
         const scale = this.parent.getScale(horizontal);
-        return typeof scale === "function" ? scale(val) : val;
+        return typeof scale === "function" ? scaled(scale, val) : val;
     }
 
     protected _rotate(val: number, x: number, y: number) {

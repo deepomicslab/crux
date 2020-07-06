@@ -36,8 +36,11 @@ export class BaseChart<Option extends BaseChartOption = BaseChartOption> extends
         const $p = this.$parent as XYPlot;
         if ($p.hasMultipleData) {
             const getData = (k: string) => {
+                if (typeof k !== "string") {
+                    throw new Error(`The chart required a non-string data key "${k}". Data keys should be strings.`);
+                }
                 if (!(k in (this.$parent as any).data)) {
-                    throw new Error(`${k} doesn't exist in the plot.`);
+                    throw new Error(`The chart required a data key "${k}", but it doesn't exist in the plot.`);
                 }
                 return (this.$parent as any).data[k];
             };
@@ -45,7 +48,7 @@ export class BaseChart<Option extends BaseChartOption = BaseChartOption> extends
                 this.data = getData(dataProp);
             } else if (Array.isArray(dataProp)) {
                 this.data = {};
-                dataProp.forEach(p => this.data[p] = getData(p));
+                dataProp.forEach(p => (this.data[p] = getData(p)));
             } else {
                 throw new Error(oneLineTrim`Chart: a data key or an array of data keys
                  must be used when supplying multiple data to the plot.`);
@@ -61,9 +64,9 @@ export class BaseChart<Option extends BaseChartOption = BaseChartOption> extends
     }
 
     protected getAnchor() {
-        return this.flipped ?
-            (this.inverted ? Anchor.Left : Anchor.Right) | Anchor.Middle :
-            (this.inverted ? Anchor.Top : Anchor.Bottom) | Anchor.Center;
+        return this.flipped
+            ? (this.inverted ? Anchor.Left : Anchor.Right) | Anchor.Middle
+            : (this.inverted ? Anchor.Top : Anchor.Bottom) | Anchor.Center;
     }
 
     protected getX(value: number) {
@@ -81,7 +84,7 @@ export class BaseChart<Option extends BaseChartOption = BaseChartOption> extends
     protected flippedOpts(opts: any) {
         const result = {};
         Object.keys(FLIP_OPT_MAP).forEach(k => {
-            const key =  this.flipped ? FLIP_OPT_MAP[k] : k;
+            const key = this.flipped ? FLIP_OPT_MAP[k] : k;
             result[key] = opts[k] || 0;
         });
         return result;
@@ -94,6 +97,12 @@ export class BaseChart<Option extends BaseChartOption = BaseChartOption> extends
 }
 
 const FLIP_OPT_MAP = {
-    x: "y", y: "x", width: "height", height: "width",
-    x1: "y1", x2: "y2", y1: "x1", y2: "x2",
+    x: "y",
+    y: "x",
+    width: "height",
+    height: "width",
+    x1: "y1",
+    x2: "y2",
+    y1: "x1",
+    y2: "x2",
 };

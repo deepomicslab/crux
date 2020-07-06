@@ -13,11 +13,11 @@ import { BaseElement } from "./base-element";
 import { BaseOption } from "./base-options";
 import { ComponentOption } from "./component-options";
 import { isRenderable } from "./is";
-import { ScaleMixin } from "./scale";
+import { scaled, ScaleMixin } from "./scale";
 
 export type ActualElement = BaseElement<BaseOption>;
 
-type Scale = d3.ScaleContinuousNumeric<number, number>;
+type Scale = d3.ScaleContinuousNumeric<number, number> & { __type__?: string };
 
 export interface PolarCoordInfo {
     r: number;
@@ -205,12 +205,12 @@ export class Component<Option extends ComponentOption = ComponentOption> extends
         if (s === null) {
             this[k] = null;
         } else if (typeof s === "object" && s.__scale__) {
-            if (this[k] && s.type === "linear") {
+            if (this[k] && s.type === this[k]!.__type__) {
                 const scale = this[k] as Scale;
                 scale.domain(s.domain === null ? [0, 1] : s.domain);
                 scale.range(s.range === null ? this.boundaryForScale(horizontal) : s.range);
             } else {
-                this[k] = this._createScaleLinear(horizontal, s.domain, s.range);
+                this[k] = this._createScale(s.type, horizontal, s.domain, s.range);
             }
         } else if (typeof s === "function") {
             this[k] = s as any;
@@ -279,7 +279,7 @@ export class Component<Option extends ComponentOption = ComponentOption> extends
         if (horizontal) this.isInXScaleSystem = true;
         else this.isInYScaleSystem = true;
         const scale = this.getScale(horizontal);
-        return typeof scale === "function" ? scale(val) : val;
+        return typeof scale === "function" ? scaled(scale, val) : val;
     }
 
     // placeholders for mixins
@@ -289,7 +289,8 @@ export class Component<Option extends ComponentOption = ComponentOption> extends
     public _l!: () => ElementDef[];
     public _h = helperMixin;
 
-    public _createScaleLinear!: (
+    public _createScale!: (
+        type: "linear" | "log",
         horizontal: boolean,
         domain: [number, number],
         range?: [number, number],

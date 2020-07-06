@@ -1,50 +1,54 @@
 import { Anchor, GeometryValue } from "../../defs/geometry";
-import { template } from "../../template/tag";
+import { useTemplate } from "../../ext/decorator";
 import { ParsedData } from "../plot";
 import { BaseChart, BaseChartOption } from "./base-chart";
 
-interface SizeDef { x: number; y: number; width: number; height: number; }
+interface SizeDef {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+}
 
 export interface BarsOption extends BaseChartOption {
     pivot: number;
 }
 
-export class Bars extends BaseChart<BarsOption> {
-    public render = template`
-        Component {
-            xScale = getScale(true) || createXScale()
-            yScale = getScale(false) || createYScale()
+@useTemplate(`
+    Component {
+        xScale = getScale(true) || createXScale()
+        yScale = getScale(false) || createYScale()
 
-            @for (d, index) in data.values {
-                Component {
-                    @let z = _cachedSize[index]
+        @for (d, index) in data.values {
+            Component {
+                @let z = _cachedSize[index]
 
-                    key = index
-                    anchor = getRectAnchor(d, prop.pivot)
-                    x = z.x; y = z.y; width = z.width; height = z.height;
+                key = index
+                anchor = getRectAnchor(d, prop.pivot)
+                x = z.x; y = z.y; width = z.width; height = z.height;
 
-                    @yield children with d default {
-                        Rect.full {
-                            @props prop.opt.bar
-                        }
+                @yield children with d default {
+                    Rect.full {
+                        @props prop.opt.bar
                     }
                 }
             }
+        }
 
-            @for (d, index) in data.values {
-                Component {
-                    @let z = _cachedSize[index]
+        @for (d, index) in data.values {
+            Component {
+                @let z = _cachedSize[index]
 
-                    key = "o" + index
-                    anchor = getRectAnchor(d, prop.pivot)
-                    x = z.x; y = z.y; width = z.width; height = z.height;
+                key = "o" + index
+                anchor = getRectAnchor(d, prop.pivot)
+                x = z.x; y = z.y; width = z.width; height = z.height;
 
-                    @yield overlay with d
-                }
+                @yield overlay with d
             }
         }
-    `;
-
+    }
+`)
+export class Bars extends BaseChart<BarsOption> {
     public data!: ParsedData;
 
     private _cachedSize: SizeDef[] = [];
@@ -71,9 +75,9 @@ export class Bars extends BaseChart<BarsOption> {
     // @ts-ignore
     private getRectAnchor(d: any, pivot: number) {
         const belowPivot = typeof pivot === "number" && d.value < d.minValue && d.value < pivot;
-        return this.flipped ?
-            (this.inverted !== belowPivot ? Anchor.Left : Anchor.Right) | Anchor.Middle :
-            (this.inverted !== belowPivot ? Anchor.Top : Anchor.Bottom) | Anchor.Center;
+        return this.flipped
+            ? (this.inverted !== belowPivot ? Anchor.Left : Anchor.Right) | Anchor.Middle
+            : (this.inverted !== belowPivot ? Anchor.Top : Anchor.Bottom) | Anchor.Center;
     }
 
     // @ts-ignore

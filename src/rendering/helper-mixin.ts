@@ -79,6 +79,21 @@ export default {
         const range = r1 !== undefined && r2 !== undefined ? [r1, r2] : null;
         return { __scale__: true, type: "linear", domain, range };
     },
+    scaleLog(d1?: number, d2?: number, r1?: number, r2?: number) {
+        const domain = d1 !== undefined && d2 !== undefined ? [d1, d2] : null;
+        const range = r1 !== undefined && r2 !== undefined ? [r1, r2] : null;
+        return { __scale__: true, type: "log", domain, range, base: 10 };
+    },
+    scaleLog2(d1?: number, d2?: number, r1?: number, r2?: number) {
+        const domain = d1 !== undefined && d2 !== undefined ? [d1, d2] : null;
+        const range = r1 !== undefined && r2 !== undefined ? [r1, r2] : null;
+        return { __scale__: true, type: "log", domain, range, base: 2 };
+    },
+    scaleLogN(base: number, d1?: number, d2?: number, r1?: number, r2?: number) {
+        const domain = d1 !== undefined && d2 !== undefined ? [d1, d2] : null;
+        const range = r1 !== undefined && r2 !== undefined ? [r1, r2] : null;
+        return { __scale__: true, type: "log", domain, range, base };
+    },
     gradient(self: any, name: string) {
         if (arguments.length >= 4) {
             const [, id, deg, ...stops] = arguments;

@@ -5,6 +5,7 @@ import { useTemplate } from "../../ext/decorator";
 import { Component } from "../component";
 import { ComponentOption } from "../component-options";
 import { XYPlot } from "../plot";
+import { scaled, scaleDomain } from "../scale";
 
 export interface AxisOption extends ComponentOption {
     orientation: "top" | "bottom" | "left" | "right";
@@ -62,7 +63,7 @@ Component {
 export class Axis extends Component<AxisOption> {
     public defaultProp() {
         return {
-            orientation: "top",
+            orientation: "bottom",
             tickCount: 5,
             tickFormat: (d: TickValue) => d.toString(),
             includeEndTicks: true,
@@ -71,16 +72,16 @@ export class Axis extends Component<AxisOption> {
         };
     }
 
-    public static propNameForInitializer() { return "orientation"; }
+    public static propNameForInitializer() {
+        return "orientation";
+    }
 
     private _tickValues?: any[];
 
     public willRender() {
-        if (this.$parent instanceof XYPlot &&
-            this.$parent.flipped !== this.isHorizontal) {
+        if (this.$parent instanceof XYPlot && this.$parent.flipped !== this.isHorizontal) {
             const domain = this.$parent.categories;
-            this._tickValues = this.$parent.discreteCategory ?
-                domain : undefined; // _.range(domain[0], domain[1] + 1);
+            this._tickValues = this.$parent.discreteCategory ? domain : undefined; // _.range(domain[0], domain[1] + 1);
         }
         if (this._firstRender) {
             if (this.prop.orientation === "top" || this.prop.orientation === "bottom") {
@@ -111,8 +112,10 @@ export class Axis extends Component<AxisOption> {
 
     // @ts-ignore
     private get getLabelAnchor() {
-        return (this.isHorizontal ? Anchor.Center : this.isInner ? Anchor.Right : Anchor.Left) |
-            (this.isHorizontal ? this.isInner ? Anchor.Bottom : Anchor.Top : Anchor.Middle);
+        return (
+            (this.isHorizontal ? Anchor.Center : this.isInner ? Anchor.Right : Anchor.Left) |
+            (this.isHorizontal ? (this.isInner ? Anchor.Bottom : Anchor.Top) : Anchor.Middle)
+        );
     }
 
     // @ts-ignore
@@ -140,14 +143,17 @@ export class Axis extends Component<AxisOption> {
     }
 }
 
-export type TickValue = { value: number, pos: number, show: boolean };
+export type TickValue = { value: number; pos: number; show: boolean };
 
 export function getTicks(
-    scale: any, providedTicks: any,
-    interval: number | undefined, count: number | undefined,
+    scale: any,
+    providedTicks: any,
+    interval: number | undefined,
+    count: number | undefined,
     includeEndTicks: boolean | undefined,
     roundEndTicks: boolean | undefined,
-    isHorizontal: boolean): TickValue[] {
+    isHorizontal: boolean,
+): TickValue[] {
     if (!scale) {
         throw new Error(`Axis: you must supply a scale.`);
     }
@@ -158,7 +164,7 @@ export function getTicks(
         ticks = providedTicks;
     } else {
         ticks = [];
-        const domain = scale.domain();
+        const domain = scaleDomain(scale);
         const isNumeric = domain.length === 2 && typeof domain[0] === "number";
         if (isNumeric) {
             let i: number;
@@ -172,10 +178,15 @@ export function getTicks(
                 const rawInterval = (domain[1] - domain[0]) / count;
                 const absInterval = Math.abs(rawInterval);
                 const digits = baseDigitOf(absInterval);
-                i = _.minBy([0.1, 0.2, 0.5, 1, 2, 5].map(x => x * digits), x => {
-                    if (!isInversed && x > domain[1]) { return Number.MAX_SAFE_INTEGER; }
-                    return Math.abs(x - absInterval);
-                })!;
+                i = _.minBy(
+                    [0.1, 0.2, 0.5, 1, 2, 5].map(x => x * digits),
+                    x => {
+                        if (!isInversed && x > domain[1]) {
+                            return Number.MAX_SAFE_INTEGER;
+                        }
+                        return Math.abs(x - absInterval);
+                    },
+                )!;
                 if (isInversed) i = -i;
             }
             // check whether domain[0] can be divided by interval
@@ -198,7 +209,7 @@ export function getTicks(
 
     const tickValues = ticks.map(t => ({
         value: t,
-        pos: scale(t),
+        pos: scaled(scale, t),
         show: true,
     }));
 

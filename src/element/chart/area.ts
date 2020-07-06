@@ -64,7 +64,7 @@ export class Area extends BaseChart<AreaOption> {
             this.buffer = new Uint8Array(len * 20);
             this.bufferLength = len * 20;
         }
-        const buffer = this.buffer;
+        let buffer = this.buffer;
         // let path = `M${a1[0]},${yMin} `;
         buffer[this.idx++] = 77;
         this.toCharCode(buffer, a1[0]);
@@ -81,12 +81,22 @@ export class Area extends BaseChart<AreaOption> {
             buffer[this.idx++] = 32;
             if (this.idx > this.bufferLength - 30) {
                 this.growBuffer(this.bufferLength * 2);
+                buffer = this.buffer;
             }
         }
 
         if (this._hasMinValue) {
             for (let i = len - 1; i >= 0; i--) {
                 // path += `L${a1[i]},${a3[i]} `;
+                buffer[this.idx++] = 76;
+                this.toCharCode(buffer, a1[i]);
+                buffer[this.idx++] = 44;
+                this.toCharCode(buffer, a3[i]);
+                buffer[this.idx++] = 32;
+                if (this.idx > this.bufferLength - 30) {
+                    this.growBuffer(this.bufferLength * 2);
+                    buffer = this.buffer;
+                }
             }
         } else {
             buffer[this.idx++] = 76;
@@ -161,4 +171,4 @@ function uint8ToString(u8a: Uint8Array) {
         c.push(String.fromCharCode.apply(null, u8a.subarray(i, i + CHUNK_SZ) as any));
     }
     return c.join("");
-  }
+}

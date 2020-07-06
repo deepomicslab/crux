@@ -90,15 +90,18 @@ export class PieChart extends Component<PieChartOption> {
             const _minValue = sum;
             const name = "name" in d ? d.name : i;
             sum += d.value;
-            return { _minValue, value: d.value, name, raw: d};
+            return { _minValue, value: d.value, name, raw: d };
         });
-        const max =  this.prop.totalValue || sum;
-        this._data.forEach(d => d.percentage = d.value * 100.0 / max);
-        this._xScale = this._createScaleLinear(true,
+        const max = this.prop.totalValue || sum;
+        this._data.forEach(d => (d.percentage = (d.value * 100.0) / max));
+        this._xScale = this._createScale(
+            "linear",
+            true,
             [0, max],
-            [this.prop.startAngle || 0, this.prop.endAngle || 360]);
+            [this.prop.startAngle || 0, this.prop.endAngle || 360],
+        );
         // color scheme
-        const categories = this.prop.data.map((d, i) => "name" in d ? d.name : i) as string[];
+        const categories = this.prop.data.map((d, i) => ("name" in d ? d.name : i)) as string[];
         this._colorScheme = this.prop.colorScheme || schemeCategory(this.$v.theme, categories);
     }
 

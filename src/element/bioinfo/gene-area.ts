@@ -147,7 +147,9 @@ export class GeneArea extends Component<GeneAreaOption> {
 
     public willRender() {
         const parentScale = this.getScale(true);
-        this.geneScale = parentScale ? undefined : this._createScaleLinear(true, [this.geneMinPos, this.geneMaxPos]);
+        this.geneScale = parentScale
+            ? undefined
+            : this._createScale("linear", true, [this.geneMinPos, this.geneMaxPos]);
         const scale = parentScale || this.geneScale;
         this.prop.genes!.forEach(g => {
             g._x0 = scale(g.most_left_pos);
