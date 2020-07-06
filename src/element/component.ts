@@ -50,7 +50,7 @@ export class Component<Option extends ComponentOption = ComponentOption> extends
 
     private _childMap = new Map<string, ActualElement>();
 
-    constructor(id: number | string, renderer?: Renderer) {
+    constructor(id: number | string = 0, renderer?: Renderer) {
         super(id);
         if (renderer) {
             this.render = renderer;
