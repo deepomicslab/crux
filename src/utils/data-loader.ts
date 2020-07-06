@@ -40,7 +40,7 @@ export enum DataSourceType {
 }
 
 export type DSVRowType = "string" | "int" | "float" | "skip";
-export type DSVRowDef = [DSVRowType, string?];
+export type DSVRowDef = DSVRowType | [DSVRowType, string?];
 
 export interface DataSource<T extends Record<string, any>, U> {
     _type?: U;
@@ -60,7 +60,7 @@ export interface DataSource<T extends Record<string, any>, U> {
     multiple?: boolean;
     dependsOn?: string[];
     includeCredentials?: boolean;
-    anonymousImage?: boolean;
+    corsImage?: boolean;
 }
 
 export interface DataLoaderOption<T> {
@@ -203,7 +203,7 @@ export class DataLoader<T extends Record<string, any> = Record<string, any>> {
 
                 if (def.type === DataSourceType.IMAGE) {
                     const image = new Image();
-                    if (def.anonymousImage) image.crossOrigin = "anonymous";
+                    if (def.corsImage) image.crossOrigin = "anonymous";
                     if (path === null) throw Error(`Image url for key ${key} is null`);
                     image.src = path!;
                     image.onload = () => {
@@ -223,9 +223,11 @@ export class DataLoader<T extends Record<string, any> = Record<string, any>> {
                             : (data: any) => {
                                   const result: any = {};
                                   _.forOwn(data, (value, key) => {
-                                      const rowDef = def.dsvRowDef![key] || ["string"];
+                                      let rowDef = def.dsvRowDef![key] || ["string"];
+                                      if (typeof rowDef === "string") rowDef = [rowDef];
+                                      const t = rowDef[0];
                                       const k = rowDef[1] || key;
-                                      switch (rowDef[0]) {
+                                      switch (t) {
                                           case "int":
                                               result[k] = parseInt(value);
                                               break;
