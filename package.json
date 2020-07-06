@@ -10,7 +10,9 @@
     "scripts": {
         "test": "mocha --require ts-node/register test/*.ts",
         "build": "tsc -p ./ --outDir ./dist",
-        "build-node": "tsc -p ./tsconfig.node.json --outDir ./dist-node"
+        "build-node": "tsc -p ./tsconfig.node.json --outDir ./dist-node",
+        "build-type": "tsc -p ./ --emitDeclarationOnly --outFile ./dist/oviz.d.ts",
+        "build-web": "webpack --env.production --env.platform=web --mode=production --devtool=source-map dist/index.js -o dist/oviz.js"
     },
     "dependencies": {
         "axios": "^0.18.0",
