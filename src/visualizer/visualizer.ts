@@ -106,7 +106,7 @@ export class Visualizer {
         this._createDataProxy();
 
         this.components = opt.components || {};
-        this.rendererType = opt.renderer!;
+        this.rendererType = opt.renderer || "svg";
         this.rendererOpt = opt.rendererOption || {};
         this.theme = opt.theme || "light";
 
