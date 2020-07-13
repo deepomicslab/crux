@@ -45,6 +45,6 @@ export function scaleDomain(scale: Scale): number[] {
     return scale.domain();
 }
 
-function shift1(range: Range) {
+export function shift1(range: Range) {
     return range.map(x => x + 1);
 }

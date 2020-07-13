@@ -13,7 +13,7 @@ import { BaseElement } from "./base-element";
 import { BaseOption } from "./base-options";
 import { ComponentOption } from "./component-options";
 import { isRenderable } from "./is";
-import { scaled, ScaleMixin } from "./scale";
+import { scaled, ScaleMixin, shift1 } from "./scale";
 
 export type ActualElement = BaseElement<BaseOption>;
 
@@ -207,7 +207,8 @@ export class Component<Option extends ComponentOption = ComponentOption> extends
         } else if (typeof s === "object" && s.__scale__) {
             if (this[k] && s.type === this[k]!.__type__) {
                 const scale = this[k] as Scale;
-                scale.domain(s.domain === null ? [0, 1] : s.domain);
+                const domain = s.domain === null ? [0, 1] : s.domain;
+                scale.domain(s.type === "log" ? shift1(domain) : domain);
                 scale.range(s.range === null ? this.boundaryForScale(horizontal) : s.range);
             } else {
                 this[k] = this._createScale(s.type, horizontal, s.domain, s.range);
