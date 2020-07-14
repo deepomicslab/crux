@@ -17,6 +17,8 @@ import shallowEqArrays from "shallow-equal/arrays";
 import shallowEqObjects from "shallow-equal/objects";
 import { scaled } from "./scale";
 
+type ListenerCallback = (n: Record<string, any>) => void;
+
 interface State {
     stage?: string | null | undefined;
     [name: string]: any;
@@ -269,9 +271,17 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption> implem
     }
 
     protected setState(s: Record<string, any>) {
+        const changedKeys: string[] = [];
         Object.keys(s).forEach(k => {
+            if (this.state[k] === s[k]) return;
             this.state[k] = s[k];
+            changedKeys.push(k);
         });
+
+        const callbackSymbols = changedKeys.flatMap(k => this._stateListeners[k]).filter(Boolean);
+        for (const sym of new Set(callbackSymbols)) {
+            this._stateCallbacks[sym].call(this, this.state, changedKeys);
+        }
 
         let elm: BaseElement<any> | null = null;
         if (this instanceof Component) {
@@ -286,6 +296,18 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption> implem
 
         if (elm) {
             elm.redraw();
+        }
+    }
+
+    private _stateListeners: Record<string, symbol[]> = {};
+    private _stateCallbacks: Record<symbol, ListenerCallback> = {};
+    protected watchState(s: string | string[], callback: ListenerCallback) {
+        const keys = Array.isArray(s) ? s : [s];
+        const cbKey = Symbol();
+        this._stateCallbacks[cbKey] = callback;
+        for (const key of keys) {
+            if (!this._stateListeners[key]) this._stateListeners[key] = [];
+            this._stateListeners[key].push(cbKey);
         }
     }
 
