@@ -36,6 +36,23 @@ const HOOKS_MAP = {
     didPatch: "postpatch",
 };
 
+function updateParentVNode(elm: BaseElement) {
+    let actualParent = elm.parent;
+    if (!actualParent) return;
+    let logicalSelf = elm;
+    while ((isRenderable(actualParent) as boolean) && !actualParent.isRoot) {
+        logicalSelf = actualParent;
+        actualParent = logicalSelf.parent;
+    }
+    if (actualParent.isRoot) {
+        actualParent.vnode = elm.vnode;
+    } else {
+        const i = actualParent.children.indexOf(logicalSelf);
+        if (actualParent.vnode && actualParent.vnode.children) actualParent.vnode.children[i] = elm.vnode!;
+        updateParentVNode(actualParent);
+    }
+}
+
 function insertHook(elm: BaseElement<BaseElementOption>) {
     if (elm.__insertHook) return elm.__insertHook;
     const hook = (elm.__insertHook = (vnode: VNode) => {
@@ -137,6 +154,7 @@ function _patch(element: BaseElement<any>, vnode: VNode, context: SVGContext) {
         }
         if (el.vnode) {
             el.vnode = patch(el.vnode, vnode);
+            updateParentVNode(el);
         }
     }
 }
