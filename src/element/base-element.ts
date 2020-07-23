@@ -46,8 +46,8 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption> implem
     public _isFocused = false;
 
     public _firstRender = true;
-    public shouldNotSkipNextUpdate = false;
     public _isRenderRoot = false;
+    public forceUpdate = false;
 
     private _prop: Option;
     public prop!: Option;
@@ -164,10 +164,19 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption> implem
     public compareProps(p: Record<string, any>): boolean {
         const k1 = Object.keys(p); // , k2 = Object.keys(this._prop);
         // if (!shallowEqArrays(k1, k2)) return false;
-        let k, p1, p2, t1, t2;
+        let k, p1: any, p2: any, t1, t2;
         for (k of k1) {
             p1 = p[k];
             p2 = this._prop[k];
+            if (k === "opt") {
+                const p1k = Object.keys(p1);
+                if (p1k.length !== Object.keys(p2).length) return false;
+                // tslint:disable-next-line: no-for-in-array
+                for (const n in p1k) {
+                    if (!shallowEqObjects(p1[n], p2[n])) return false;
+                }
+                continue;
+            }
             t1 = typeof p1;
             t2 = typeof p2;
             if (t1 !== t2) return false;
@@ -460,6 +469,7 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption> implem
     }
 
     public didCreate?(): void;
+    public shouldUpdate?(): boolean;
     public willUpdate?(): void;
     public didUpdate?(): void;
     public willRender?(): void;

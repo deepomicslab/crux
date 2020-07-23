@@ -47,9 +47,13 @@ function findComponent(component: Component, name: string, id: number | string):
 
 function shouldUpdateElement(elm: ActualElement, opt: OptDict): boolean {
     if (elm.$v.forceRedraw) return true;
-    if (elm.shouldNotSkipNextUpdate) {
-        elm.shouldNotSkipNextUpdate = false;
+    if (elm.forceUpdate) {
+        elm.forceUpdate = false;
         return true;
+    }
+    if (elm.shouldUpdate) {
+        const result = elm.shouldUpdate();
+        if (typeof result === "boolean") return result;
     }
     if (
         !((xScaleSystemChanged && elm.isInXScaleSystem) || (yScaleSystemChanged && elm.isInYScaleSystem)) &&
