@@ -3,7 +3,7 @@ import { Component, ComponentOption } from "../../element";
 import { template } from "../../template/tag";
 import { toCartesian } from "../../utils/math";
 
-import * as d3 from "d3";
+import * as d3 from "d3-shape";
 
 interface CircosSectionDef {
     id: string;

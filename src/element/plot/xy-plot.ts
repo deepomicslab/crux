@@ -1,9 +1,9 @@
-import * as d3 from "d3-array";
-import * as _ from "lodash";
+import { groupBy, uniq } from "lodash";
 
 import { GeometryValue } from "../../defs/geometry";
 import { useTemplate } from "../../ext/decorator";
 import { ElementDef } from "../../rendering/element-def";
+import { max, min, minmax } from "../../utils/math";
 import { ChartPaddingOptions, getPaddings } from "../chart/utils/option-padding";
 import { Component } from "../component";
 import { ComponentOption } from "../component-options";
@@ -114,7 +114,7 @@ export class XYPlot extends Component<XYPlotOption> {
                                 return this.data[sd].values;
                             })
                             .flat();
-                        const grouped = _.groupBy(flatten, "pos");
+                        const grouped = groupBy(flatten, "pos");
                         const gather = (pos: any) =>
                             grouped[pos].reduce((p, c) => ({ pos: p.pos, value: p.value + c.value, minValue: 0 }));
                         allData.push(...Object.keys(grouped).map(gather));
@@ -134,11 +134,11 @@ export class XYPlot extends Component<XYPlotOption> {
                     : false;
             this._cRange =
                 this.prop.categoryRange ||
-                (this.discreteCategory ? _.uniq(allData.map(d => d.pos)) : d3.extent(allData, d => d.pos));
-            const minValue = d3.min(allData, d => d.minValue)!;
+                (this.discreteCategory ? uniq(allData.map(d => d.pos)) : minmax(allData, d => d.pos));
+            const minValue = min(allData, d => d.minValue)!;
             this._vRange = this.prop.valueRange || [
                 minValue < 0 || this.prop.capToMinValue ? minValue : 0,
-                d3.max(allData, d => d.value),
+                max(allData, d => d.value),
             ];
         }
         this._paddings = getPaddings(this);

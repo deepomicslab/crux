@@ -1,9 +1,8 @@
-import * as d3 from "d3-array";
-
 import { stackedLayout } from "../../algo";
 import { getThemeColor } from "../../color";
 import { Anchor, GeometryUnit, GeometryValue } from "../../defs/geometry";
 import { GeneData } from "../../utils/bioinfo/gene";
+import { max, min } from "../../utils/math";
 import { measuredTextSize } from "../../utils/text-size";
 import { Component } from "../component";
 import { ComponentOption } from "../component-options";
@@ -195,12 +194,12 @@ export class GeneArea extends Component<GeneAreaOption> {
 
     public get geneMinPos(): number {
         if (this.prop.genes.length === 0) return 0;
-        return d3.min(this.prop.genes, g => g.most_left_pos as number)!;
+        return min(this.prop.genes, g => g.most_left_pos as number)!;
     }
 
     public get geneMaxPos(): number {
         if (this.prop.genes.length === 0) return 0;
-        return d3.max(this.prop.genes, g => g.most_right_pos as number)!;
+        return max(this.prop.genes, g => g.most_right_pos as number)!;
     }
 
     // @ts-ignore

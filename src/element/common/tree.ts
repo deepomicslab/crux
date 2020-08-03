@@ -1,6 +1,6 @@
-import { max, min } from "d3-array";
 import * as d3 from "d3-hierarchy";
 import { ScaleContinuousNumeric, scaleLinear, scaleLog } from "d3-scale";
+import { max, min } from "../../utils/math";
 
 import { Anchor } from "../../defs/geometry";
 import { useTemplate } from "../../ext/decorator";
@@ -219,8 +219,8 @@ export class Tree extends Component<TreeOption> {
         // min and max angle
         this._root.eachAfter(n => {
             if (n.children) {
-                n.data._minAngle = min(n.children, c => c.data._minAngle);
-                n.data._maxAngle = max(n.children, c => c.data._maxAngle);
+                n.data._minAngle = min(n.children, c => c.data._minAngle!);
+                n.data._maxAngle = max(n.children, c => c.data._maxAngle!);
             } else {
                 n.data._minAngle = n.data._maxAngle = n.x;
             }

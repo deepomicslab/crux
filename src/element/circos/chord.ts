@@ -1,4 +1,4 @@
-import * as d3 from "d3";
+import * as d3 from "d3-chord";
 import { Component, ComponentOption } from "../../element";
 import { template } from "../../template/tag";
 import { Circos } from "./circos";
