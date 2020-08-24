@@ -1,11 +1,23 @@
 import { oneLineTrim, stripIndent } from "common-tags";
 import { GEOMETRY_LITERAL } from "../../defs/geometry";
 import { UIDGenerator } from "../../utils/uid";
-import { ASTNode, ASTNodeComp, ASTNodeCondition, ASTNodeElse, ASTNodeFor, ASTNodeIf, ASTNodeYield, isRootElement, newNode } from "./ast-node";
+import {
+    ASTNode,
+    ASTNodeComp,
+    ASTNodeCondition,
+    ASTNodeElse,
+    ASTNodeFor,
+    ASTNodeIf,
+    ASTNodeYield,
+    isRootElement,
+    newNode,
+} from "./ast-node";
 
 function serialize(obj: any): string {
     if (typeof obj === "object")
-        return `{${Object.keys(obj).map(k => `'${k}': ${serialize(obj[k])}`).join(",")}}`;
+        return `{${Object.keys(obj)
+            .map(k => `'${k}': ${serialize(obj[k])}`)
+            .join(",")}}`;
     return obj.toString();
 }
 
@@ -17,9 +29,7 @@ function wrappedWithLocalData(node: ASTNode, wrapped: string) {
 }
 
 function genLocalData(node: ASTNode) {
-    return node.localData.map(d =>
-        d.name === "@expr" ? `${d.expr};` : `let ${d.name} = ${d.expr};`,
-    ).join(" ");
+    return node.localData.map(d => (d.name === "@expr" ? `${d.expr};` : `let ${d.name} = ${d.expr};`)).join(" ");
 }
 
 function genGeoExpr(match: RegExpMatchArray): string {
@@ -74,8 +84,7 @@ function genAttrs(node: ASTNodeComp) {
             continue;
         }
         let match: RegExpMatchArray | null;
-        const expr = (match = p.expr.match(GEOMETRY_LITERAL)) ?
-            genGeoExpr(match) : p.expr;
+        const expr = (match = p.expr.match(GEOMETRY_LITERAL)) ? genGeoExpr(match) : p.expr;
         attrStrings.push(`'${name}': ${genExpr(expr, name)}`);
     }
     if (hasDelegate) {
@@ -91,12 +100,11 @@ const EVT_FUNC_CALL = new RegExp("^([A-z0-9_]+)\\((.+?)\\)$");
 
 function genEventListener(handler: string): string {
     let match: any;
-    if (handler.startsWith("function") || handler.match(/^\(.+?\) *=>/) ||
-        handler[0] === "[" || handler[0] === "@") {
+    if (handler.startsWith("function") || handler.match(/^\(.+?\) *=>/) || handler[0] === "[" || handler[0] === "@") {
         return handler;
     } else if (handler.match(/^[A-z0-9_]+$/)) {
-        return `${handler}.bind(this)`;
-    } else if (match = handler.match(EVT_FUNC_CALL)) {
+        return `_b(${handler})`;
+    } else if ((match = handler.match(EVT_FUNC_CALL))) {
         return `_b(${match[1]}, ${match[2]})`;
     } else {
         return `(function($ev, $el) { ${handler} }).bind(this)`;
@@ -117,30 +125,32 @@ function genStyle(node: ASTNodeComp) {
 
 function genBehavior(node: ASTNodeComp) {
     if (node.behavior.length === 0) return "";
-    const behaviors = node.behavior.map(s => `'${s.name}': {${
-        s.args.map(a => `${a.name}: ${a.expr}`).join(", ")
-    }}`).join(",");
+    const behaviors = node.behavior
+        .map(s => `'${s.name}': {${s.args.map(a => `${a.name}: ${a.expr}`).join(", ")}}`)
+        .join(",");
     return `behaviors: { ${behaviors} },`;
 }
 
 function genStage(node: ASTNodeComp) {
     if (node.stage.length === 0) return "";
-    const stages = node.stage.map(s => `'${s.name}': {${
-        s.args.map(a => `${a.name}: ${a.expr}`).join(", ")
-    }}`).join(",");
+    const stages = node.stage
+        .map(s => `'${s.name}': {${s.args.map(a => `${a.name}: ${a.expr}`).join(", ")}}`)
+        .join(",");
     return `stages: { ${stages} },`;
 }
 
 function genNamedChildren(node: ASTNodeComp, uidGen: UIDGenerator) {
     const keys = Object.keys(node.namedChildren);
     if (keys.length === 0) return "";
-    const str = keys.map(k => {
-        const nc = node.namedChildren[k];
-        const func = stripIndent`
+    const str = keys
+        .map(k => {
+            const nc = node.namedChildren[k];
+            const func = stripIndent`
         function (${nc.dataName || ""}) { return [ ${genChildren(nc, uidGen)} ] }
         `;
-        return `${k}: ${func},`;
-    }).join("");
+            return `${k}: ${func},`;
+        })
+        .join("");
     return `namedChildren: { ${str} },`;
 }
 
@@ -204,14 +214,9 @@ function genNodeComp(node: ASTNodeComp, uidGen: UIDGenerator) {
     } else {
         const i = stripIndent`
         {
-            ${[
-                genAttrs(n),
-                genEventHdl(n),
-                genStyle(n),
-                genBehavior(n),
-                genStage(n),
-                genNamedChildren(n, uidGen),
-            ].filter(s => s).join("\n")}
+            ${[genAttrs(n), genEventHdl(n), genStyle(n), genBehavior(n), genStage(n), genNamedChildren(n, uidGen)]
+                .filter(s => s)
+                .join("\n")}
         }, [ ${genChildren(node, uidGen)} ]`;
         if (n.isLazy || n.staticVal) {
             str = `_z(${tag}, ${key}, ${n.staticVal}, function() {
@@ -243,26 +248,32 @@ function genNodeFor(node: ASTNodeFor, uidGen: UIDGenerator) {
 
 function genNodeCond(node: ASTNodeCondition, uidGen: UIDGenerator) {
     const nodes = node.children;
-    return nodes.map((n, i) => {
-        const isLast = i === nodes.length - 1;
-        const hasLocalData = n.localData.length > 0;
-        const str = `[${genChildren(n, uidGen)}]`;
-        const childrenStr = hasLocalData ? wrappedWithLocalData(n, str) : str;
-        if ("condition" in n) {
-            return `${n.condition} ? ${childrenStr} : ${isLast ? "null" : ""}`;
-        } else {
-            return childrenStr;
-        }
-    }).join("");
+    return nodes
+        .map((n, i) => {
+            const isLast = i === nodes.length - 1;
+            const hasLocalData = n.localData.length > 0;
+            const str = `[${genChildren(n, uidGen)}]`;
+            const childrenStr = hasLocalData ? wrappedWithLocalData(n, str) : str;
+            if ("condition" in n) {
+                return `${n.condition} ? ${childrenStr} : ${isLast ? "null" : ""}`;
+            } else {
+                return childrenStr;
+            }
+        })
+        .join("");
 }
 
 function genNodeYield(node: ASTNodeYield, uidGen: UIDGenerator) {
     const data = node.data || "";
-    const str = node.name === "children" ?
-        `(prop.namedChildren.children ?
+    const str =
+        node.name === "children"
+            ? `(prop.namedChildren.children ?
             prop.namedChildren.children(${data}) :
-            prop.children.length === 0 ? [${genChildren(node, uidGen)}] : prop.children)` :
-        `(prop.namedChildren["${node.name}"] ? prop.namedChildren["${node.name}"](${data}) : [${genChildren(node, uidGen)}])`;
+            prop.children.length === 0 ? [${genChildren(node, uidGen)}] : prop.children)`
+            : `(prop.namedChildren["${node.name}"] ? prop.namedChildren["${node.name}"](${data}) : [${genChildren(
+                  node,
+                  uidGen,
+              )}])`;
     return node.processor ? `${node.processor}${str}` : str;
 }
 
