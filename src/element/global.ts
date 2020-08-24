@@ -55,7 +55,7 @@ import {
     CircosContentTicks,
     CircosLayer,
 } from "./circos";
-import { Tree } from "./common";
+import { Tree, HyperbolicTree } from "./common";
 
 export function registerDefaultGlobalComponents() {
     registerComponent({
@@ -74,6 +74,7 @@ export function registerDefaultGlobalComponents() {
         Image,
         // common
         Tree,
+        HyperbolicTree,
         // plot
         XYPlot,
         // chart

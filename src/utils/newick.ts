@@ -58,29 +58,29 @@
  * }
  */
 
-export interface Node {
+export interface NewickNode {
     name: string;
     length: number;
-    children: Node[];
+    children: NewickNode[];
 }
 
-export function parseNewick(s: string): Node {
+export function parseNewick(s: string): NewickNode {
     const ancestors = [];
-    let tree = {} as Node;
-    let subtree: Node;
+    let tree = {} as NewickNode;
+    let subtree: NewickNode;
     const tokens = s.split(/\s*(;|\(|\)|,|:)\s*/);
 
     for (let i = 0; i < tokens.length; i++) {
         const token = tokens[i];
         switch (token) {
             case "(": // new children
-                subtree = {} as Node;
+                subtree = {} as NewickNode;
                 tree.children = [subtree];
                 ancestors.push(tree);
                 tree = subtree;
                 break;
             case ",": // another branch
-                subtree = {} as Node;
+                subtree = {} as NewickNode;
                 ancestors[ancestors.length - 1].children.push(subtree);
                 tree = subtree;
                 break;

@@ -20,7 +20,7 @@ interface Demo {
 registerDefaultBioInfoComponents();
 
 async function init() {
-    const demo: Demo = await import("./packages/sample");
+    const demo: Demo = await import("./packages/tree");
     // demo regression plot
     window.$v = Oviz.visualize({
         el: "#canvas",

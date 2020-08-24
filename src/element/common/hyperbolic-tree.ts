@@ -4,10 +4,10 @@ import { max, min } from "../../utils/math";
 
 import { Anchor } from "../../defs/geometry";
 import { useTemplate } from "../../ext/decorator";
-import { Component } from "../component";
+import { Component } from "../../../src/element/component";
 import { ComponentOption } from "../component-options";
 
-export interface TreeData<T = any> {
+interface TreeData<T = any> {
     name: string;
     data: T;
     length: number;
@@ -17,11 +17,10 @@ export interface TreeData<T = any> {
     _maxAngle?: number;
 }
 
-export interface TreeOption extends ComponentOption {
+interface TreeOption extends ComponentOption {
     data: TreeData;
     deg: number;
     r: number;
-    direction: "top" | "bottom" | "left" | "right" | "radical";
     scale: "none" | "scale" | "log";
     linkStyle: "rightAngle" | "straight";
     treeRotation: number;
@@ -34,7 +33,7 @@ Component {
     @let tree = _extMethods
     Component {
         width = 100%; height = 100%
-        coord = isRadical ? "polar" : "cartesian"
+        coord = "polar"
         yScale = _scaleY
         @for (link, i) in _links {
             Component {
@@ -92,20 +91,11 @@ Component {
                     }
                 }
             }
-            @if isScaled && prop.isCluster {
-                Component(isRadical ? "RadicalLine" : "Line") {
-                    x = getX(leaf);
-                    y1 = @scaledY(getR(leaf))
-                    y2 = getY(leaf)
-                    stroke = "#ccc"
-                    @props prop.opt.linkExtention
-                }
-            }
         }
     }
 }
 `)
-export class Tree extends Component<TreeOption> {
+export class HyperbolicTree extends Component<TreeOption> {
     protected state!: { activePath: Set<any> };
 
     // @ts-ignore
@@ -124,7 +114,6 @@ export class Tree extends Component<TreeOption> {
     // @ts-ignore
     private _leafDeg!: number;
 
-    private isRadical = false;
     private isHorizontal = false;
     private isInversed = false;
     // @ts-ignore
@@ -149,37 +138,15 @@ export class Tree extends Component<TreeOption> {
 
     public willRender() {
         const data = this.prop.data;
-        this.isRadical = this.prop.direction === "radical";
 
         let width: number, height: number;
-        switch (this.prop.direction) {
-            case "radical":
-                const totalR = this.prop.r || Math.min(this.$geometry.width, this.$geometry.height) / 2;
-                if (totalR <= 0) {
-                    console.warn(`Tree: radius is 0. The tree should have a proper size.`);
-                }
-                width = this.prop.deg;
-                height = totalR - this.prop.leafSize;
-                this.isHorizontal = false;
-                break;
-            case "top":
-            case "bottom":
-                this.width = width = this.$geometry.width;
-                this.height = height = this.$geometry.height - this.prop.leafSize;
-                this.isHorizontal = false;
-                this.isInversed = this.prop.direction === "top";
-                break;
-            case "right":
-            case "left":
-                this.width = width = this.$geometry.height;
-                this.height = height = this.$geometry.width - this.prop.leafSize;
-                this.isHorizontal = true;
-                this.isInversed = this.prop.direction === "left";
-                break;
-            default:
-                width = 0;
-                height = 0;
+        const totalR = this.prop.r || Math.min(this.$geometry.width, this.$geometry.height) / 2;
+        if (totalR <= 0) {
+            console.warn(`Tree: radius is 0. The tree should have a proper size.`);
         }
+        width = this.prop.deg;
+        height = totalR - this.prop.leafSize;
+        this.isHorizontal = false;
 
         const hierarchy = d3.hierarchy(data).sum(d => d.length);
 
@@ -265,31 +232,12 @@ export class Tree extends Component<TreeOption> {
 
     // @ts-ignore
     private getPath(x1: number, y1: number, x2: number, y2: number) {
-        if (this.isRadical) {
-            const c0 = Math.cos((x1 = ((x1 - 90) / 180) * Math.PI));
-            const s0 = Math.sin(x1);
-            const c1 = Math.cos((x2 = ((x2 - 90) / 180) * Math.PI));
-            const s1 = Math.sin(x2);
+        const c0 = Math.cos((x1 = ((x1 - 90) / 180) * Math.PI));
+        const s0 = Math.sin(x1);
+        const c1 = Math.cos((x2 = ((x2 - 90) / 180) * Math.PI));
+        const s1 = Math.sin(x2);
 
-            let path: string;
-            switch (this.prop.linkStyle) {
-                case "straight":
-                    return `M${y1 * c0},${y1 * s0} L${y2 * c1},${y2 * s1}`;
-                default:
-                    path = `M${y1 * c0},${y1 * s0} `;
-                    if (x2 !== x1) {
-                        path += `A${y1},${y1} 0 0 ${x2 > x1 ? 1 : 0} ${y1 * c1},${y1 * s1}`;
-                    }
-                    path += `L${y2 * c1},${y2 * s1}`;
-                    return path;
-            }
-        } else {
-            if (this.isHorizontal) {
-                return `M${x1},${y1} L${x1},${y2} L${x2},${y2}`;
-            } else {
-                return `M${x1},${y1} L${x2},${y1} L${x2},${y2}`;
-            }
-        }
+        return `M${y1 * c0},${y1 * s0} L${y2 * c1},${y2 * s1}`;
     }
 
     // @ts-ignore
@@ -327,31 +275,13 @@ export class Tree extends Component<TreeOption> {
     // @ts-ignore
     private leafRotation(leaf: any) {
         const isRight = this.isRightHalf(leaf.x);
-        switch (this.prop.direction) {
-            case "radical":
-                return [isRight ? leaf.x - 90 : leaf.x + 90, "_", "_"];
-            case "bottom":
-                return [90, "_", "_"];
-            case "top":
-                return [270, "_", "_"];
-            default:
-                return 0;
-        }
+        return [isRight ? leaf.x - 90 : leaf.x + 90, "_", "_"];
     }
 
     // @ts-ignore
     private leafAnchor(leaf: any) {
         const isRight = this.isRightHalf(leaf.x);
-        switch (this.prop.direction) {
-            case "radical":
-                return (isRight ? Anchor.Left : Anchor.Right) | Anchor.Middle;
-            case "left":
-                return Anchor.Right | Anchor.Middle;
-            case "top":
-            case "bottom":
-            case "right":
-                return Anchor.Left | Anchor.Middle;
-        }
+        return (isRight ? Anchor.Left : Anchor.Right) | Anchor.Middle;
     }
 
     // @ts-ignore
