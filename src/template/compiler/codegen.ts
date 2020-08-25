@@ -13,6 +13,12 @@ import {
     newNode,
 } from "./ast-node";
 
+const indent = "    ";
+
+function t(str: string): string {
+    return indent + str.replace(/\n/g, `\n${indent}`);
+}
+
 function serialize(obj: any): string {
     if (typeof obj === "object")
         return `{${Object.keys(obj)
@@ -22,14 +28,11 @@ function serialize(obj: any): string {
 }
 
 function wrappedWithLocalData(node: ASTNode, wrapped: string) {
-    return `(function(){
-        ${genLocalData(node)}
-        return ${wrapped};
-    })()`;
+    return `(function() { ${genLocalData(node)} return (\n${wrapped})})()`;
 }
 
 function genLocalData(node: ASTNode) {
-    return node.localData.map(d => (d.name === "@expr" ? `${d.expr};` : `let ${d.name} = ${d.expr};`)).join(" ");
+    return node.localData.map(d => (d.name === "@expr" ? `${d.expr};` : `let ${d.name} = ${d.expr};`)).join("");
 }
 
 function genGeoExpr(match: RegExpMatchArray): string {
@@ -93,7 +96,7 @@ function genAttrs(node: ASTNodeComp) {
     if (node.initArg && node.name !== "Component") {
         attrStrings.push(`_initArg: ${node.initArg}`);
     }
-    return `props: { ${attrStrings.join(",")} },`;
+    return `props: {${attrStrings.join(",")}},`;
 }
 
 const EVT_FUNC_CALL = new RegExp("^([A-z0-9_]+)\\((.+?)\\)$");
@@ -139,19 +142,22 @@ function genStage(node: ASTNodeComp) {
     return `stages: { ${stages} },`;
 }
 
-function genNamedChildren(node: ASTNodeComp, uidGen: UIDGenerator) {
+function genNamedChildren(node: ASTNodeComp, u: UIDGenerator) {
     const keys = Object.keys(node.namedChildren);
     if (keys.length === 0) return "";
     const str = keys
         .map(k => {
             const nc = node.namedChildren[k];
-            const func = stripIndent`
-        function (${nc.dataName || ""}) { return [ ${genChildren(nc, uidGen)} ] }
-        `;
+            const children = genChildren(nc, u);
+            const func = Array.isArray(nc.dataName)
+                ? `function ($data) { ${nc.dataName
+                      .map(n => `const ${n} = $data['${n}'];`)
+                      .join("")} return [\n${children}];}`
+                : `function (${nc.dataName || ""}) { return [${children}] }`;
             return `${k}: ${func},`;
         })
         .join("");
-    return `namedChildren: { ${str} },`;
+    return t(`\nnamedChildren: {\n${t(str)}},`);
 }
 
 function gatherCondBlocks(node: ASTNode) {
@@ -193,66 +199,68 @@ function gatherCondBlocks(node: ASTNode) {
     node.children = newChildren;
 }
 
-function genChildren(node: ASTNode, uidGen: UIDGenerator): string {
+function genChildren(node: ASTNode, u: UIDGenerator): string {
     gatherCondBlocks(node);
-    return node.children.map(n => node2code(n, uidGen)).join(",");
+    return node.children.map(n => node2code(n, u)).join(",\n");
 }
 
 // nodes
 
-function genNodeComp(node: ASTNodeComp, uidGen: UIDGenerator) {
+function genNodeComp(node: ASTNodeComp, u: UIDGenerator) {
     const hasLocalData = node.localData.length > 0;
     const n = node as ASTNodeComp;
     const tag = n.name === "Component" && n.initArg ? n.initArg : `"${n.name}"`;
     const noKey = n.key === undefined;
-    const key = noKey ? `'${uidGen.gen()}$'` : n.key;
-    const useAutoKey = noKey && uidGen.inList();
-    uidGen.enterComponent();
+    const key = noKey ? `'${u.gen()}$'` : n.key;
+    const useAutoKey = noKey && u.inList();
+    u.enterComponent();
     let str: string;
     if (isRootElement(node)) {
-        str = genChildren(node, uidGen);
+        str = genChildren(node, u);
     } else {
-        const i = stripIndent`
-        {
-            ${[genAttrs(n), genEventHdl(n), genStyle(n), genBehavior(n), genStage(n), genNamedChildren(n, uidGen)]
+        const i =
+            `{` +
+            [genAttrs(n), genEventHdl(n), genStyle(n), genBehavior(n), genStage(n), genNamedChildren(n, u)]
                 .filter(s => s)
-                .join("\n")}
-        }, [ ${genChildren(node, uidGen)} ]`;
+                .join(" ")
+                // remove the last comma
+                .slice(0, -1) +
+            `},[\n` +
+            genChildren(node, u) +
+            `]`;
         if (n.isLazy || n.staticVal) {
-            str = `_z(${tag}, ${key}, ${n.staticVal}, function() {
-                ${genLocalData(node)}
-                return [${i}];
-            }, ${useAutoKey})`;
+            const ld = genLocalData(node);
+            str = `_z(${tag}, ${key}, ${useAutoKey}, ${n.staticVal}, function() { ${ld} return [${i}]})`;
         } else {
-            str = `_c(${tag}, ${key}, ${i}, ${useAutoKey})`;
+            str = `_c(${tag}, ${key}, ${useAutoKey}, ${i})`;
         }
     }
-    uidGen.exitComponent();
-    return hasLocalData && !node.isLazy ? wrappedWithLocalData(node, str) : str;
+    u.exitComponent();
+    return t(hasLocalData && !node.isLazy ? wrappedWithLocalData(node, str) : str);
 }
 
-function genNodeFor(node: ASTNodeFor, uidGen: UIDGenerator) {
+function genNodeFor(node: ASTNodeFor, u: UIDGenerator) {
     const hasLocalData = node.localData.length > 0;
     const { forName, forIndex, expr } = node;
     const args = forIndex ? `${forName}, ${forIndex}` : forName;
-    const notInLoop = !uidGen.inList();
-    uidGen.enterLoop();
-    const result = stripIndent`
-    _l(${expr}, function(${args}) {
-        ${hasLocalData ? genLocalData(node) : ""}
-        return [ ${genChildren(node, uidGen)} ];
+    const notInLoop = !u.inList();
+    u.enterLoop();
+    const result =
+        `_l(${expr}, function(${args}) {` +
+        (hasLocalData ? genLocalData(node) : "") +
+        ` return [\n${genChildren(node, u)}];
     }, ${notInLoop})`;
-    uidGen.exitLoop();
-    return result;
+    u.exitLoop();
+    return t(result);
 }
 
-function genNodeCond(node: ASTNodeCondition, uidGen: UIDGenerator) {
+function genNodeCond(node: ASTNodeCondition, u: UIDGenerator) {
     const nodes = node.children;
-    return nodes
+    const result = nodes
         .map((n, i) => {
             const isLast = i === nodes.length - 1;
             const hasLocalData = n.localData.length > 0;
-            const str = `[${genChildren(n, uidGen)}]`;
+            const str = `[\n${genChildren(n, u)}\n]`;
             const childrenStr = hasLocalData ? wrappedWithLocalData(n, str) : str;
             if ("condition" in n) {
                 return `${n.condition} ? ${childrenStr} : ${isLast ? "null" : ""}`;
@@ -261,42 +269,33 @@ function genNodeCond(node: ASTNodeCondition, uidGen: UIDGenerator) {
             }
         })
         .join("");
+    return t(result);
 }
 
-function genNodeYield(node: ASTNodeYield, uidGen: UIDGenerator) {
-    const data = node.data || "";
-    const str =
-        node.name === "children"
-            ? `(prop.namedChildren.children ?
-            prop.namedChildren.children(${data}) :
-            prop.children.length === 0 ? [${genChildren(node, uidGen)}] : prop.children)`
-            : `(prop.namedChildren["${node.name}"] ? prop.namedChildren["${node.name}"](${data}) : [${genChildren(
-                  node,
-                  uidGen,
-              )}])`;
-    return node.processor ? `${node.processor}${str}` : str;
+function genNodeYield(node: ASTNodeYield, u: UIDGenerator) {
+    const data = node.data || "undefined";
+    const children = genChildren(node, u);
+    const str = `_y(prop, "${node.name}", ${data}, [\n${children}])`;
+    return t(node.processor ? `${node.processor}(${str})` : str);
 }
 
-function node2code(node: ASTNode, uidGen: UIDGenerator): string {
+function node2code(node: ASTNode, u: UIDGenerator): string {
     gatherCondBlocks(node);
 
     switch (node.type) {
         case "comp":
-            return genNodeComp(node as ASTNodeComp, uidGen);
+            return genNodeComp(node as ASTNodeComp, u);
         case "op-for":
-            return genNodeFor(node as ASTNodeFor, uidGen);
+            return genNodeFor(node as ASTNodeFor, u);
         case "cond":
-            return genNodeCond(node as ASTNodeCondition, uidGen);
+            return genNodeCond(node as ASTNodeCondition, u);
         case "yield":
-            return genNodeYield(node as ASTNodeYield, uidGen);
+            return genNodeYield(node as ASTNodeYield, u);
         default:
             throw Error(`Internal error: Unknown node type when generating code: ${node.type}`);
     }
 }
 
 export function gencode(ast: ASTNode): string {
-    return stripIndent`
-    with (this) {
-        return ${node2code(ast, new UIDGenerator())};
-    }`;
+    return `with (this) { return (\n${node2code(ast, new UIDGenerator())})}`;
 }

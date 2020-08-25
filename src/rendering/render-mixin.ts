@@ -7,17 +7,17 @@ export default class RenderMixin {
         this: any,
         tag: string,
         id: string,
+        useAutoKey = false,
         staticVal: boolean | (() => boolean),
         block: () => [OptDict, any[]],
-        _useAutoKey = false,
     ): ElementDef {
         const uniqID = `${id}-${indices[indices.length - 1]}`;
-        if (_useAutoKey) id = uniqID;
+        if (useAutoKey) id = uniqID;
         return new LazyElementDef(this.$v, tag, id, uniqID, staticVal, block);
     }
 
-    public _c(this: any, tag: string, id: string, opt: OptDict, rawChildren: any[], _useAutoKey = false): ElementDef {
-        if (_useAutoKey) id = `${id}-${indices[indices.length - 1]}`;
+    public _c(this: any, tag: string, id: string, useAutoKey = false, opt: OptDict, rawChildren: any[]): ElementDef {
+        if (useAutoKey) id = `${id}-${indices[indices.length - 1]}`;
         const children = rawChildren.flat(8).filter(x => x);
         return { tag, id, opt, children };
     }
@@ -50,5 +50,21 @@ export default class RenderMixin {
 
         if (_isOuterLoop) indices.pop();
         return result.flat();
+    }
+
+    public _i(this: any, f: Function) {
+        f["__internal__"] = true;
+        return f;
+    }
+
+    public _y(this: any, prop: any, name: string, data: any, children: any[]) {
+        if (name === "children") {
+            return prop.namedChildren.children
+                ? prop.namedChildren.children(data)
+                : prop.children.length === 0
+                ? children
+                : prop.children;
+        }
+        return prop.namedChildren[name] ? prop.namedChildren[name](data) : children;
     }
 }

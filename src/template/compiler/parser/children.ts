@@ -7,10 +7,24 @@ export function parseChildren(p: ParserStream): ASTNodeChildren {
     p.expect(":");
     const name = p.expect(NAME)[0];
     p.skipSpaces();
-    let dataName: string | null = null;
+    let dataName: string | string[] | null = null;
     if (p.peek() === "(") {
         p.expect("\\(");
-        dataName = p.expect(NAME, "attached data")[0];
+        p.skipSpaces();
+        if (p.peek() === "{") {
+            p.expect("{");
+            dataName = p
+                .consumeTill("}")
+                .trim()
+                .split(",")
+                .map(s => s.trim());
+            if (dataName.some(n => !n.match(new RegExp(`^${NAME}$`)))) {
+                p._error(`names for the attached data is invalid: "${dataName}"`);
+            }
+        } else {
+            dataName = p.expect(NAME, "attached data")[0];
+        }
+        p.skipSpaces();
         p.expect("\\)");
     }
     p.skipSpaces();

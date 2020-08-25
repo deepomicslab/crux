@@ -1,6 +1,6 @@
 export interface ASTNode {
     type: "comp" | "cond" | "op-if" | "op-for" | "op-elsif" | "op-else" | "yield" | "children";
-    localData: { name: string, expr: string }[];
+    localData: { name: string; expr: string }[];
     children: ASTNode[];
     namedChildren: Record<string, ASTNodeChildren>;
 }
@@ -19,11 +19,11 @@ export interface ASTNodeComp extends ASTNode {
     isLazy?: boolean;
     staticVal?: string;
     initArg?: string;
-    props: { delegate?: string, name: string, expr: string }[];
-    styles: { name: string, expr: string }[];
-    on: { name: string, handler: string }[];
-    behavior: { name: string, args: { name: string, expr: string}[] }[];
-    stage: { name: string, args: { name: string, expr: string}[] }[];
+    props: { delegate?: string; name: string; expr: string }[];
+    styles: { name: string; expr: string }[];
+    on: { name: string; handler: string }[];
+    behavior: { name: string; args: { name: string; expr: string }[] }[];
+    stage: { name: string; args: { name: string; expr: string }[] }[];
 }
 
 export interface ASTNodeIf extends ASTNode {
@@ -55,16 +55,16 @@ export interface ASTNodeYield extends ASTNode {
 export interface ASTNodeChildren extends ASTNode {
     type: "children";
     name: string;
-    dataName: string | null;
+    dataName: string | string[] | null;
 }
 
 export function newNode<T extends ASTNode>(type: string): T {
-    return {
+    return ({
         type,
         localData: [],
         children: [],
         namedChildren: {},
-    } as unknown as  T;
+    } as unknown) as T;
 }
 
 export function newCompNode(name: string): ASTNodeComp {

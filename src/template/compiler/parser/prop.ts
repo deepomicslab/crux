@@ -26,18 +26,26 @@ export function consumeExpr(p: ParserStream): string {
                 if (leftBracketCount > 0 || leftBracketCount2 > 0 || leftBracketCount3 > 0) return [false, false];
                 return [true, true];
             case "{":
-                leftBracketCount ++; break;
+                leftBracketCount++;
+                break;
             case "}":
-                if (leftBracketCount > 0) { leftBracketCount --; break; }
+                if (leftBracketCount > 0) {
+                    leftBracketCount--;
+                    break;
+                }
                 return [true, false];
             case "[":
-                leftBracketCount2++; break;
+                leftBracketCount2++;
+                break;
             case "]":
-                leftBracketCount2--; break;
+                leftBracketCount2--;
+                break;
             case "(":
-                leftBracketCount3++; break;
+                leftBracketCount3++;
+                break;
             case ")":
-                leftBracketCount3--; break;
+                leftBracketCount3--;
+                break;
         }
         return [false, false];
     }, "property expression");
@@ -71,12 +79,7 @@ export function parseExpr(node: ASTNodeComp, name: string, expr: string) {
 
 function replacePropHelpers(expr: string) {
     const [replaced, lazy] = replaceHelpers(expr);
-    return lazy ?
-    oneLineTrim`(function() {
-        var f = function() { return ${replaced} };
-        f.__internal__ = true; return f;
-    })()` :
-    replaced;
+    return lazy ? oneLineTrim`_i(function() { return ${replaced} })` : replaced;
 }
 
 export function replaceHelpers(expr: string): [string, boolean] {
