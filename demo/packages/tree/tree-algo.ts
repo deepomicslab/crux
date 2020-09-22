@@ -1,5 +1,5 @@
-import { parseNewick, NewickNode } from "../../../src/utils";
 import { min, minBy } from "lodash";
+import { NewickNode, parseNewick } from "../../../src/utils";
 
 // left, right, score
 type Case = [number, number, number];
@@ -67,7 +67,7 @@ function* product<T>(...list: T[][]): Generator<T[]> {
     const [head, ...tail] = list;
     // @ts-ignore
     const remainder = tail.length > 0 ? product(...tail) : [[]];
-    for (let r of remainder) for (let h of head) yield [h, ...r];
+    for (const r of remainder) for (const h of head) yield [h, ...r];
 }
 
 class Solver {

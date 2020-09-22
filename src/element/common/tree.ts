@@ -161,6 +161,7 @@ export class Tree extends Component<TreeOption> {
                 width = this.prop.deg;
                 height = totalR - this.prop.leafSize;
                 this.isHorizontal = false;
+                this.isInversed = false;
                 break;
             case "top":
             case "bottom":

@@ -1,10 +1,8 @@
 import * as d3 from "d3-hierarchy";
-import { ScaleContinuousNumeric, scaleLinear, scaleLog } from "d3-scale";
-import { max, min } from "../../utils/math";
 
-import { Anchor } from "../../defs/geometry";
+import { currentEventContext } from "../../event";
 import { useTemplate } from "../../ext/decorator";
-import { Component } from "../../../src/element/component";
+import { Component } from "../component";
 import { ComponentOption } from "../component-options";
 
 interface TreeData<T = any> {
@@ -32,20 +30,18 @@ interface TreeOption extends ComponentOption {
 Component {
     @let tree = _extMethods
     Component {
-        width = 100%; height = 100%
-        coord = "polar"
-        yScale = _scaleY
+        x = 50%; y = 50%
+        Circle.centered {
+            r = radius
+            fill = "#f4f4f4"
+        }
         @for (link, i) in _links {
             Component {
                 key = "l" + i
-                @let isActive = isActiveLink(link)
-                @let pos = [getX(link.source), @scaledY(getR(link.source)), getX(link.target), @scaledY(getR(link.target))]
-                @yield link with { link, pos, tree } default {
+                @yield link with { link, tree } default {
                     Path {
-                        stroke = isActive ? "#000" : "#aaa"
-                        fill = "none"
-                        d = getPath(...pos)
-                        @props isActive ? prop.opt.activeLink : prop.opt.link
+                        stroke = "#000"; fill = "none"
+                        d = getPath(link)
                     }
                 }
             }
@@ -54,40 +50,17 @@ Component {
             Component {
                 key = "c" + i
                 coord = "cartesian"
-                x = getX(node); y = @scaledY(getR(node));
+                x = node.x
+                y = node.y
+                on:mousedown = dragStart(node)
                 @yield node with { node, tree } default {
                     Circle.centered {
-                        r = 2
-                        fill = "#999"
-                        behavior:tooltip {
-                            content = node.data._radius.toString()
-                        }
+                        r = 8
+                        fill = node.parent ? "#999" : "#f00"
                         @props prop.opt.node
                     }
-                }
-            }
-        }
-        @for (leaf, i) in _leaves {
-            Component {
-                key = "f" + i
-                x = getX(leaf)
-                y = prop.isCluster ? getY(leaf) : @scaledY(getR(leaf))
-                width = 0
-                rotation = leafRotation(leaf)
-                coord = "cartesian"
-                on:mouseenter = setActive(leaf)
-                on:mouseleave = setActive(null)
-                @yield leaf with { leaf, tree } default {
-                    Container {
-                        anchor = leafAnchor(leaf)
-                        padding = 4
-                        Text {
-                            text = leaf.data.name
-                        }
-                        behavior:tooltip {
-                            content = leaf.data._radius.toString()
-                        }
-                        @props prop.opt.leaf
+                    Text {
+                        text = node.data.name
                     }
                 }
             }
@@ -98,124 +71,137 @@ Component {
 export class HyperbolicTree extends Component<TreeOption> {
     protected state!: { activePath: Set<any> };
 
-    // @ts-ignore
-    private _scaleY: ScaleContinuousNumeric<number, number> | null = null;
+    private _root!: Node;
 
-    private _root!: d3.HierarchyPointNode<TreeData>;
-    private _leaves!: Array<d3.HierarchyPointNode<TreeData>>;
-    private _nodes!: Array<d3.HierarchyPointNode<TreeData>>;
-    private _links!: d3.HierarchyPointLink<TreeData>[];
-    // @ts-ignore
-    private _leafLinks!: d3.HierarchyPointLink<TreeData>[];
-
-    // @ts-ignore
-    private _nodeCount!: number;
-    private _leafCount!: number;
-    // @ts-ignore
-    private _leafDeg!: number;
-
-    private isHorizontal = false;
-    private isInversed = false;
-    // @ts-ignore
-    private isScaled = false;
-    // @ts-ignore
-    private width!: number;
-    // @ts-ignore
-    private height!: number;
+    radius: number = 0;
 
     // @ts-ignore
     private _extMethods!: any;
+    // @ts-ignore
+    private _nodes!: Node[];
+    // @ts-ignore
+    private _links!: Link[];
 
     public init() {
         this.state = {
             activePath: new Set(),
         };
         this._extMethods = {};
-        ["leafRotation", "leafAnchor", "isRightHalf", "getPath", "isActiveLink"].forEach(name => {
-            this._extMethods[name] = this._bindMethod(this[name]);
-        });
     }
 
     public willRender() {
-        const data = this.prop.data;
+        if (this._firstRender) {
+            const data = this.prop.data;
 
-        let width: number, height: number;
-        const totalR = this.prop.r || Math.min(this.$geometry.width, this.$geometry.height) / 2;
-        if (totalR <= 0) {
-            console.warn(`Tree: radius is 0. The tree should have a proper size.`);
+            const totalR = this.prop.r || Math.min(this.$geometry.width, this.$geometry.height) / 2;
+            if (totalR <= 0) {
+                console.warn(`Tree: radius is 0. The tree should have a proper size.`);
+            }
+            this.radius = totalR;
+
+            const hierarchy = d3.hierarchy(data).sum(d => (d.children ? 0 : 1));
+
+            this._root = Node.fromHierarchy(this, hierarchy);
+            this._root.layout(0, 2 * Math.PI);
+            console.log(this._root);
+
+            this._links = [...this._root.links()];
+            this._nodes = [...this._root.nodes()];
         }
-        width = this.prop.deg;
-        height = totalR - this.prop.leafSize;
-        this.isHorizontal = false;
-
-        const hierarchy = d3.hierarchy(data).sum(d => d.length);
-
-        const cluster = d3
-            .cluster<TreeData>()
-            .size([width, height])
-            .separation(() => 1);
-
-        this._root = cluster(hierarchy);
-
-        switch (this.prop.scale) {
-            case "none":
-                this._scaleY = null;
-                this.isScaled = false;
-                break;
-            case "scale":
-                this._scaleY = scaleLinear()
-                    .range([0, height])
-                    .domain([0, getMaxLength(this._root)]);
-                this.isScaled = true;
-                break;
-            case "log":
-                this._scaleY = scaleLog()
-                    .range([0, height])
-                    .domain([1, getMaxLength(this._root) + 1]);
-                this.isScaled = true;
-                break;
-        }
-        console.log(this._scaleY);
-
-        this._root.eachBefore(n => {
-            if (n.parent) {
-                n.data._radius = n.data.length + n.parent.data._radius!;
-            } else {
-                n.data._radius = 0;
-            }
-        });
-
-        // min and max angle
-        this._root.eachAfter(n => {
-            if (n.children) {
-                n.data._minAngle = min(n.children, c => c.data._minAngle!);
-                n.data._maxAngle = max(n.children, c => c.data._maxAngle!);
-            } else {
-                n.data._minAngle = n.data._maxAngle = n.x;
-            }
-        });
-
-        this._links = this._root.links();
-        // console.log(this);
-        this._leafLinks = this._links.filter(d => !d.target.children);
-
-        this._leaves = [];
-        this._nodes = [];
-        this._root.each(n => {
-            if (n.children) {
-                this._nodes.push(n);
-            } else {
-                this._leaves.push(n);
-            }
-        });
-
-        this._nodeCount = this._nodes.length;
-        this._leafCount = this._leaves.length;
-        this._leafDeg = this.prop.deg / this._leafCount;
     }
 
-    public didUpdate() {
-        // console.log(this.$ref.links);
+    clicked(n: Node) {
+        const time = 300;
+        const steps = 8;
+        const currX = this.fromScreen(n.x);
+        const currY = this.fromScreen(n.y);
+        const endX = this.fromScreen(0);
+        const endY = this.fromScreen(0);
+        const dx = (endX - currX) / steps;
+        const dy = (endY - currY) / steps;
+        const animate = (n: number) => {
+            if (n !== 0) {
+                this.drawFrame(dx * n, dy * n);
+            }
+            if (n < steps) {
+                setTimeout(() => animate(n + 1), time / steps);
+            } else {
+                this._root.endTranslation();
+            }
+        };
+        animate(0);
+    }
+
+    private dragging = false;
+    private draggedNode?: Node;
+    private startPos = { x: 0, y: 0 };
+    private moved = false;
+
+    private moveListener = (e: MouseEvent) => {
+        if (!this.dragging) return;
+        this.moved = true;
+        e.stopPropagation();
+        e.preventDefault();
+        const dx = e.screenX - this.startPos.x;
+        const dy = e.screenY - this.startPos.y;
+        const nx = this.fromScreen(this.draggedNode!.x + e.movementX);
+        const ny = this.fromScreen(this.draggedNode!.y + e.movementY);
+        if (nx * nx + ny * ny > 0.9) {
+            return;
+        }
+        this.drawFrame(this.fromScreen(dx), this.fromScreen(dy));
+    };
+
+    private upListener = () => {
+        this.dragging = false;
+        if (!this.moved) {
+            this.clicked(this.draggedNode!);
+        }
+        this.moved = false;
+        document.body.removeEventListener("mousemove", this.moveListener);
+        document.body.removeEventListener("mouseup", this.upListener);
+        this._root.endTranslation();
+    };
+
+    dragStart(n: Node) {
+        this.dragging = true;
+        this.draggedNode = n;
+        const e = currentEventContext.event as MouseEvent;
+        this.startPos.x = e.screenX;
+        this.startPos.y = e.screenY;
+        document.body.addEventListener("mousemove", this.moveListener);
+        document.body.addEventListener("mouseup", this.upListener);
+    }
+
+    drawFrame(dx: number, dy: number) {
+        if (dx === 0 && dy === 0) return;
+        this._root.updateTranslation(Point.create(dx, dy));
+        this.redraw();
+    }
+
+    fromScreen(n: number) {
+        return n / this.radius;
+    }
+
+    toScreen(n: number) {
+        return n * this.radius;
+    }
+
+    getPath({ source, target }: Link) {
+        const s = { x: source.pos.x, y: source.pos.y };
+        const t = { x: target.pos.x, y: target.pos.y };
+        const d = s.x * t.y - t.x * s.y;
+        if (d === 0) {
+            return `M${source.x},${source.y} L${target.x},${target.y}`;
+        }
+        // const s2 = s.x * s.x + s.y + s.y + 1;
+        // const t2 = t.x * t.x + t.y + t.y + 1;
+        // const cX = (s2 * t.y - t2 * s.y) / (d * 2);
+        // const cY = (t2 * s.x - s2 * t.x) / (d * 2);
+        // const r = Math.sqrt((s.x - cX) * (s.x - cX) + (s.y - cY) * (s.y - cY));
+        // const sr = this.toScreen(r);
+        const sr = this.toScreen(1.5);
+        return `M${source.x},${source.y} A${sr},${sr},0,0,1,${target.x},${target.y}`;
     }
 
     public defaultProp() {
@@ -230,103 +216,10 @@ export class HyperbolicTree extends Component<TreeOption> {
         };
     }
 
-    // @ts-ignore
-    private getPath(x1: number, y1: number, x2: number, y2: number) {
-        const c0 = Math.cos((x1 = ((x1 - 90) / 180) * Math.PI));
-        const s0 = Math.sin(x1);
-        const c1 = Math.cos((x2 = ((x2 - 90) / 180) * Math.PI));
-        const s1 = Math.sin(x2);
-
-        return `M${y1 * c0},${y1 * s0} L${y2 * c1},${y2 * s1}`;
-    }
-
-    // @ts-ignore
-    private getX(node: d3.HierarchyPointNode<TreeData>) {
-        return this.isInversed
-            ? this.isHorizontal
-                ? this.height - node.y + this.prop.leafSize
-                : this.width - node.x
-            : this.isHorizontal
-            ? node.y
-            : node.x;
-    }
-
-    // @ts-ignore
-    private getY(node: d3.HierarchyPointNode<TreeData>) {
-        return this.isInversed
-            ? this.isHorizontal
-                ? this.width - node.x
-                : this.height - node.y + this.prop.leafSize
-            : this.isHorizontal
-            ? node.x
-            : node.y;
-    }
-
-    // @ts-ignore
-    private getR(node: d3.HierarchyPointNode<TreeData>) {
-        if (this.prop.scale === "none") {
-            return this.getY(node);
-        } else if (this.prop.scale === "log") {
-            return node.data._radius!;
-        }
-        return node.data._radius;
-    }
-
-    // @ts-ignore
-    private leafRotation(leaf: any) {
-        const isRight = this.isRightHalf(leaf.x);
-        return [isRight ? leaf.x - 90 : leaf.x + 90, "_", "_"];
-    }
-
-    // @ts-ignore
-    private leafAnchor(leaf: any) {
-        const isRight = this.isRightHalf(leaf.x);
-        return (isRight ? Anchor.Left : Anchor.Right) | Anchor.Middle;
-    }
-
-    // @ts-ignore
-    private isRightHalf(deg: number): boolean {
-        const thres1 = 180 - this.prop.treeRotation;
-        const thres2 = 360 - this.prop.treeRotation;
-        return deg < thres1 || deg > thres2;
-    }
-
-    // @ts-ignore
-    private setActive(node_: d3.HierarchyPointNode<TreeData> | string) {
-        let node: d3.HierarchyPointNode<TreeData>;
-        if (typeof node_ === "string") {
-            const n = this._leaves.find(x => x.data.name === node_);
-            if (!n) {
-                console.warn(`Tree: setActive: cannot find a leaf with name "${node_}"`);
-                return;
-            }
-            node = n;
-        } else {
-            node = node_;
-        }
-        if (node === null) {
-            this.setState({ activePath: new Set() });
-        } else {
-            this.setState({ activePath: new Set(ancestor(node)) });
-        }
-    }
-
     public isActiveLink(link: d3.HierarchyPointLink<TreeData>) {
         if (!this.prop.branchInteraction) return;
         return this.state.activePath.has(link.source.data) && this.state.activePath.has(link.target.data);
     }
-}
-
-function* ancestor(node: d3.HierarchyPointNode<TreeData>) {
-    let n: d3.HierarchyPointNode<TreeData> | null = node;
-    while (n) {
-        yield n.data;
-        n = n.parent;
-    }
-}
-
-function getMaxLength(d: d3.HierarchyNode<TreeData>): number {
-    return d.data.length + (d.children ? max(d.children, dd => getMaxLength(dd))! : 0);
 }
 
 // @ts-ignore
@@ -339,4 +232,136 @@ function getMinLength(d: d3.HierarchyNode<TreeData>): number {
         }
     });
     return min;
+}
+
+class Point {
+    constructor(public x: number = 0, public y: number = 0) {}
+
+    static create(x: number, y: number) {
+        return new Point(x, y);
+    }
+
+    copyFrom(p: Point) {
+        this.x = p.x;
+        this.y = p.y;
+    }
+
+    toE() {
+        this.x = Math.tanh(this.x);
+        this.y = Math.tanh(this.y);
+    }
+
+    translate(p: Point) {
+        const d_r = this.x * p.x + this.y * p.y + 1;
+        const d_i = this.y * p.x - this.x * p.y;
+        const d = d_r * d_r + d_i * d_i;
+        const r = this.x + p.x;
+        const i = this.y + p.y;
+        this.x = (r * d_r + i * d_i) / d;
+        this.y = (i * d_r - r * d_i) / d;
+    }
+}
+
+type Link = { source: Node; target: Node };
+
+class Node {
+    static fromHierarchy(tree: HyperbolicTree, h: d3.HierarchyNode<TreeData>): Node {
+        const node = new Node(tree, undefined, h.data, h.depth, h.height, h.value!);
+        node.children = h.children?.map(c => {
+            const n = Node.fromHierarchy(tree, c);
+            n.parent = node;
+            return n;
+        });
+        return node;
+    }
+
+    children: Node[] | undefined;
+    pos = new Point();
+    originalPos = new Point();
+
+    constructor(
+        public tree: HyperbolicTree,
+        public parent: Node | undefined,
+        public data: any,
+        public depth: number,
+        public height: number,
+        public weight: number,
+    ) {}
+
+    layout(angle: number, wedge: number) {
+        if (this.parent) {
+            this.pos.x = 0.45 * Math.cos(angle);
+            this.pos.y = 0.45 * Math.sin(angle);
+
+            this.pos.toE();
+            this.pos.translate(this.parent.pos);
+            this.originalPos = new Point();
+            this.originalPos.copyFrom(this.pos);
+        }
+
+        if (!this.children) return;
+
+        if (this.parent && wedge > Math.PI) {
+            wedge = Math.PI;
+        }
+
+        let startAngle = angle - wedge / 2;
+        for (const c of this.children) {
+            const p = c.weight / this.weight;
+            const childWidth = p * wedge;
+            const childAngle = startAngle + childWidth / 2;
+            c.layout(childAngle, childWidth);
+            startAngle += childWidth;
+        }
+    }
+
+    updateTranslation(t: Point) {
+        this.pos.copyFrom(this.originalPos);
+        this.pos.translate(t);
+        if (this.data.name === "A") {
+            console.log(this.pos.x, this.pos.y);
+        }
+        if (this.children) {
+            for (const c of this.children) {
+                c.updateTranslation(t);
+            }
+        }
+    }
+
+    endTranslation() {
+        this.originalPos.copyFrom(this.pos);
+        if (this.children) {
+            for (const c of this.children) {
+                c.endTranslation();
+            }
+        }
+    }
+
+    get x() {
+        return this.pos.x * this.tree.radius;
+    }
+
+    get y() {
+        return this.pos.y * this.tree.radius;
+    }
+
+    *links(): Generator<Link> {
+        if (this.children) {
+            for (const c of this.children) {
+                yield { source: this, target: c };
+            }
+            for (const c of this.children) {
+                yield* c.links();
+            }
+        }
+    }
+
+    *nodes(): Generator<Node> {
+        yield this;
+        if (this.children) {
+            for (const c of this.children) {
+                yield* c.nodes();
+            }
+        }
+    }
 }

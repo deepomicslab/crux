@@ -31,7 +31,7 @@
         "label-position": true,
         "max-classes-per-file": [true, 10],
         "max-line-length": [true, 160],
-        "member-access": true,
+        "member-access": false,
         "member-ordering": false,
         "new-parens": true,
         "no-angle-bracket-type-assertion": true,

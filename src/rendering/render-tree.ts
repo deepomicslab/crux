@@ -202,6 +202,8 @@ export function updateTree(parent: Component, def_?: ElementDef, order?: number)
         currCoordRoots.push(elm as Component);
         currCoordSystems.push((elm as Component).prop!.coord!);
         (elm as Component).$isCoordRoot = true;
+    } else {
+        (elm as Component).$isCoordRoot = false;
     }
 
     elm.$callHook("willUpdate");

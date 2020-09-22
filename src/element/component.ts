@@ -197,6 +197,10 @@ export class Component<Option extends ComponentOption = ComponentOption>
             this.$polar = { r, cx, cy, rad: !!this.prop.coordUseRad };
             this.$geometry._xOffset.polor = cx;
             this.$geometry._yOffset.polor = cy;
+        } else if (this.$polar) {
+            this.$polar = undefined;
+            delete this.$geometry._xOffset.polor;
+            delete this.$geometry._yOffset.polor;
         }
     }
 

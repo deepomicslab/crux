@@ -1,7 +1,7 @@
 import { parseNewick } from "../../../src/utils";
-import dataStr from "./data";
+import * as newickData from "./data";
 import template_t from "./t";
-import { treeAlgo, bg, Node } from "./tree-algo";
+import { bg, Node, treeAlgo } from "./tree-algo";
 
 const template = `//bvt
 svg {
@@ -14,7 +14,7 @@ svg {
 `;
 
 const data = {
-    data: treeAlgo(parseNewick(dataStr) as Node, bg),
+    data: treeAlgo(parseNewick(newickData.tumor) as Node, bg),
     bg,
 };
 
