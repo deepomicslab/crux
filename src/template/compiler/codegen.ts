@@ -1,4 +1,4 @@
-import { oneLineTrim, stripIndent } from "common-tags";
+import { oneLineTrim } from "common-tags";
 import { GEOMETRY_LITERAL } from "../../defs/geometry";
 import { UIDGenerator } from "../../utils/uid";
 import {

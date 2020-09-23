@@ -26,7 +26,8 @@ export interface PolarCoordInfo {
     rad: boolean;
 }
 
-export class Component<Option extends ComponentOption = ComponentOption> extends BaseElement<Option>
+export class Component<Option extends ComponentOption = ComponentOption>
+    extends BaseElement<Option>
     implements RenderMixin, ScaleMixin {
     public static components: Record<string, any>;
 
@@ -287,6 +288,8 @@ export class Component<Option extends ComponentOption = ComponentOption> extends
 
     public _z!: () => ElementDef;
     public _c!: () => ElementDef;
+    public _i!: () => Function;
+    public _y!: () => ElementDef;
     public _l!: () => ElementDef[];
     public _h = helperMixin;
 
