@@ -2,37 +2,42 @@ import { getThemeColor } from "../../../color";
 import { GeometryOptValue } from "../../../defs/geometry";
 import { canvasFill, canvasStroke } from "../../../rendering/canvas/canvas-helper";
 import { svgPropFillAndStroke } from "../../../rendering/svg/svg-helper";
-import { toCartesian, toRad } from "../../../utils/math";
+import { toCartesian } from "../../../utils/math";
 import { BaseElement } from "../../base-element";
 import { BaseElementOption } from "../base-elm-options";
 
-export interface ArcLineOption extends BaseElementOption {
+export interface PolarLineOption extends BaseElementOption {
     x1: GeometryOptValue;
     x2: GeometryOptValue;
-    r: GeometryOptValue;
+    r1: GeometryOptValue;
+    r2: GeometryOptValue;
     rad: boolean;
 }
 
-export class ArcLine extends BaseElement<ArcLineOption> {
+export class PolarLine extends BaseElement<PolarLineOption> {
     public svgAttrs(): any {
+        const [x1, y1, x2, y2] = this.getStartEnd();
         return {
             ...svgPropFillAndStroke(this),
-            d: this.getPath(),
+            x1,
+            y1,
+            x2,
+            y2,
         };
     }
 
     public svgTagName() {
-        return "path";
+        return "line";
     }
     public svgTextContent() {
         return null;
     }
 
     public renderToCanvas(ctx: CanvasRenderingContext2D) {
-        const { x1, x2, r } = this.$geometry;
-        const isRad = !!this.prop.rad;
+        const [x1, y1, x2, y2] = this.getStartEnd();
         this.path = new Path2D();
-        this.path.arc(0, 0, r, isRad ? x1 - 90 : toRad(x1 - 90), isRad ? x2 - 90 : toRad(x2 - 90));
+        this.path.moveTo(x1, y1);
+        this.path.lineTo(x2, y2);
         canvasFill(ctx, this);
         canvasStroke(ctx, this);
     }
@@ -41,22 +46,20 @@ export class ArcLine extends BaseElement<ArcLineOption> {
         return {
             stroke: getThemeColor(this.$v.theme, "line"),
             strokeWidth: 1,
-            fill: "none",
         };
     }
 
     public geometryProps() {
         const { h, v } = super.geometryProps();
-        return { h: [...h, "x1", "x2"], v: [...v, "r"] };
+        return { h: [...h, "x1", "x2"], v: [...v, "r1", "r2"] };
     }
 
-    private getPath() {
+    private getStartEnd() {
         const isRad = !!this.prop.rad;
-        const { x1, x2, r } = this.$geometry;
-        const [_x1, _y1] = toCartesian(x1, r, isRad);
-        const [_x2, _y2] = toCartesian(x2, r, isRad);
-        const largeArcFlag = x2 - x1 <= (isRad ? Math.PI * 2 : 180) ? "0" : "1";
-        return `M${_x1},${_y1} A${r},${r},0,${largeArcFlag},1,${_x2},${_y2}`;
+        const { x1, x2, r1, r2 } = this.$geometry;
+        const [x1_, y1_] = toCartesian(x1, r1, isRad);
+        const [x2_, y2_] = toCartesian(x2, r2, isRad);
+        return [x1_, y1_, x2_, y2_];
     }
 
     public positionDetached = true;

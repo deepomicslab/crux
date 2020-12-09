@@ -10,3 +10,4 @@ export * from "./image";
 export * from "./polar/arc";
 export * from "./polar/arc-line";
 export * from "./polar/radical-line";
+export * from "./polar/polar-line";
