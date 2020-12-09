@@ -35,12 +35,11 @@ Component {
     Component {
         width = 100%; height = 100%
         coord = isRadical ? "polar" : "cartesian"
-        yScale = _scaleY
         @for (link, i) in _links {
             Component {
                 key = "l" + i
                 @let isActive = isActiveLink(link)
-                @let pos = [getX(link.source), @scaledY(getR(link.source)), getX(link.target), @scaledY(getR(link.target))]
+                @let pos = [getX(link.source), getY(link.source), getX(link.target), getY(link.target)]
                 @yield link with { link, pos, tree } default {
                     Path {
                         stroke = isActive ? "#000" : "#aaa"
@@ -55,7 +54,7 @@ Component {
             Component {
                 key = "c" + i
                 coord = "cartesian"
-                x = getX(node); y = @scaledY(getR(node));
+                x = getX(node); y = getY(node);
                 @yield node with { node, tree } default {
                     Circle.centered {
                         r = 2
@@ -72,7 +71,7 @@ Component {
             Component {
                 key = "f" + i
                 x = getX(leaf)
-                y = prop.isCluster ? getY(leaf) : @scaledY(getR(leaf))
+                y = prop.isCluster ? getY(leaf) : getY(leaf)
                 width = 0
                 rotation = leafRotation(leaf)
                 coord = "cartesian"
@@ -95,7 +94,7 @@ Component {
             @if isScaled && prop.isCluster {
                 Component(isRadical ? "RadicalLine" : "Line") {
                     x = getX(leaf);
-                    y1 = @scaledY(getR(leaf))
+                    y1 = getY(leaf)
                     y2 = getY(leaf)
                     stroke = "#ccc"
                     @props prop.opt.linkExtention
@@ -295,34 +294,22 @@ export class Tree extends Component<TreeOption> {
 
     // @ts-ignore
     private getX(node: d3.HierarchyPointNode<TreeData>) {
-        return this.isInversed
-            ? this.isHorizontal
-                ? this.height - node.y + this.prop.leafSize
-                : this.width - node.x
-            : this.isHorizontal
-            ? node.y
-            : node.x;
+        if (this.isHorizontal) {
+            const y = this.prop.scale === "none" ? node.y : this._scaleY!(node.data._radius!);
+            return this.isInversed ? this.height - y + this.prop.leafSize : y;
+        } else {
+            return this.isInversed ? this.width - node.x : node.x;
+        }
     }
 
     // @ts-ignore
     private getY(node: d3.HierarchyPointNode<TreeData>) {
-        return this.isInversed
-            ? this.isHorizontal
-                ? this.width - node.x
-                : this.height - node.y + this.prop.leafSize
-            : this.isHorizontal
-            ? node.x
-            : node.y;
-    }
-
-    // @ts-ignore
-    private getR(node: d3.HierarchyPointNode<TreeData>) {
-        if (this.prop.scale === "none") {
-            return this.getY(node);
-        } else if (this.prop.scale === "log") {
-            return node.data._radius!;
+        if (this.isHorizontal) {
+            return this.isInversed ? this.width - node.x : node.x;
+        } else {
+            const y = this.prop.scale === "none" ? node.y : this._scaleY!(node.data._radius!);
+            return this.isInversed ? this.height - y + this.prop.leafSize : y;
         }
-        return node.data._radius;
     }
 
     // @ts-ignore
@@ -357,9 +344,16 @@ export class Tree extends Component<TreeOption> {
 
     // @ts-ignore
     private isRightHalf(deg: number): boolean {
-        const thres1 = 180 - this.prop.treeRotation;
-        const thres2 = 360 - this.prop.treeRotation;
-        return deg < thres1 || deg > thres2;
+        switch (this.prop.direction) {
+            case "radical":
+                const thres1 = 180 - this.prop.treeRotation;
+                const thres2 = 360 - this.prop.treeRotation;
+                return deg < thres1 || deg > thres2;
+            case "left":
+                return false;
+            default:
+                return true;
+        }
     }
 
     // @ts-ignore

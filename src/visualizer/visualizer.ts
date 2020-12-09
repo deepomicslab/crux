@@ -156,6 +156,9 @@ export class Visualizer {
 
         this.size = new Proxy(size, {
             set: (obj, prop, value) => {
+                if (typeof value === "string") {
+                    value = this._parseSize(value, prop === "width");
+                }
                 obj[prop] = value;
                 this._updateSize();
                 return true;
