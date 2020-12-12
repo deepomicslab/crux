@@ -1,20 +1,20 @@
 export function toDeg(d: number) {
-    return d * 180 / Math.PI;
+    return (d * 180) / Math.PI;
 }
 
 export function toRad(d: number) {
-    return d * Math.PI / 180;
+    return (d * Math.PI) / 180;
 }
 
 export function toCartesian(x: number, y: number, isRad: boolean = false): [number, number] {
-    const a = isRad ? x - 0.5 * Math.PI : (x - 90) / 180 * Math.PI;
+    const a = isRad ? x - 0.5 * Math.PI : ((x - 90) / 180) * Math.PI;
     return [Math.cos(a) * y, Math.sin(a) * y];
 }
 
 export function minmax<T>(data: T[], getter?: string | ((d: T) => number)): [number, number] {
     let max = Number.MIN_VALUE;
     let min = Number.MAX_VALUE;
-    const iter = typeof getter === "string" ? ((d: T) => d[getter]) : getter;
+    const iter = typeof getter === "string" ? (d: T) => d[getter] : getter;
     for (const d of data) {
         const value = iter ? iter(d) : d;
         let vmin, vmax;
@@ -24,14 +24,14 @@ export function minmax<T>(data: T[], getter?: string | ((d: T) => number)): [num
             vmin = vmax = value;
         }
         if (vmin < min) min = vmin;
-        else if (vmax > max) max = vmax;
+        if (vmax > max) max = vmax;
     }
     return [min, max];
 }
 
 export function min<T>(data: T[], getter?: string | ((d: T) => number)): number {
     let min = Number.MAX_VALUE;
-    const iter = typeof getter === "string" ? ((d: T) => d[getter]) : getter;
+    const iter = typeof getter === "string" ? (d: T) => d[getter] : getter;
     for (const d of data) {
         const value = iter ? iter(d) : d;
         if (value < min) min = value;
@@ -41,7 +41,7 @@ export function min<T>(data: T[], getter?: string | ((d: T) => number)): number 
 
 export function max<T>(data: T[], getter?: string | ((d: T) => number)): number {
     let max = Number.MIN_VALUE;
-    const iter = typeof getter === "string" ? ((d: T) => d[getter]) : getter;
+    const iter = typeof getter === "string" ? (d: T) => d[getter] : getter;
     for (const d of data) {
         const value = iter ? iter(d) : d;
         if (value > max) max = value;
