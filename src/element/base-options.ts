@@ -6,6 +6,7 @@ export interface BaseOption {
     anchor?: Anchor;
     x?: GeometryOptValue;
     y?: GeometryOptValue;
+    zIndex?: number;
 
     rotation?: number | [number, number, number];
     rotateAfterTranslate?: boolean;

@@ -231,7 +231,18 @@ export function updateTree(parent: Component, def_?: ElementDef, order?: number)
     } else if (elm instanceof Component) {
         currElementInheriting = false;
         if (!elm.isStatic || elm._firstRender) {
+            // reset isActive status
             elm.children.forEach(c => (c._isActive = false));
+            // z-index
+            for (let i = 0, l = def!.children.length; i < l; i++) {
+                const c = def!.children[i];
+                if ("opt" in c && c.opt.props?.zIndex) {
+                    // move element to the start
+                    def!.children.splice(i, 1);
+                    def!.children.push(c);
+                }
+            }
+            // update children
             for (let i = 0, l = def!.children.length; i < l; i++) {
                 updateTree(elm as Component, def!.children[i], i);
             }
@@ -240,7 +251,10 @@ export function updateTree(parent: Component, def_?: ElementDef, order?: number)
             const d = elm.children;
             for (let i = 0, l = d.length; i < l; i++) {
                 if (d[i]._reordered || !d[i]._isActive) continue;
+                // if the order is wrong, there must exist a loop,
+                // in which each element's order is the correct order of the previous one
                 if (o !== i) {
+                    // exchange the order with the next element, until all elements in this loop have correct orders
                     while (1) {
                         tmp = d[i];
                         if (!tmp._isActive || tmp._order === i) break;
@@ -252,6 +266,7 @@ export function updateTree(parent: Component, def_?: ElementDef, order?: number)
                 } else {
                     d[i]._reordered = true;
                 }
+                // loop through all elements to make sure all such loops are handled
             }
         }
     }

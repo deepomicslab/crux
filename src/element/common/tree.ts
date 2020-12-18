@@ -27,6 +27,7 @@ export interface TreeOption extends ComponentOption {
     treeRotation: number;
     leafSize: number;
     branchInteraction: boolean;
+    branchShouldStayOnTop: (link: d3.HierarchyPointLink<TreeData>, tree: Tree) => boolean;
 }
 
 @useTemplate(`//bvt
@@ -37,9 +38,11 @@ Component {
         coord = isRadical ? "polar" : "cartesian"
         @for (link, i) in _links {
             Component {
-                key = "l" + i
                 @let isActive = isActiveLink(link)
+                @let isOnTop = isLinkOnTop(link)
                 @let pos = [getX(link.source), getY(link.source), getX(link.target), getY(link.target)]
+                key = "l" + i
+                zIndex = isActive || isOnTop ? 1 : null
                 @yield link with { link, pos, tree } default {
                     Path {
                         stroke = isActive ? "#000" : "#aaa"
@@ -266,6 +269,7 @@ export class Tree extends Component<TreeOption> {
     // @ts-ignore
     private getPath(x1: number, y1: number, x2: number, y2: number) {
         if (this.isRadical) {
+            const xDiff = Math.abs(x2 - x1);
             const c0 = Math.cos((x1 = ((x1 - 90) / 180) * Math.PI));
             const s0 = Math.sin(x1);
             const c1 = Math.cos((x2 = ((x2 - 90) / 180) * Math.PI));
@@ -278,7 +282,7 @@ export class Tree extends Component<TreeOption> {
                 default:
                     path = `M${y1 * c0},${y1 * s0} `;
                     if (x2 !== x1) {
-                        path += `A${y1},${y1} 0 0 ${x2 > x1 ? 1 : 0} ${y1 * c1},${y1 * s1}`;
+                        path += `A${y1},${y1} 0 ${xDiff > 180 ? 1 : 0} ${x2 > x1 ? 1 : 0} ${y1 * c1},${y1 * s1}`;
                     }
                     path += `L${y2 * c1},${y2 * s1}`;
                     return path;
@@ -379,6 +383,14 @@ export class Tree extends Component<TreeOption> {
     public isActiveLink(link: d3.HierarchyPointLink<TreeData>) {
         if (!this.prop.branchInteraction) return;
         return this.state.activePath.has(link.source.data) && this.state.activePath.has(link.target.data);
+    }
+
+    public isLinkOnTop(link: d3.HierarchyPointLink<TreeData>) {
+        return this.prop.branchShouldStayOnTop ? this.prop.branchShouldStayOnTop(link, this) : false;
+    }
+
+    public ancestorOfNode(node: d3.HierarchyPointNode<TreeData>) {
+        return ancestor(node);
     }
 }
 
