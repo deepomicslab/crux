@@ -1,8 +1,8 @@
-import { template } from "../../template/tag";
 import { Component } from "../component";
 import { ComponentOption } from "../component-options";
 
 import { scaleLinear } from "d3-scale";
+import { useTemplate } from "../../ext/decorator";
 
 export interface BrushOption extends ComponentOption {
     range: [number, number];
@@ -14,15 +14,7 @@ export interface BrushOption extends ComponentOption {
     onBrushStart: () => void;
 }
 
-export class Brush extends Component<BrushOption> {
-    public defaultProp() {
-        return {
-            ...super.defaultProp(),
-            cornerRadius: 0,
-        };
-    }
-
-    public render = template`
+@useTemplate(`
     Component {
         @let x = brushX()
         @let y = brushY()
@@ -67,7 +59,14 @@ export class Brush extends Component<BrushOption> {
             @props prop.opt.rightHandle
         }
     }
-    `;
+`)
+export class Brush extends Component<BrushOption> {
+    public defaultProp() {
+        return {
+            ...super.defaultProp(),
+            cornerRadius: 0,
+        };
+    }
 
     public get dataRange(): [number, number] {
         return [this._brushScale(this.state.brushL), this._brushScale(this.state.brushR)];
@@ -75,7 +74,8 @@ export class Brush extends Component<BrushOption> {
 
     private _shouldUpdateRangeNextTime = false;
 
-    private _inited = false;
+    private _width = -1;
+    private _height = -1;
     private _isMoving = false;
     private _moveType!: number; // 0: left, 1: right, 2: brush
     private _brushScale!: d3.ScaleContinuousNumeric<number, number>;
@@ -96,19 +96,28 @@ export class Brush extends Component<BrushOption> {
     }
 
     public didLayout() {
-        if (!this._inited) {
-            const w = this.$geometry.width;
+        const w = this.$geometry.width;
+        const h = this.$geometry.height;
+        if (this._width !== w || this._height !== h) {
+            let lValue!: number, rValue!: number;
+            if (!this._firstRender) {
+                lValue = this._brushScale(this.state.brushL);
+                rValue = this._brushScale(this.state.brushR);
+            }
             this._brushScale.domain([0, w]);
             if (this.prop.initialRange) {
-                this._setCurrentRange.apply(this, this.prop.initialRange);
-            } else {
+                this._setCurrentRange(...this.prop.initialRange);
+            } else if (this._firstRender) {
                 this.state.brushL = 0;
                 this.state.brushR = w;
+            } else {
+                this._setCurrentRange(lValue, rValue);
             }
-            this._inited = true;
+            this._width = w;
+            this._height = h;
         }
         if (this.prop.currentRange) {
-            this._setCurrentRange.apply(this, this.prop.currentRange);
+            this._setCurrentRange(...this.prop.currentRange);
         }
     }
 
@@ -129,12 +138,13 @@ export class Brush extends Component<BrushOption> {
 
     public reset() {
         this._shouldUpdateRangeNextTime = true;
-        this._inited = false;
+        this._width = -1;
+        this._height = -1;
     }
 
-    public setCurrentRange(l: number, r: number) {
+    public setCurrentRange(l: number, r: number, draw: boolean = true) {
         this._setCurrentRange(l, r);
-        this.draw();
+        if (draw) this.draw();
     }
 
     public setRange(l: number, r: number) {
@@ -221,7 +231,6 @@ export class Brush extends Component<BrushOption> {
     }
 
     private _callListener(name: "onBrushStart" | "onBrushEnd" | "onBrushUpdate") {
-        if (this.prop[name])
-            (this.prop[name] as any).call(null, this.dataRange);
+        if (this.prop[name]) (this.prop[name] as any).call(null, this.dataRange);
     }
 }

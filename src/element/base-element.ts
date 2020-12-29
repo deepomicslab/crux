@@ -66,6 +66,7 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption> implem
     public $geometry: GeometryOptions<Option>;
     public $defaultProp: Partial<Option> = {};
     public $geometryProps: [string[], string[]] = [[], []];
+    public $geometryPropsSet!: Set<string>;
 
     public $detached = false;
 
@@ -105,6 +106,7 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption> implem
         this.$defaultProp = this.defaultProp();
         const { h, v } = this.geometryProps();
         this.$geometryProps = [h, v];
+        this.$geometryPropsSet = new Set([...h, ...v]);
     }
 
     /* properties */
@@ -168,6 +170,13 @@ export abstract class BaseElement<Option extends BaseOption = BaseOption> implem
         for (k of k1) {
             p1 = p[k];
             p2 = this._prop[k];
+            if (this.$geometryPropsSet.has(k)) {
+                if (typeof p1 === "number" && typeof p2 === "number") {
+                    if (p1 !== p2) return false;
+                    continue;
+                }
+                return false;
+            }
             if (k === "opt") {
                 const p1k = Object.keys(p1);
                 if (p1k.length !== Object.keys(p2).length) return false;
