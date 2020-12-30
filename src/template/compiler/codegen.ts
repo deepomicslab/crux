@@ -59,6 +59,7 @@ function genAttrs(node: ASTNodeComp) {
     for (const p of node.props) {
         if (p.delegate) {
             const m = p.delegate.match(/(.+?)\(:(.+?)\)/);
+            console.log(p, m);
             if (m) {
                 if (!delegates[m[1]]) delegates[m[1]] = {};
                 const d = delegates[m[1]];
@@ -71,6 +72,10 @@ function genAttrs(node: ASTNodeComp) {
                     const eventName = p.name.substr(3);
                     if (!d._on) d._on = {};
                     d._on[eventName] = genEventListener(p.expr);
+                } else if (p.name.startsWith("behavior:")) {
+                    const bName = p.name.substr(9);
+                    if (!d._behavior) d._behavior = {};
+                    d._behavior[bName] = p.expr;
                 } else {
                     d[p.name] = p.expr;
                 }
@@ -91,6 +96,7 @@ function genAttrs(node: ASTNodeComp) {
         attrStrings.push(`'${name}': ${genExpr(expr, name)}`);
     }
     if (hasDelegate) {
+        console.log(delegates);
         attrStrings.push(`opt: ${serialize(delegates)}`);
     }
     if (node.initArg && node.name !== "Component") {

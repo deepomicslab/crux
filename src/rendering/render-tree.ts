@@ -119,6 +119,11 @@ export function updateTree(parent: Component, def_?: ElementDef, order?: number)
             elm.setEventHandlers(o);
         }
 
+        const b = opt.props._behavior;
+        if (b) {
+            elm.setBehaviors(b);
+        }
+
         const s = opt.props._stages;
         if (s) {
             Object.keys(s).forEach(k => {
