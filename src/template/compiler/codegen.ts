@@ -59,7 +59,6 @@ function genAttrs(node: ASTNodeComp) {
     for (const p of node.props) {
         if (p.delegate) {
             const m = p.delegate.match(/(.+?)\(:(.+?)\)/);
-            console.log(p, m);
             if (m) {
                 if (!delegates[m[1]]) delegates[m[1]] = {};
                 const d = delegates[m[1]];
@@ -96,7 +95,6 @@ function genAttrs(node: ASTNodeComp) {
         attrStrings.push(`'${name}': ${genExpr(expr, name)}`);
     }
     if (hasDelegate) {
-        console.log(delegates);
         attrStrings.push(`opt: ${serialize(delegates)}`);
     }
     if (node.initArg && node.name !== "Component") {
