@@ -23,6 +23,7 @@ export interface TreeOption extends ComponentOption {
     r: number;
     direction: "top" | "bottom" | "left" | "right" | "radical";
     scale: "none" | "scale" | "log";
+    isCluster: boolean;
     linkStyle: "rightAngle" | "straight";
     treeRotation: number;
     leafSize: number;
@@ -43,7 +44,7 @@ Component {
                 @let pos = [getX(link.source), getY(link.source), getX(link.target), getY(link.target)]
                 key = "l" + i
                 zIndex = isActive || isOnTop ? 1 : null
-                @yield link with { link, pos, tree } default {
+                @yield link with { link, pos, tree, isActive } default {
                     Path {
                         stroke = isActive ? "#000" : "#aaa"
                         fill = "none"
@@ -73,8 +74,8 @@ Component {
         @for (leaf, i) in _leaves {
             Component {
                 key = "f" + i
-                x = getX(leaf)
-                y = prop.isCluster ? getY(leaf) : getY(leaf)
+                x = getX(leaf, prop.isCluster)
+                y = getY(leaf, prop.isCluster)
                 width = 0
                 rotation = leafRotation(leaf)
                 coord = "cartesian"
@@ -97,10 +98,12 @@ Component {
             @if isScaled && prop.isCluster {
                 Component(isRadical ? "RadicalLine" : "Line") {
                     x = getX(leaf);
+                    x1 = getX(leaf);
+                    x2 = getX(leaf, true);
                     y1 = getY(leaf)
-                    y2 = getY(leaf)
+                    y2 = getY(leaf, true)
                     stroke = "#ccc"
-                    @props prop.opt.linkExtention
+                    @props prop.opt.linkExtension
                 }
             }
         }
@@ -211,7 +214,6 @@ export class Tree extends Component<TreeOption> {
                 this.isScaled = true;
                 break;
         }
-        console.log(this._scaleY);
 
         this._root.eachBefore(n => {
             if (n.parent) {
@@ -297,9 +299,9 @@ export class Tree extends Component<TreeOption> {
     }
 
     // @ts-ignore
-    private getX(node: d3.HierarchyPointNode<TreeData>) {
+    private getX(node: d3.HierarchyPointNode<TreeData>, forceEnd = false) {
         if (this.isHorizontal) {
-            const y = this.prop.scale === "none" ? node.y : this._scaleY!(node.data._radius!);
+            const y = forceEnd || this.prop.scale === "none" ? node.y : this._scaleY!(node.data._radius!);
             return this.isInversed ? this.height - y + this.prop.leafSize : y;
         } else {
             return this.isInversed ? this.width - node.x : node.x;
@@ -307,11 +309,11 @@ export class Tree extends Component<TreeOption> {
     }
 
     // @ts-ignore
-    private getY(node: d3.HierarchyPointNode<TreeData>) {
+    private getY(node: d3.HierarchyPointNode<TreeData>, forceEnd = false) {
         if (this.isHorizontal) {
             return this.isInversed ? this.width - node.x : node.x;
         } else {
-            const y = this.prop.scale === "none" ? node.y : this._scaleY!(node.data._radius!);
+            const y = forceEnd || this.prop.scale === "none" ? node.y : this._scaleY!(node.data._radius!);
             return this.isInversed ? this.height - y + this.prop.leafSize : y;
         }
     }

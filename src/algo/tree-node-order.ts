@@ -1,5 +1,5 @@
-import { min, minBy } from "lodash";
-import { NewickNode, parseNewick } from "../../../src/utils";
+import { minBy } from "lodash";
+import { NewickNode } from "../utils";
 
 // left, right, score
 type Case = [number, number, number];
@@ -10,7 +10,7 @@ interface BestScore {
 }
 
 export interface Node extends NewickNode {
-    color?: number;
+    color: number;
     children: Node[];
     cases?: Case[];
     dp: BestScore[][];
@@ -79,9 +79,10 @@ class Solver {
         this.colorRange = range(this.colors.length);
     }
 
+    // @ts-ignore
     trace(node: Node, root?: Node, lr?: [number, number]) {
         if (isLeaf(node)) {
-            root.children.push(node);
+            root!.children.push(node);
             return;
         }
 
@@ -95,7 +96,7 @@ class Solver {
             left = lr[0];
             right = lr[1];
         } else {
-            const minCase = minBy(node.cases, n => n[2]);
+            const minCase = minBy(node.cases, n => n[2])!;
             left = minCase[0];
             right = minCase[1];
         }
@@ -190,7 +191,7 @@ class Solver {
     }
 }
 
-export function treeAlgo(root: Node, colorFunc: (node: Node) => string) {
+export function orderTreeNodes(root: Node, colorFunc: (node: Node) => string) {
     // return root;
     const colors: string[] = [];
     for (const leaf of leaves(root)) {

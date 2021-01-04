@@ -1,7 +1,7 @@
 import { parseNewick } from "../../../src/utils";
 import * as newickData from "./data";
 import template_t from "./t";
-import { bg, Node, treeAlgo } from "./tree-algo";
+import { Node, treeAlgo } from "./tree-algo";
 
 import sunburstData from "../../tree-data/sunburst-data";
 
@@ -12,6 +12,7 @@ svg {
         width = 800; height = 800
         isCluster = true
         direction = "radical"
+        scale = "scale"
         data = data
         leafSize = 100
         activeLink.stroke = "#66ccff"
@@ -47,12 +48,9 @@ svg {
 }
 `;
 
-const d = parseNewick(newickData.yiqi);
-console.log(d);
-
 const data = {
-    // data: treeAlgo(parseNewick(newickData.yiqi) as Node, bg),
-    data: d,
+    data: treeAlgo(parseNewick(newickData.tumor) as Node, bg),
+    // data: d,
     // data: sunburstData,
     bg,
     linkOnTop(link) {
@@ -68,6 +66,18 @@ function hasChildren(node, name) {
         if (hasChildren(c, name)) return true;
     }
     return false;
+}
+
+function bg(data) {
+    const name: string = data.name;
+    if (!name) return undefined;
+    if (name.startsWith("N")) {
+        return "#66ccff";
+    } else if (name.startsWith("T")) {
+        return "#ff4d4d";
+    } else {
+        return "#aaa";
+    }
 }
 
 export { template, data };
