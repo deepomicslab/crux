@@ -193,6 +193,7 @@ export function getTicks(
             const start = Math.ceil(domain[0] / i) * i;
             let counter = start;
             while ((isInversed ? counter - domain[1] : domain[1] - counter) > 1e-15) {
+                if (Math.abs(counter) < 0.000001 && i > 0.0000001) counter = 0;
                 ticks.push(pretty(counter));
                 counter += i;
             }
