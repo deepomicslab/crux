@@ -189,8 +189,8 @@ export class XYPlot extends Component<XYPlotOption> {
     }
 
     private createCategoryScale(size: number) {
-        const [, pr, , pl] = this._paddings;
-        const width = size - pl - pr;
+        const [pt, pr, pb, pl] = this._paddings;
+        const width = this.flipped ? size - pt - pb : size - pl - pr;
         let n = (this.hasMultipleData ? this.data[Object.keys(this.data)[0]] : this.data).values.length;
         if (!this.prop.hasPadding) n -= 1;
         const gap = typeof this.prop.gap === "number" ? this.prop.gap : (width * 0.1) / n;
@@ -216,8 +216,8 @@ export class XYPlot extends Component<XYPlotOption> {
     }
 
     private createValueScale(size: number) {
-        const [pt, , pb] = this._paddings;
-        const width = size - pt - pb;
+        const [pt, pr, pb, pl] = this._paddings;
+        const width = this.flipped ? size - pl - pr : size - pt - pb;
         const scale = this._createScale(
             this.prop.valueUseLog ? "log" : "linear",
             false,
