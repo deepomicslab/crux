@@ -8,19 +8,22 @@ export interface DragOption {
     validRangeY?: [number, number];
     onDrag?: (ev: MouseEvent, deltaPos: [number, number],
               offsetPos: [number, number]) => void;
+    onDragStart?: (ev: MouseEvent, offsetPos: [number, number]) => void;
+    onDragEnd?: (ev: MouseEvent, offsetPos: [number, number]) => void;
     updateDelta?: (newPos: [number, number], oldPos: [number, number])
             => [number, number];
 }
 
 export default class Drag extends Behavior<DragOption> {
     private direction!: "x" | "y" | "xy" | "native";
-
     public factor = 1;
     // @ts-ignore
-    public validRangeX: [number, number];
+    private validRangeX: [number, number];
     // @ts-ignore
-    public validRangeY: [number, number];
+    private validRangeY: [number, number];
 
+    public startHandler?: (ev: MouseEvent, offsetPos: [number, number]) => void;
+    public endHandler?: (ev: MouseEvent, offsetPos: [number, number]) => void;
     public handler?: (ev: MouseEvent, deltaPos: [number, number],
                       offsetPos: [number, number]) => void;
     public updateDelta?: (newPos: [number, number], oldPos: [number, number])
@@ -37,6 +40,10 @@ export default class Drag extends Behavior<DragOption> {
             throw Error(`Drag: native updateDelta expected`);
         this.deltaX = this.deltaY = 0;
         this.handler = op.onDrag;
+        this.startHandler = op.onDragStart;
+        this.endHandler = op.onDragEnd;
+        this.validRangeX = op.validRangeX!;
+        this.validRangeY = op.validRangeY!;
     }
 
     public updateProps(op: Partial<DragOption>) {
@@ -54,6 +61,9 @@ export default class Drag extends Behavior<DragOption> {
         } else {
             this.mousePos = [ev.offsetX, ev.offsetY];
         }
+        this.el.$v.transaction(() => {
+            this.startHandler?.call(this.el, ev, this.mousePos);
+        });
     }
 
     public mousemove(ev: MouseEvent) {
@@ -64,12 +74,12 @@ export default class Drag extends Behavior<DragOption> {
             m = mouse(this.el.$parent, ev);
             if (!!this.validRangeX)
                 if (m[0] > this.validRangeX[1] || m[0] < this.validRangeX[0]) {
-                    this.mouseup();
+                    this.mouseup(ev);
                     return;
                 }
             if (!!this.validRangeY)
                 if (m[1] > this.validRangeY[1] || m[1] < this.validRangeY[0]) {
-                    this.mouseup();
+                    this.mouseup(ev);
                     return;
                 }
         } else {
@@ -102,7 +112,10 @@ export default class Drag extends Behavior<DragOption> {
             this.handler!.call(this.el, ev, [this.deltaX, this.deltaY], this.mousePos);
         });
     }
-    public mouseup() {
+    public mouseup(ev: MouseEvent) {
         this.isMoving = false;
+        this.el.$v.transaction(() => {
+            this.endHandler?.call(this.el, ev, this.mousePos);
+        });
     }
 }
