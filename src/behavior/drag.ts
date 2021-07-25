@@ -12,6 +12,7 @@ export interface DragOption {
     onDragEnd?: (ev: MouseEvent, offsetPos: [number, number]) => void;
     updateDelta?: (newPos: [number, number], oldPos: [number, number])
             => [number, number];
+    debug?: boolean;
 }
 
 export default class Drag extends Behavior<DragOption> {
@@ -34,6 +35,9 @@ export default class Drag extends Behavior<DragOption> {
     private isMoving: boolean = false;
     private mousePos: [number, number] = [0, 0];
 
+    private _bodyUpListener: any;
+    private debug?: boolean;
+
     public init(op: DragOption) {
         this.direction = op.direction || "xy";
         if (this.direction === "native" && !this.updateDelta)
@@ -44,6 +48,8 @@ export default class Drag extends Behavior<DragOption> {
         this.endHandler = op.onDragEnd;
         this.validRangeX = op.validRangeX!;
         this.validRangeY = op.validRangeY!;
+        this.debug = op.debug || false;
+        this._bodyUpListener = (e: any) => this.mouseup(e);
     }
 
     public updateProps(op: Partial<DragOption>) {
@@ -53,6 +59,9 @@ export default class Drag extends Behavior<DragOption> {
     public events = ["mousedown", "mousemove", "mouseup"];
 
     public mousedown(ev: MouseEvent) {
+        if (this.debug) {
+            console.log("drag start");
+        }
         this.isMoving = true;
         ev.stopPropagation();
         ev.preventDefault();
@@ -85,6 +94,7 @@ export default class Drag extends Behavior<DragOption> {
         } else {
             m = [ev.offsetX, ev.offsetY];
         }
+        document.body.addEventListener("mouseup", this._bodyUpListener);
         switch (this.direction) {
             case "x":
                 this.deltaX = m[0] - this.mousePos[0];
@@ -113,9 +123,15 @@ export default class Drag extends Behavior<DragOption> {
         });
     }
     public mouseup(ev: MouseEvent) {
-        this.isMoving = false;
-        this.el.$v.transaction(() => {
-            this.endHandler?.call(this.el, ev, this.mousePos);
-        });
+        if (this.isMoving) {
+            this.isMoving = false;
+            this.el.$v.transaction(() => {
+                this.endHandler?.call(this.el, ev, this.mousePos);
+            });
+            if (this.debug) console.log("drag end");
+        } else if (this.debug) {
+            console.log("drag already ended");
+        }
     }
+
 }
