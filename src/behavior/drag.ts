@@ -1,3 +1,4 @@
+import { BaseElement } from "../element";
 import mouse from "../utils/mouse";
 import { Behavior } from "./behavior";
 
@@ -6,13 +7,14 @@ export interface DragOption {
     factor?: number;
     validRangeX?: [number, number];
     validRangeY?: [number, number];
-    onDrag?: (ev: MouseEvent, deltaPos: [number, number],
+    onDrag?: (ev: MouseEvent, el: BaseElement, deltaPos: [number, number],
               offsetPos: [number, number]) => void;
-    onDragStart?: (ev: MouseEvent, offsetPos: [number, number]) => void;
-    onDragEnd?: (ev: MouseEvent, offsetPos: [number, number]) => void;
+    onDragStart?: (ev: MouseEvent, el: BaseElement, offsetPos: [number, number]) => void;
+    onDragEnd?: (ev: MouseEvent, el: BaseElement, offsetPos: [number, number]) => void;
     updateDelta?: (newPos: [number, number], oldPos: [number, number])
             => [number, number];
     debug?: boolean;
+    canvasId?: string;
 }
 
 export default class Drag extends Behavior<DragOption> {
@@ -23,9 +25,9 @@ export default class Drag extends Behavior<DragOption> {
     // @ts-ignore
     private validRangeY: [number, number];
 
-    public startHandler?: (ev: MouseEvent, offsetPos: [number, number]) => void;
-    public endHandler?: (ev: MouseEvent, offsetPos: [number, number]) => void;
-    public handler?: (ev: MouseEvent, deltaPos: [number, number],
+    public startHandler?: (ev: MouseEvent, el: BaseElement, offsetPos: [number, number]) => void;
+    public endHandler?: (ev: MouseEvent, el: BaseElement, offsetPos: [number, number]) => void;
+    public handler?: (ev: MouseEvent, el: BaseElement, deltaPos: [number, number],
                       offsetPos: [number, number]) => void;
     public updateDelta?: (newPos: [number, number], oldPos: [number, number])
                             => [number, number];
@@ -35,7 +37,9 @@ export default class Drag extends Behavior<DragOption> {
     private isMoving: boolean = false;
     private mousePos: [number, number] = [0, 0];
 
+    private canvasDiv?: any;
     private _bodyUpListener: any;
+    private _bodyMoveListener: any;
     private debug?: boolean;
 
     public init(op: DragOption) {
@@ -49,14 +53,16 @@ export default class Drag extends Behavior<DragOption> {
         this.validRangeX = op.validRangeX!;
         this.validRangeY = op.validRangeY!;
         this.debug = op.debug || false;
+        this._bodyMoveListener = (e: any) => this.mousemove(e);
         this._bodyUpListener = (e: any) => this.mouseup(e);
+        if (op.canvasId) this.canvasDiv = document.getElementById(op.canvasId);
     }
 
     public updateProps(op: Partial<DragOption>) {
         // not implemented
     }
 
-    public events = ["mousedown", "mousemove", "mouseup"];
+    public events = ["mousedown", "mouseup"];
 
     public mousedown(ev: MouseEvent) {
         if (this.debug) {
@@ -70,12 +76,16 @@ export default class Drag extends Behavior<DragOption> {
         } else {
             this.mousePos = [ev.offsetX, ev.offsetY];
         }
+        if (this.canvasDiv)
+            this.canvasDiv.addEventListener("mousemove", this._bodyMoveListener);
+        else
+            document.body.addEventListener("mousemove", this._bodyMoveListener);
         this.el.$v.transaction(() => {
-            this.startHandler?.call(this.el, ev, this.mousePos);
+            this.startHandler?.call(this.el, ev, this.el, this.mousePos);
         });
     }
 
-    public mousemove(ev: MouseEvent) {
+    protected mousemove(ev: MouseEvent) {
         if (!this.isMoving)
             return;
         let m;
@@ -119,14 +129,14 @@ export default class Drag extends Behavior<DragOption> {
             this.mousePos = [ev.offsetX, ev.offsetY];
         }
         this.el.$v.transaction(() => {
-            this.handler!.call(this.el, ev, [this.deltaX, this.deltaY], this.mousePos);
+            this.handler!.call(this.el, ev, this.el, [this.deltaX, this.deltaY], this.mousePos);
         });
     }
     public mouseup(ev: MouseEvent) {
         if (this.isMoving) {
             this.isMoving = false;
             this.el.$v.transaction(() => {
-                this.endHandler?.call(this.el, ev, this.mousePos);
+                this.endHandler?.call(this.el, ev, this.el, this.mousePos);
             });
             if (this.debug) console.log("drag end");
         } else if (this.debug) {
