@@ -17,10 +17,10 @@ export class Scatters1D extends BaseChart<Scatters1DOption> {
             Component {
                 key = pos
                 @for (d2, index) in values {
-                    @let y = getY(d2)
+                    @let y = getY(d2.value)
                     Component {
                         key = "s" + pos + "p" + index
-                        @props dotOpts(x, y, d1.pos)
+                        @props dotOpts(x, y, d2.offset)
                         @yield children with { pos, index } default {
                             Circle.centered {
                                 r = prop.r
@@ -36,6 +36,50 @@ export class Scatters1D extends BaseChart<Scatters1DOption> {
     }
     `;
 
+    public willRender() {
+        super.willRender();
+        if (this.layerNotSet) {
+            this.resetLayer();
+            if (Array.isArray(this.data.values)) {
+                this.data.values.forEach(d1 => {
+                    const result = this.getValues(d1).map((d2: number) => ({
+                        value: d2,
+                        offset: this.setLayer(this.getY(d2), d1.pos),
+                    }));
+                    this.setValues(d1, result);
+                });
+            } else {
+                Object.keys(this.data.values).forEach(k => {
+                    const d1 = this.data.values[k];
+                    const result = this.getValues(d1).map((d2: number) => ({
+                        value: d2,
+                        offset: this.setLayer(this.getY(d2), d1.pos),
+                    }));
+                    this.setValues(d1, result);
+                });
+            }
+        }
+    }
+
+    private resetLayer() {
+        this._layer = {};
+        this._layers = [new Set()];
+    }
+
+    get layerNotSet() {
+        if (Array.isArray(this.data.values)) {
+            const arr = this.getValues(this.data.values[0]);
+            if (Object.keys(arr[0]).indexOf("offset") >= 0)
+                return false;
+        } else {
+            const k0 = Object.keys(this.data.values)[0];
+            const arr = this.getValues(this.data.values[k0]);
+            if (Object.keys(arr[0]).indexOf("offset") >= 0)
+                return false;
+        }
+        return true;
+    }
+
     private _layer: any = {};
     private _layers: Set<string>[] = [new Set()];
 
@@ -50,8 +94,16 @@ export class Scatters1D extends BaseChart<Scatters1DOption> {
         throw new Error(`Scatters1D: Unknown data format.`);
     }
 
-    // @ts-ignore
-    private dotOpts(x: number, y: number, pos: number) {
+    private setValues(d: any, values: any[]) {
+        if (Array.isArray(d.data))
+            d.data = values;
+        else if ("values" in d.data)
+            d.data.values = values;
+        else
+            throw new Error(`Scatters1D: Unknown data format.`);
+    }
+
+    private setLayer(y: number, pos: number) {
         const r = this.prop.r;
         const fy = Math.round(y);
         if (!this._layer[pos]) this._layer[pos] = 0;
@@ -77,7 +129,11 @@ export class Scatters1D extends BaseChart<Scatters1DOption> {
             this._layers[placedLayer] = new Set([fy]);
         }
         // @ts-ignore
-        const offset = ((Math.floor((placedLayer - 1) / 2) + 1) * 2 * r) * (placedLayer % 2 ? 1 : -1);
+        return ((Math.floor((placedLayer - 1) / 2) + 1) * 2 * r) * (placedLayer % 2 ? 1 : -1);
+    }
+
+    // @ts-ignore
+    private dotOpts(x: number, y: number, offset: number) {
         return this.flippedOpts({ x: x + offset, y });
     }
 
