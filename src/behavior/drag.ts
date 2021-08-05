@@ -3,7 +3,7 @@ import mouse from "../utils/mouse";
 import { Behavior } from "./behavior";
 
 export interface DragOption {
-    direction?: "x" | "y" | "xy" | "native";
+    direction?: "x" | "y" | "xy" | "polar" |"native";
     factor?: number;
     validRangeX?: [number, number];
     validRangeY?: [number, number];
@@ -15,11 +15,13 @@ export interface DragOption {
             => [number, number];
     debug?: boolean;
     canvasId?: string;
+    origin?: [number, number];
 }
 
 export default class Drag extends Behavior<DragOption> {
-    private direction!: "x" | "y" | "xy" | "native";
+    private direction!: "x" | "y" | "xy" | "polar" | "native";
     public factor = 1;
+    private origin?: [number, number];
     // @ts-ignore
     private validRangeX: [number, number];
     // @ts-ignore
@@ -44,9 +46,14 @@ export default class Drag extends Behavior<DragOption> {
 
     public init(op: DragOption) {
         this.direction = op.direction || "xy";
-        if (this.direction === "native" && !this.updateDelta)
+        this.el.setProp({cursor: "grab"});
+        if (this.direction === "polar" && !op.origin) {
+            throw Error(`Drag: origin expected`);
+        }
+        if (this.direction === "native" && !op.updateDelta)
             throw Error(`Drag: native updateDelta expected`);
         this.deltaX = this.deltaY = 0;
+        this.origin = op.origin;
         this.handler = op.onDrag;
         this.startHandler = op.onDragStart;
         this.endHandler = op.onDragEnd;
@@ -67,6 +74,7 @@ export default class Drag extends Behavior<DragOption> {
     public mousedown(ev: MouseEvent) {
         if (this.debug) {
             console.log("drag start");
+            console.log(`origin: ${this.origin}`);
         }
         this.isMoving = true;
         ev.stopPropagation();
@@ -85,10 +93,18 @@ export default class Drag extends Behavior<DragOption> {
         });
     }
 
+    protected getPolarPos(mousePos: [number, number]): [number, number] {
+        // @ts-ignore
+        mousePos[0] = mousePos[0] - this.origin[0];
+        // @ts-ignore
+        mousePos[1] = mousePos[1] - this.origin[1];
+        return mousePos;
+    }
+
     protected mousemove(ev: MouseEvent) {
         if (!this.isMoving)
             return;
-        let m;
+        let m: [number, number];
         if (this.el.$parent) {
             m = mouse(this.el.$parent, ev);
             if (!!this.validRangeX)
@@ -123,14 +139,20 @@ export default class Drag extends Behavior<DragOption> {
                 this.deltaY = result[1];
                 break;
         }
-        if (this.el.$parent) {
-            this.mousePos = mouse(this.el.$parent, ev);
-        } else {
-            this.mousePos = [ev.offsetX, ev.offsetY];
-        }
+        this.mousePos = m;
         this.el.$v.transaction(() => {
-            this.handler!.call(this.el, ev, this.el, [this.deltaX, this.deltaY], this.mousePos);
+            if (this.direction === "polar") {
+                this.handler!.call(this.el, ev, this.el, [this.deltaX, this.deltaY],
+                    [this.getAngle(...this.getPolarPos(this.mousePos)), 0]);
+            } else {
+                this.handler!.call(this.el, ev, this.el, [this.deltaX, this.deltaY],
+                    this.mousePos);
+            }
         });
+    }
+    private getAngle(a: number, b: number): number {
+        const c = Math.sqrt(Math.pow(a, 2) + Math.pow(b, 2));
+        return Math.asin(b / c);
     }
     public mouseup(ev: MouseEvent) {
         if (this.isMoving) {
