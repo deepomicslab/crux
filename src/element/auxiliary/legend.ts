@@ -1,8 +1,8 @@
-import { template } from "../../template/tag";
+// import { template } from "../../template/tag";
 import { Component } from "../component";
 import { ComponentOption } from "../component-options";
 
-export type LegendType  = "dot" | "rect" | "line" | "custom";
+export type LegendType  = "Rect" | "Triangle" | "Circle" | "Line" | "Custom";
 
 export interface LegendOption extends ComponentOption {
     type?: LegendType;
@@ -14,7 +14,8 @@ export interface LegendOption extends ComponentOption {
 }
 
 export class Legend extends Component<LegendOption> {
-    public render = template`
+    public render () {
+        return this.t`
     Container {
         padding = prop.padding
         Rect.full {
@@ -27,6 +28,7 @@ export class Legend extends Component<LegendOption> {
             x = 4
             @if prop.title {
                 Container {
+                    height = prop.lineHeight;
                     Text(prop.title);
                 }
             }
@@ -38,27 +40,21 @@ export class Legend extends Component<LegendOption> {
                         width = prop.legendWidth
                         height = 100%
                         @let t = data.type || prop.type
-                        @if t === "rect" {
-                            Rect {
-                                x = 1; y = 1; width = 100%-2; height = 100%-2
-                                stroke = data.stroke; fill = data.fill
-                            }
+                        @if t === "Custom" {
+                            @yield legend with data
                         }
-                        @elsif t === "circle" {
-                            Circle.centered {
-                                x = 50%; y = 50%; r = 5
-                                stroke = data.stroke; fill = data.fill
-                            }
-                        }
-                        @elsif t === "line" {
+                        @elsif t === "Line" {
                             Line {
-                                x1 = 0; y1 = 50%; x2 = 100%; y2 = 50%
+                                x1 = 0; y = @geo(50, 1); x2 = 100%
                                 stroke = data.stroke
                                 strokeWidth = 2
                             }
-                        }
-                        @else {
-                            @yield legend with data
+                        } @else {
+                            Component(t) {
+                                x = 50%; y = @geo(50, 1); anchor = @anchor("m", "c")
+                                width = 10; height = 10; r = 5
+                                stroke = data.stroke; fill = data.fill
+                            }
                         }
                     }
                     Container {
@@ -75,7 +71,7 @@ export class Legend extends Component<LegendOption> {
             }
         }
     }
-    `;
+    `; }
 
     public defaultProp() {
         return {
@@ -83,7 +79,7 @@ export class Legend extends Component<LegendOption> {
             lineHeight: 12,
             legendWidth: 20,
             data: [],
-            type: "rect",
+            type: "Rect",
             padding: 4,
         };
     }
