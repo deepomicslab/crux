@@ -1,4 +1,5 @@
 import { BaseElement } from "../element";
+import { tooltip } from "../utils";
 import mouse from "../utils/mouse";
 import { Behavior } from "./behavior";
 
@@ -14,6 +15,7 @@ export interface DragOption {
     updateDelta?: (newPos: [number, number], oldPos: [number, number])
             => [number, number];
     debug?: boolean;
+    // isSvg?: boolean;
     canvasId?: string;
     origin?: [number, number];
 }
@@ -26,6 +28,8 @@ export default class Drag extends Behavior<DragOption> {
     private validRangeX: [number, number];
     // @ts-ignore
     private validRangeY: [number, number];
+    // @ts-ignore
+    // private isSvg: boolean;
 
     public startHandler?: (ev: MouseEvent, el: BaseElement, offsetPos: [number, number]) => void;
     public endHandler?: (ev: MouseEvent, el: BaseElement, offsetPos: [number, number]) => void;
@@ -52,6 +56,13 @@ export default class Drag extends Behavior<DragOption> {
         }
         if (this.direction === "native" && !op.updateDelta)
             throw Error(`Drag: native updateDelta expected`);
+        // if (!!op.isSvg) this.isSvg = op.isSvg;
+        // else {
+        //     const canvas = document.getElementById(op.canvasId || "canvas") as HTMLElement;
+        //     if (canvas.children[0] instanceof HTMLCanvasElement)
+        //         this.isSvg = false;
+        //     else this.isSvg = true;
+        // }
         this.deltaX = this.deltaY = 0;
         this.origin = op.origin;
         this.handler = op.onDrag;
@@ -79,6 +90,7 @@ export default class Drag extends Behavior<DragOption> {
         this.isMoving = true;
         ev.stopPropagation();
         ev.preventDefault();
+        // if (this.isSvg && this.el.$parent) {
         if (this.el.$parent) {
             this.mousePos = mouse(this.el.$parent, ev);
         } else {
@@ -91,6 +103,7 @@ export default class Drag extends Behavior<DragOption> {
         this.el.$v.transaction(() => {
             this.startHandler?.call(this.el, ev, this.el, this.mousePos);
         });
+        tooltip.disable();
     }
 
     protected getPolarPos(mousePos: [number, number]): [number, number] {
@@ -105,6 +118,7 @@ export default class Drag extends Behavior<DragOption> {
         if (!this.isMoving)
             return;
         let m: [number, number];
+        // if (this.isSvg && this.el.$parent) {
         if (this.el.$parent) {
             m = mouse(this.el.$parent, ev);
             if (!!this.validRangeX)
@@ -157,6 +171,7 @@ export default class Drag extends Behavior<DragOption> {
     public mouseup(ev: MouseEvent) {
         if (this.isMoving) {
             this.isMoving = false;
+            tooltip.enable();
             this.el.$v.transaction(() => {
                 this.endHandler?.call(this.el, ev, this.el, this.mousePos);
             });
