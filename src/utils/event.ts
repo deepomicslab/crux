@@ -1,4 +1,4 @@
-import * as _ from "lodash";
+import * as lodash from "lodash";
 import IS_NODE from "./is-node";
 
 declare global {
@@ -67,7 +67,7 @@ export let remove = (eventName: string, id?: string) => {
         return;
     }
     if (typeof id === "string") {
-        _.remove(listeners[eventName], x => x.id === id);
+        lodash.remove(listeners[eventName], x => x.id === id);
     } else {
         listeners[eventName] = [];
     }

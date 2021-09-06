@@ -30,6 +30,7 @@
 ---
 - **REFERENCE**
 - [Visualizer](ref/visualizer.md)
+- [Data Loader](ref/data-loader.md)
 - [Commands](ref/commands.md)
 - [Helpers](ref/helpers.md)
 - [Modifiers](ref/modifiers.md)
