@@ -12,7 +12,7 @@
         "build": "tsc -p ./ --outDir ./dist",
         "build-node": "tsc -p ./tsconfig.node.json --outDir ./dist-node",
         "build-type": "tsc -p ./ --emitDeclarationOnly --outFile ./dist/oviz.d.ts",
-        "build-web": "webpack --env.production --env.platform=web --mode=production --devtool=source-map dist/index.js -o dist/oviz.js"
+        "build-web": "webpack --config webpack.config.js"
     },
     "dependencies": {
         "axios": "^0.18.0",
@@ -44,9 +44,12 @@
         "@types/randomstring": "^1.1.6",
         "cssnano": "^4.1.10",
         "mocha": "^6.1.4",
+        "ts-loader": "^9.2.5",
         "ts-node": "^8.1.0",
         "tslint": "^5.15.0",
-        "tslint-eslint-rules": "^5.4.0"
+        "tslint-eslint-rules": "^5.4.0",
+        "webpack": "^5.52.0",
+        "webpack-cli": "^4.8.0"
     },
     "browserslist": [
         "since 2017-06"
