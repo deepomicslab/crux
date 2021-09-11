@@ -36,11 +36,10 @@ export function style(s: Record<string, string> = {}) {
 
 let willShow = false;
 let willHide = false;
-let disabled = false;
+
 export function show(html: string, x: number, y: number): void;
 export function show(html: string, ev: MouseEvent): void;
 export function show(html: string) {
-    if (disabled) return;
     if (!tooltip) create();
     tooltip!.innerHTML = html;
     if (willHide) {
@@ -66,13 +65,6 @@ export function show(html: string) {
     }, 0);
 }
 
-export function disable() {
-    disabled = true;
-    hide();
-}
-export function enable() {
-    disabled = false;
-}
 export function hide() {
     if (!tooltip) return;
     shown = false;

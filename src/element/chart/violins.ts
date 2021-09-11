@@ -43,10 +43,7 @@ export interface ViolinsOption extends BaseChartOption {
      * setting split to True will draw half of a violin
      */
     split: boolean;
-    /**
-     * use basis, otherwise curveCatmullRom
-     */
-    basisCurve: boolean;
+
     // styling options
     quartileLineOptions: any;
     meanPointOptions: any;
@@ -119,7 +116,6 @@ export class Violins extends BaseChart<ViolinsOption> {
             cut: false,
             split: false,
             extremeLine: true,
-            basisCurve: false,
         };
     }
 
@@ -297,8 +293,7 @@ export class Violins extends BaseChart<ViolinsOption> {
 
     protected getPath(cachedPoints: [number, number][]) {
         let path: string;
-        const lineG: d3.Line<[number, number]> = d3.line().curve(this.prop.basisCurve ?
-                d3.curveBasis : d3.curveCatmullRom.alpha(0.5));
+        const lineG: d3.Line<[number, number]> = d3.line().curve(d3.curveCatmullRom.alpha(0.5));
         if (this.prop.cut) {
             console.log(cachedPoints);
             const curvePoints = cachedPoints.slice(1, cachedPoints.length - 1);

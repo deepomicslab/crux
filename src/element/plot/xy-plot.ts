@@ -40,7 +40,6 @@ export interface XYPlotOption extends ComponentOption, ChartPaddingOptions {
     capToMinValue: boolean;
     gap: number;
     hasPadding: boolean;
-    margin: [number, number];
     // layout
     flip: boolean;
     invertValueAxis: boolean;
@@ -69,7 +68,6 @@ export class XYPlot extends Component<XYPlotOption> {
     public discreteCategory!: boolean;
 
     private _paddings!: [number, number, number, number];
-    private _margin!: [number, number];
     private _xScale: any;
     private _yScale: any;
     private _cRange!: any[];
@@ -79,15 +77,10 @@ export class XYPlot extends Component<XYPlotOption> {
         return {
             ...super.defaultProp(),
             hasPadding: true,
-            margin: [0, 0],
         };
     }
 
     public willRender() {
-        if (this.prop.margin.find(x => x > 0.1)) {
-            console.warn("XYPlot: margin should not exceed 0.1, use default");
-            this._margin = [0.05, 0.05];
-        } else this._margin = this.prop.margin;
         const data = this.prop.data;
         let handler: Record<string, DataHandler>;
         const h_ = this.prop.dataHandler || {};
@@ -196,8 +189,8 @@ export class XYPlot extends Component<XYPlotOption> {
     }
 
     private createCategoryScale(size: number) {
-        const [pt, pr, pb, pl] = this._paddings;
-        const width = this.flipped ? size - pt - pb : size - pl - pr;
+        const [, pr, , pl] = this._paddings;
+        const width = size - pl - pr;
         let n = (this.hasMultipleData ? this.data[Object.keys(this.data)[0]] : this.data).values.length;
         if (!this.prop.hasPadding) n -= 1;
         const gap = typeof this.prop.gap === "number" ? this.prop.gap : (width * 0.1) / n;
@@ -223,14 +216,13 @@ export class XYPlot extends Component<XYPlotOption> {
     }
 
     private createValueScale(size: number) {
-        const [pt, pr, pb, pl] = this._paddings; 
-        const width = this.flipped ? size - pl - pr : size - pt - pb;
+        const [pt, , pb] = this._paddings;
+        const width = size - pt - pb;
         const scale = this._createScale(
             this.prop.valueUseLog ? "log" : "linear",
             false,
             this._vRange,
-            this.inverted ? [width * this._margin[1] / 2, width * (1 - this._margin[1] / 2)]
-                : [width * (1 - this._margin[1] / 2), width * this._margin[1] / 2],
+            this.inverted ? [0, width] : [width, 0],
         );
         return scale;
     }

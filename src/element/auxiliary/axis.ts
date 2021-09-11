@@ -1,4 +1,4 @@
-import * as lodash from "lodash";
+import * as _ from "lodash";
 
 import { Anchor, GeometryValue } from "../../defs/geometry";
 import { useTemplate } from "../../ext/decorator";
@@ -81,7 +81,7 @@ export class Axis extends Component<AxisOption> {
     public willRender() {
         if (this.$parent instanceof XYPlot && this.$parent.flipped !== this.isHorizontal) {
             const domain = this.$parent.categories;
-            this._tickValues = this.$parent.discreteCategory ? domain : undefined; // lodash.range(domain[0], domain[1] + 1);
+            this._tickValues = this.$parent.discreteCategory ? domain : undefined; // _.range(domain[0], domain[1] + 1);
         }
         if (this._firstRender) {
             if (this.prop.orientation === "top" || this.prop.orientation === "bottom") {
@@ -178,7 +178,7 @@ export function getTicks(
                 const rawInterval = (domain[1] - domain[0]) / count;
                 const absInterval = Math.abs(rawInterval);
                 const digits = baseDigitOf(absInterval);
-                i = lodash.minBy(
+                i = _.minBy(
                     [0.1, 0.2, 0.5, 1, 2, 5].map(x => x * digits),
                     x => {
                         if (!isInversed && x > domain[1]) {
@@ -193,7 +193,6 @@ export function getTicks(
             const start = Math.ceil(domain[0] / i) * i;
             let counter = start;
             while ((isInversed ? counter - domain[1] : domain[1] - counter) > 1e-15) {
-                if (Math.abs(counter) < 0.000001 && i > 0.0000001) counter = 0;
                 ticks.push(pretty(counter));
                 counter += i;
             }
