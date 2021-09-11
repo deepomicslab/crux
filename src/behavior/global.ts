@@ -1,8 +1,10 @@
 import { Behavior } from "./behavior";
+import Drag from "./drag";
 import Tooltip from "./tooltip";
 import Zoom from "./zoom";
 
 const behaviors = {
+    "drag": Drag,
     "zoom": Zoom,
     "tooltip": Tooltip,
 };
