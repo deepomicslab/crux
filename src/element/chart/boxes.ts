@@ -1,4 +1,5 @@
 import { Anchor, GeometryValue } from "../../defs/geometry";
+import { template } from "../../template/tag";
 import { BaseChart, BaseChartOption } from "./base-chart";
 
 export interface BoxesOption extends BaseChartOption {
@@ -9,9 +10,7 @@ export interface BoxesOption extends BaseChartOption {
 }
 
 export class Boxes extends BaseChart<BoxesOption> {
-    public render() {
-
-        return this.t`
+    public render = template`
     Component {
         @for (d, pos) in data.raw.values {
             Component {
@@ -24,7 +23,7 @@ export class Boxes extends BaseChart<BoxesOption> {
                 Component {
                     anchor = getBoxAnchor()
                     @props whiskleOpts(d)
-                    @yield whiskle with { data: d, pos } default {
+                    @yield whiskle with d default {
                         @if flipped {
                             Line { y1 = 0; y2 = 100%; x1 = 0; x2 = 0 }
                             Line { y1 = 0; y2 = 100%; x1 = 100%; x2 = 100% }
@@ -67,7 +66,7 @@ export class Boxes extends BaseChart<BoxesOption> {
                 @if hasMean {
                     Component {
                         @props meanOpts(means)
-                        @yield mean with {mean: means, pos: pos} default {
+                        @yield mean with means default {
                             @if flipped {
                                 Line {
                                     @props prop.opt.mean
@@ -104,8 +103,7 @@ export class Boxes extends BaseChart<BoxesOption> {
             }
         }
     }
-        `;
-    }
+    `;
 
     // @ts-ignore
     private get notched() {

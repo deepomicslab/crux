@@ -1,6 +1,6 @@
 import axios from "axios";
 import * as d3 from "d3";
-import * as lodash from "lodash";
+import * as _ from "lodash";
 import * as Mustache from "mustache";
 
 import { event } from "./";
@@ -119,7 +119,7 @@ export class DataLoader<T extends Record<string, any> = Record<string, any>> {
             Object.entries(this.selectedFiles).forEach(([k, v]) => {
                 if (v && !Array.isArray(v)) this.fileIsDemo[k] = v.is_demo || false;
             });
-            this.metadata = lodash.mapValues(this.selectedFiles, x => {
+            this.metadata = _.mapValues(this.selectedFiles, x => {
                 if (!x) return null;
                 if (x instanceof Array) {
                     return x.map(z => z.metadata);
@@ -138,9 +138,9 @@ export class DataLoader<T extends Record<string, any> = Record<string, any>> {
         const loadOrder = this.dataTypes.sort((a, b) => {
             const da = this.dataSources[a];
             const db = this.dataSources[b];
-            if (lodash.includes(da.dependsOn, b)) {
+            if (_.includes(da.dependsOn, b)) {
                 return 1;
-            } else if (lodash.includes(db.dependsOn, a)) {
+            } else if (_.includes(db.dependsOn, a)) {
                 return -1;
             }
             return 0;
@@ -157,7 +157,7 @@ export class DataLoader<T extends Record<string, any> = Record<string, any>> {
                 const def = this.dataSources[key];
                 let data = rawData;
                 if (typeof def.dataPath === "string") {
-                    data = lodash.get(rawData, def.dataPath);
+                    data = _.get(rawData, def.dataPath);
                 } else if (typeof def.dataPath === "function") {
                     data = def.dataPath.call(this, rawData);
                 }
@@ -222,7 +222,7 @@ export class DataLoader<T extends Record<string, any> = Record<string, any>> {
                             ? def.dsvRowParser
                             : (data: any) => {
                                   const result: any = {};
-                                  lodash.forOwn(data, (value, key) => {
+                                  _.forOwn(data, (value, key) => {
                                       let rowDef = def.dsvRowDef![key] || ["string"];
                                       if (typeof rowDef === "string") rowDef = [rowDef];
                                       const t = rowDef[0];
